@@ -1,0 +1,25 @@
+{
+    "plugins": [
+        [
+            "module-resolver",
+            {
+                "cwd": "babelrc",
+                "alias": {
+                    "@src": "./app/src",
+                    "Constants": "./app/src/constants",
+                    "Components": "./app/src/components",
+                    "Core": "./app/src/core",
+                    "Pages": "./app/src/pages",
+                    "Redux": "./app/src/redux",
+                    "I18n": "./app/localization"
+                }
+            },
+            "@babel/plugin-syntax-dynamic-import"
+        ]
+    ],
+    "presets": [
+        "@babel/preset-flow",
+        "@babel/preset-env",
+        "@babel/preset-react"
+    ]
+}
