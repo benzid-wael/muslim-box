@@ -8,9 +8,11 @@ type Config = $ReadOnly<{
   general: Localization,
 }>
 
-const initial = {
+const stored = window.api.store.initial();
+const defaultConfig = {
   general: locale({language: "en"})
 }
+const initial = Object.keys(stored).length > 0 ? stored : defaultConfig;
 
 const slice = createSlice({
   name: "config",

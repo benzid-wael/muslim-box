@@ -12,7 +12,10 @@ module.exports = merge(base, {
     host: "localhost",
     port: "40992",
     hot: true, // Hot-reload this server if changes are detected
-    compress: true, // Compress (gzip) files that are served        
+    compress: true, // Compress (gzip) files that are servedhotOnly: true,
+    // headers: {
+    //   "Content-Security-Policy": "default-src 'self'; base-href 'self';"
+    // },
     static: {
       directory: path.resolve(__dirname, "app/dist"), // Where we serve the local dev server's files from
       watch: true, // Watch the directory for changes
@@ -25,15 +28,47 @@ module.exports = merge(base, {
     new MiniCssExtractPlugin(),
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, "app/src/index.html"),
-      filename: "index.html"
+      filename: "index.html",
+      cspPlugin: {
+        enabled: true,
+        policy: {
+          "base-uri": "'self'",
+          "default-src": ["'unsafe-inline'", "'self'", "'unsafe-eval'"],
+          "object-src": "'none'",
+          "script-src": ["'unsafe-inline'", "'self'", "'unsafe-eval'"],
+          "style-src": ["'unsafe-inline'", "'self'", "'unsafe-eval'"]
+        },
+        hashEnabled: {
+          "script-src": true,
+          "style-src": true
+        },
+        nonceEnabled: {
+          "script-src": true,
+          "style-src": true
+        }
+        // processFn: defaultProcessFn  // defined in the plugin itself
+      }
     }),
     new CspHtmlWebpackPlugin({
       "base-uri": ["'self'"],
+      "default-src": ["'unsafe-inline'", "'self'", "'unsafe-eval'"],
       "object-src": ["'none'"],
-      "script-src": ["'self'"],
-      "style-src": ["'self'"],
+      "script-src": ["'unsafe-inline'", "'self'", "'unsafe-eval'"],
+      "style-src": ["'unsafe-inline'", "'self'", "'unsafe-eval'"],
       "frame-src": ["'none'"],
       "worker-src": ["'none'"]
+    }, {
+      enabled: true,
+      hashingMethod: "sha256",
+      hashEnabled: {
+        "script-src": true,
+        "style-src": true
+      },
+      nonceEnabled: {
+        "script-src": true,
+        "style-src": true
+      }
+      // processFn: defaultProcessFn  // defined in the plugin itself
     })
   ]
 })

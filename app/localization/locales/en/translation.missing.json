@@ -1,16 +1,1 @@
-{
-  "About": "About",
-  "Services": "Services",
-  "Hide": "Hide",
-  "Hide Others": "Hide Others",
-  "Unhide": "Unhide",
-  "Quit": "Quit",
-  "Paste and Match Style": "Paste and Match Style",
-  "Speech": "Speech",
-  "Start Speaking": "Start Speaking",
-  "Stop Speaking": "Stop Speaking",
-  "Front": "Front",
-  "How we calculate prayer times?": "How we calculate prayer times?",
-  "FAQ": "FAQ",
-  "Prayer Times Calculation": "Prayer Times Calculation"
-}
+{"About":"About","Services":"Services","Hide":"Hide","Hide Others":"Hide Others","Unhide":"Unhide","Quit":"Quit","Paste and Match Style":"Paste and Match Style","Speech":"Speech","Start Speaking":"Start Speaking","Stop Speaking":"Stop Speaking","Front":"Front","How we calculate prayer times?":"How we calculate prayer times?","FAQ":"FAQ","Prayer Times Calculation":"Prayer Times Calculation","fajr":"fajr","sunrise":"sunrise","dhuhr":"dhuhr","asr":"asr","maghrib":"maghrib","isha":"isha","Verse of the day":"Verse of the day"}

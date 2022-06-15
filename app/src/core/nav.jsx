@@ -1,5 +1,5 @@
 import React from "react";
-import ROUTES from "Constants/routes";
+import ROUTES from "@constants/routes";
 import {
   validateLicenseRequest,
   validateLicenseResponse,

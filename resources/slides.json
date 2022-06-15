@@ -1,0 +1,145 @@
+[{
+    "type": "quran",
+    "content": [{
+        "ar": "تَبَـٰرَكَ ٱلَّذِى بِيَدِهِ ٱلْمُلْكُ وَهُوَ عَلَىٰ كُلِّ شَىْءٍ قَدِيرٌ",
+        "en": "Blessed is the One in Whose Hands rests all authority. And He is Most Capable of everything."
+    }, {
+        "ar": "ٱلَّذِى خَلَقَ ٱلْمَوْتَ وَٱلْحَيَوٰةَ لِيَبْلُوَكُمْ أَيُّكُمْ أَحْسَنُ عَمَلًۭا ۚ وَهُوَ ٱلْعَزِيزُ ٱلْغَفُورُ",
+        "en": "˹He is the One˺ Who created death and life in order to test which of you is best in deeds. And He is the Almighty, All-Forgiving."
+    }],
+    "reference": {
+        "type": "quran",
+        "name": {
+            "ar": "الملك",
+            "en": "Al-Mulk"
+        },
+        "indexes": [1, 2]
+    }
+}, {
+    "type": "quran",
+    "content": [{
+        "ar": "وَلَقَدْ زَيَّنَّا ٱلسَّمَآءَ ٱلدُّنْيَا بِمَصَـٰبِيحَ وَجَعَلْنَـٰهَا رُجُومًۭا لِّلشَّيَـٰطِينِ ۖ وَأَعْتَدْنَا لَهُمْ عَذَابَ ٱلسَّعِيرِ",
+        "en": "And indeed, We adorned the lowest heaven with ˹stars like˺ lamps, and made them ˹as missiles˺ for stoning ˹eavesdropping˺ devils, for whom We have also prepared the torment of the Blaze."
+    }],
+    "reference": {
+        "type": "quran",
+        "name": {
+            "ar": "الملك",
+            "en": "Al-Mulk"
+        },
+        "index": 5
+    }
+}, {
+    "type": "quran",
+    "content": [{
+        "ar": "إِنَّ ٱلَّذِينَ يَخْشَوْنَ رَبَّهُم بِٱلْغَيْبِ لَهُم مَّغْفِرَةٌ وَأَجْرٌ كَبِيرٌ",
+        "en": "Indeed, those in awe of their Lord without seeing Him will have forgiveness and a mighty reward."
+    }],
+    "reference": {
+        "type": "quran",
+        "name": {
+            "ar": "الملك",
+            "en": "Al-Mulk"
+        },
+        "index": 12
+    }
+}, {
+    "type": "quran",
+    "content": [{
+        "ar": "أَلَا يَعْلَمُ مَنْ خَلَقَ وَهُوَ ٱللَّطِيفُ ٱلْخَبِيرُ",
+        "en": "How could He not know His Own creation? For He ˹alone˺ is the Most Subtle, All-Aware."
+    }],
+    "reference": {
+        "type": "quran",
+        "name": {
+            "ar": "الملك",
+            "en": "Al-Mulk"
+        },
+        "index": 14
+    }
+}, {
+    "type": "quran",
+    "content": [{
+        "ar": "أَفَمَن يَمْشِى مُكِبًّا عَلَىٰ وَجْهِهۦٓ أَهْدَىٰٓ أَمَّن يَمْشِى سَوِيًّا عَلَىٰ صِرَٰطٍ مُّسْتَقِيمٍ",
+        "en": "Who is ˹rightly˺ guided: the one who crawls facedown or the one who walks upright on the Straight Path?"
+    }],
+    "reference": {
+        "type": "quran",
+        "name": {
+            "ar": "الملك",
+            "en": "Al-Mulk"
+        },
+        "index": 22
+    }
+}, {
+    "type": "quran",
+    "content": [{
+        "ar": "وَإِنَّكَ لَعَلَىٰ خُلُقٍ عَظِيمٍ",
+        "en": "And you are truly ˹a man˺ of outstanding character."
+    }],
+    "reference": {
+        "type": "quran",
+        "name": {
+            "ar": "القلم",
+            "en": "Al-Qalam"
+        },
+        "index": 4
+    }
+}, {
+    "type": "quran",
+    "content": [{
+        "ar": "إِنَّ لِلْمُتَّقِينَ عِندَ رَبِّهِمْ جَنَّـٰتِ ٱلنَّعِيمِ",
+        "en": "Indeed, the righteous will have the Gardens of Bliss with their Lord."
+    }],
+    "reference": {
+        "type": "quran",
+        "name": {
+            "ar": "القلم",
+            "en": "Al-Qalam"
+        },
+        "index": 34
+    }
+}, {
+    "type": "quran",
+    "content": [{
+        "ar": "يَوْمَ يُكْشَفُ عَن سَاقٍ وَيُدْعَوْنَ إِلَى ٱلسُّجُودِ فَلَا يَسْتَطِيعُونَ",
+        "en": "˹Beware of˺ the Day the Shin ˹of Allah˺ will be bared, and the wicked will be asked to prostrate, but they will not be able to do so,"
+    }],
+    "reference": {
+        "type": "quran",
+        "name": {
+            "ar": "القلم",
+            "en": "Al-Qalam"
+        },
+        "index": 46
+    }
+}, {
+    "type": "quran",
+    "content": [{
+        "ar": "مَثَلُ ٱلَّذِينَ حُمِّلُوا۟ ٱلتَّوْرَىٰةَ ثُمَّ لَمْ يَحْمِلُوهَا كَمَثَلِ ٱلْحِمَارِ يَحْمِلُ أَسْفَارًۢا ۚ بِئْسَ مَثَلُ ٱلْقَوْمِ ٱلَّذِينَ كَذَّبُوا۟ بِـَٔايَـٰتِ ٱللَّهِ ۚ وَٱللَّهُ لَا يَهْدِى ٱلْقَوْمَ ٱلظَّـٰلِمِينَ",
+        "en": "The example of those who were entrusted with ˹observing˺ the Torah but failed to do so, is that of a donkey carrying books. How evil is the example of those who reject Allah’s signs! For Allah does not guide the wrongdoing people."
+    }],
+    "reference": {
+        "type": "quran",
+        "name": {
+            "ar": "الجمعة",
+            "en": "Al-Jumu'ah"
+        },
+        "index": 5
+    }
+}, {
+    "type": "quran",
+    "content": [{
+        "ar": "يَـٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوٓا إِذَا نُودِىَ لِلصَّلَوٰةِ مِن يَوْمِ ٱلْجُمُعَةِ فَٱسْعَوْا إِلَىٰ ذِكْرِ ٱللَّهِ وَذَرُوا ٱلْبَيْعَ ۚ ذَٰلِكُمْ خَيْرٌ لَّكُمْ إِن كُنتُمْ تَعْلَمُونَ",
+        "en": "O believers! When the call to prayer is made on Friday, then proceed ˹diligently˺ to the remembrance of Allah and leave off ˹your˺ business. That is best for you, if only you knew."
+    }],
+    "reference": {
+        "type": "quran",
+        "name": {
+            "ar": "الجمعة",
+            "en": "Al-Jumu'ah"
+        },
+        "index": 5,
+        "events": ["friday"]
+    }
+}]

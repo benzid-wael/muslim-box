@@ -4,6 +4,10 @@
 <head>
   <meta charset="UTF-8">
   <title></title>
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self'; style-src 'nonce-<%= htmlWebpackPlugin.options.nonce %>';"
+  />
 </head>
 
 <body>

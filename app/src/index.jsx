@@ -1,16 +1,20 @@
 import React, { Suspense } from "react";
 import ReactDOM from "react-dom";
-import i18n from "I18n/i18n.config";
 import { I18nextProvider } from "react-i18next";
-import Root from "Core/root";
-import store, { history } from "Redux/store";
-import "bulma/css/bulma.css";
+import { Provider } from "react-redux";
+
+import Root from "@core/root";
+import i18n from "@localization/i18n.config";
+import store, { history } from "@redux/store";
+// import "bulma/css/bulma.css";
 
 ReactDOM.render(
   <I18nextProvider i18n={i18n}>
-    <Suspense fallback="loading">
-      <Root store={store} history={history}></Root>
-    </Suspense>
+    <Provider store={store}>
+      <Suspense fallback="loading">
+        <Root history={history} />
+      </Suspense>
+    </Provider>
   </I18nextProvider>,
   document.getElementById("target")
 );

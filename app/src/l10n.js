@@ -2,14 +2,7 @@
 * @flow
 */
 
-export type Language = 'ar' | 'en' | 'fr';
-export type Localization = $ReadOnly<{
-  language: Language;
-  dateFormat?: string;
-  timeFormat?: string;
-  hijriDateFormat?: string;
-  direction?: 'ltr' | 'rtl';
-}>;
+import type { Language, Localization } from "@src/types"
 
 const getDefaults = (lang: Language): Localization => {
   const defaults = {
