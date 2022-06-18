@@ -9,6 +9,7 @@ export type LayoutDirection = "rtl" | "ltr";
 
 export type Localization = $ReadOnly<{
   language: Language;
+  locale: string;
   dateFormat?: string;
   timeFormat?: string;
   hijriDateFormat?: string;

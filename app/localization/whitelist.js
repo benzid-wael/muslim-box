@@ -1,6 +1,7 @@
 // Contains a whitelist of languages for our app
 const whitelistMap = {
-  ar: "عربى", // Arabic
+  "ar": "العربية", // Arabic
+  "ar-TN": "العربية (تونس)", // Arabic-Tunisia
   en: "English",
   fr: "Français", // French
 };

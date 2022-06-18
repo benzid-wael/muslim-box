@@ -27,5 +27,21 @@
   "Zoom": "تكبير",
   "Close": "قريب",
   "Help": "مساعدة",
-  "Learn More": "أعرف أكثر"
+  "Learn More": "أعرف أكثر",
+  "About": "عن البرنامج",
+  "Services": "الخدمات",
+  "Hide": "اخفني",
+  "Hide Others": "اخفِ الآخرين",
+  "Unhide": "إظهار",
+  "Quit": "ترك",
+  "How we calculate prayer times?": "كيف نحسب اوقات الصلاة؟",
+  "FAQ": "التعليمات",
+  "Prayer Times Calculation": "حساب مواقيت الصلاة",
+  "Verse of the day": "آية اليوم",
+  "fajr": "الفجر",
+  "sunrise": "الشروق",
+  "dhuhr": "الظهر",
+  "asr": "العصر",
+  "maghrib": "المغرب",
+  "isha": "العشاء"
 }

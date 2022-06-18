@@ -36,7 +36,7 @@ const DateWrapper = styled.div`
 
 const mapStateToProps = state => ({
   timestamp: state.prayerTimes.timestamp,
-  language: state.config.present.general.language,
+  locale: state.config.present.general.locale,
   direction: state.config.present.general.direction,
   dateFormat: state.config.present.general.dateFormat,
   timeFormat: state.config.present.general.timeFormat,
@@ -47,7 +47,7 @@ const Clock = (props): React$Node => {
   const [state, setState] = useState({time: "", date: "", hijri: ""});
 
   useEffect(() => {
-    moment.locale(props.language)
+    moment.locale(props.locale)
 
     const date = moment.unix(props.timestamp)
     const hijriDate = new Intl.DateTimeFormat(

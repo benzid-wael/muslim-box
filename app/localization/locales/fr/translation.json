@@ -27,5 +27,21 @@
   "Zoom": "Zoom",
   "Close": "Fermer",
   "Help": "Aide",
-  "Learn More": "En apprendre plus"
+  "Learn More": "En apprendre plus",
+  "About": "À propos",
+  "Services": "Services",
+  "Hide": "Cacher",
+  "Hide Others": "Cacher les autres",
+  "Unhide": "Afficher",
+  "Quit": "Quitter",
+  "How we calculate prayer times?": "Comment calculons-nous les heures de prière?",
+  "FAQ": "FAQ",
+  "Prayer Times Calculation": "Calcul des heures de prière",
+  "Verse of the day": "Verset du jour",
+  "fajr": "fajr",
+  "sunrise": "lever du soleil",
+  "dhuhr": "dhuhr",
+  "asr": "asr",
+  "maghrib": "maghrib",
+  "isha": "isha"
 }

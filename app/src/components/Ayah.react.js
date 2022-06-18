@@ -34,12 +34,16 @@ type Props = $ReadOnly<{
 }>
 
 const Ayah = (props: Props): React$MixedElement => {
-    const content = new Map(Object.entries(props.verse))
+
+    const getVerse = (verse: MultilingualString, language: Language): string => {
+      const content = new Map<Language, string>(Object.keys(props.verse).map(key => [key, props.verse[key]]))
+      const lang = (language.split('-')[0]: Language)
+      return content.get(language) || content.get(lang) || content.get("en") || ""
+    }
+
     return <Main className="Quran">
-      {content.get(props.language)}
-      {props.verseId ? (
-          <VerseNumber>{props.verseId}</VerseNumber>
-      ) : null}
+      {getVerse(props.verse, props.language)}
+      {props.verseId ? <VerseNumber>{props.verseId}</VerseNumber> : null}
     </Main>
 }
 
