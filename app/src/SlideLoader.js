@@ -13,7 +13,16 @@ export class SlideLoader {
 
 export class StaticSlideLoader extends SlideLoader {
     async load(): Promise<Array<Slide>> {
-        return slides
+        const chunkSize = 10;
+        let result = []
+        slides.map((s, i) => {
+            if (i % chunkSize === 0) {
+                result.push({type: "current-prayer"})
+                result.push({type: "next-prayer"})
+            }
+            result.push(s)
+        })
+        return result
     }
 }
 

@@ -37,11 +37,13 @@ const PrayerTimeWrapper = styled.div`
 `
 
 type StateProps = $ReadOnly<{
-  prayers: $ReadOnlyArray<PrayerTime>
+  prayers: $ReadOnlyArray<PrayerTime>,
+  currentPrayer?: PrayerTime,
 }>
 
 const mapStateToProps = state => ({
   prayers: state.prayerTimes.prayers,
+  currentPrayer: state.prayerTimes.current,
 })
 
 const Home = (props: StateProps): React$Node => {
@@ -54,8 +56,9 @@ const Home = (props: StateProps): React$Node => {
         <PrayerTimeWrapper>
           {props.prayers.map((prayer: PrayerTime, i: number) => {
             const isLastItem = i == props.prayers.length - 1
+            const isCurrent = props.currentPrayer?.name === prayer.name
             return <>
-              <PrayerTime prayer={prayer} />
+              <PrayerTime prayer={prayer} isCurrent={isCurrent} />
             </>
           })}
         </PrayerTimeWrapper>

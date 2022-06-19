@@ -39,9 +39,17 @@
   "Prayer Times Calculation": "Calcul des heures de prière",
   "Verse of the day": "Verset du jour",
   "fajr": "fajr",
-  "sunrise": "lever du soleil",
-  "dhuhr": "dhuhr",
-  "asr": "asr",
-  "maghrib": "maghrib",
-  "isha": "isha"
+  "sunrise": "chorouq",
+  "dhuhr": "dhohr",
+  "asr": "aser",
+  "maghrib": "maghreb",
+  "isha": "icha",
+  "The call to prayer of {{prayer}} is in":"L'appel à la prière de {{prayer}} est en",
+  "{{prayer}} is in": "{{prayer}} est en",
+  "fajr_name": "Fajr",
+  "sunrise_name": "Chorouq",
+  "dhuhr_name": "Dhohr",
+  "asr_name": "Aser",
+  "maghrib_name": "Maghreb",
+  "isha_name": "Icha"
 }

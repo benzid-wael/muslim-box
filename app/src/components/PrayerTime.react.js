@@ -70,19 +70,20 @@ const EndTime = styled(StartTime)`
 
 type Props = $ReadOnly<{
   prayer: PrayerTimeType,
+  isCurrent?: boolean,
 }>
 
 const PrayerTime = (props: Props): React$Node => {
-  const {prayer} = props;
+  const {prayer, isCurrent} = props;
   const start = moment.unix(prayer.start);
   const end = moment.unix(prayer.end);
   const remaining = moment.duration(end.diff(moment()))
-  const showRemaining = prayer.isCurrent && remaining.asMinutes() < 20
-  return <Main primary={prayer.isCurrent}>
+  const showRemaining = isCurrent && remaining.asMinutes() < 20
+  return <Main primary={isCurrent}>
     <Wrapper>
       <Name>{i18n.t(prayer.name)}</Name>
       <StartTime>{start.format("HH:mm")}</StartTime>
-      <EndTime primary={prayer.isCurrent} style={showRemaining ? {color: "red"} : {}}>
+      <EndTime primary={isCurrent} style={showRemaining ? {color: "red"} : {}}>
         {showRemaining ? `${remaining.format("mm:ss")}` : end.format("HH:mm")}
       </EndTime>
     </Wrapper>

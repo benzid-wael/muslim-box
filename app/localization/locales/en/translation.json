@@ -27,5 +27,11 @@
   "Zoom": "Zoom",
   "Close": "Close",
   "Help": "Help",
-  "Learn More": "Learn More"
+  "Learn More": "Learn More",
+  "fajr_name": "Fajr",
+  "sunrise_name": "Sunrise",
+  "dhuhr_name": "Dhuhr",
+  "asr_name": "Asr",
+  "maghrib_name": "Maghreb",
+  "isha_name": "Isha"
 }

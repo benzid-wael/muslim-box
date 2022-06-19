@@ -23,31 +23,37 @@ const PrayerTimeConfigs: Array<$ReadOnly<{
     start: (pt: PrayerTimes) => moment,
     // $FlowFixMe[value-as-type]
     end: (pt: PrayerTimes) => moment,
+    isPrayer: boolean,
 }>> = [
     {
         prayer: Prayer.Fajr,
         start: (pt) => moment(pt.fajr),
         end: (pt) => moment(pt.sunrise),
+        isPrayer: true,
     },
     {
         prayer: Prayer.Sunrise,
         start: (pt) => moment(pt.sunrise),
         end: (pt) => moment(pt.sunrise).add(20, 'minutes'),
+        isPrayer: false,
     },
     {
         prayer: Prayer.Dhuhr,
         start: (pt) => moment(pt.dhuhr),
         end: (pt) => moment(pt.asr),
+        isPrayer: true,
     },
     {
         prayer: Prayer.Asr,
         start: (pt) => moment(pt.asr),
         end: (pt) => moment(pt.maghrib),
+        isPrayer: true,
     },
     {
         prayer: Prayer.Maghrib,
         start: (pt) => moment(pt.maghrib),
         end: (pt) => moment(pt.isha),
+        isPrayer: true,
     },
     {
         prayer: Prayer.Isha,
@@ -56,6 +62,7 @@ const PrayerTimeConfigs: Array<$ReadOnly<{
             const sunnahTimes = new SunnahTimes(pt);
             return moment(sunnahTimes.middleOfTheNight);
         },
+        isPrayer: true,
     },
 ];
 
@@ -80,7 +87,8 @@ export const getPrayerTimes = (position: GeoCoordinates, date: Date): Array<Pray
             name: config.prayer,
             start: config.start(prayerTimes).unix(),
             end: config.end(prayerTimes).unix(),
-            isCurrent: prayerTimes.currentPrayer() === config.prayer,
+            isPrayer: config.isPrayer,
+            // isCurrent: prayerTimes.currentPrayer() === config.prayer,
         }));
     } catch (err) {
         return [];

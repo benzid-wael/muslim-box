@@ -38,6 +38,8 @@
   "FAQ": "التعليمات",
   "Prayer Times Calculation": "حساب مواقيت الصلاة",
   "Verse of the day": "آية اليوم",
+  "The call to prayer of {{prayer}} is in": "آذان صلاة {{prayer}} خلال",
+  "{{prayer}} is in": "{{prayer}} خلال",
   "fajr": "الفجر",
   "sunrise": "الشروق",
   "dhuhr": "الظهر",

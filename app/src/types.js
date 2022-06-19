@@ -23,62 +23,62 @@ export type GeoCoordinates = $ReadOnly<{
 
 export type PrayerTime = $ReadOnly<{
     name: Prayer,
+    isPrayer: boolean,
     start: number,
     end: number,
-    isCurrent: boolean,
 }>;
 
 export type HijriMonth =
-    | 'muḥarram'
-    | 'safar'
-    | 'rabii_awal'
-    | 'rabii_thani'
-    | 'jumada_awal'
-    | 'jumada_thani'
-    | 'rajab'
-    | 'shaban'
-    | 'ramadhan'
-    | 'shawwal'
-    | 'dhu_qaada'
-    | 'dhu_hijja';
+    | "muḥarram"
+    | "safar"
+    | "rabii_awal"
+    | "rabii_thani"
+    | "jumada_awal"
+    | "jumada_thani"
+    | "rajab"
+    | "shaban"
+    | "ramadhan"
+    | "shawwal"
+    | "dhu_qaada"
+    | "dhu_hijja";
 
 export type Day =
-    | 'monday'
-    | 'tuesday'
-    | 'wednesday'
-    | 'thursday'
-    | 'friday'
-    | 'saturday'
-    | 'sunday';
+    | "monday"
+    | "tuesday"
+    | "wednesday"
+    | "thursday"
+    | "friday"
+    | "saturday"
+    | "sunday";
 
 export type Season =
-    | 'summer'
-    | 'autumn'
-    | 'winter'
-    | 'spring';
+    | "summer"
+    | "autumn"
+    | "winter"
+    | "spring";
 
 export type Time =
-    | 'night'
-    | 'suhur'
-    | 'before_fajr'
-    | 'after_fajr'
-    | 'before_sunrise'
-    | 'after_sunrise'
-    | 'dhuha'
-    | 'evening'
-    | 'bwfore_sunset'
-    | 'after_sunset';
+    | "night"
+    | "suhur"
+    | "before_fajr"
+    | "after_fajr"
+    | "before_sunrise"
+    | "after_sunrise"
+    | "dhuha"
+    | "evening"
+    | "bwfore_sunset"
+    | "after_sunset";
 
 export type GenericEvent =
-    | 'before_prayer'
-    | 'prayer'
-    | 'after_prayer'
-    | 'arafa'
-    | 'tashriq'
-    | 'eid_fitr'
-    | 'eif_adha'
-    | 'rain'
-    | 'wind';
+    | "before_prayer"
+    | "prayer"
+    | "after_prayer"
+    | "arafa"
+    | "tashriq"
+    | "eid_fitr"
+    | "eif_adha"
+    | "rain"
+    | "wind";
 
 export type Event =
     | HijriMonth
@@ -90,7 +90,7 @@ export type Event =
 export type MultilingualString = $ReadOnlyMap<Language, string>;
 
 export type BaseReference = $ReadOnly<{
-    type: 'quran' | 'hadith' | 'tafsir' | 'other',
+    type: "quran" | "hadith" | "tafsir" | "other",
     name: MultilingualString,
     page?: number,
     // this will be used mainly for Hadith
@@ -101,12 +101,12 @@ export type BaseReference = $ReadOnly<{
 
 export type QuranReference = $ReadOnly<{
     ...$Diff<BaseReference, {page?: number, index?: number}>,
-    type: 'quran',
+    type: "quran",
 }>;
 
 export type HadithReference = $ReadOnly<{
     ...$Diff<BaseReference, {page?: number, indexes?: number}>,
-    type: 'hadith',
+    type: "hadith",
 }>;
 
 export type Reference =
@@ -123,30 +123,34 @@ type BaseSlide = $ReadOnly<{
 
 export type QuranVerseSlide = $ReadOnly<{
     ...$Diff<BaseSlide, {type: string}>,
-    type: 'quran',
+    type: "quran",
     reference?: QuranReference,
 }>;
 
 export type HadithSlide = $ReadOnly<{
     ...$Diff<BaseSlide, {type: string}>,
-    type: 'hadith',
+    type: "hadith",
     references?: $ReadOnlyArray<HadithReference>,
 }>;
 
-export type NextPrayerSlide = $ReadOnly<{
+export type CurrentPrayerSlide = $ReadOnly<{
     ...$Diff<BaseSlide, {type: string, content: $ReadOnlyArray<MultilingualString>}>,
-    type: 'next-prayer',
-    prayer: PrayerTime,
+    type: "current-prayer"
+}>;
+
+export type NextPrayerSlide = $ReadOnly<{
+    ...$Diff<CurrentPrayerSlide, {type: string}>,
+    type: "next-prayer",
 }>;
 
 export type ClockSlide = $ReadOnly<{
     ...$Diff<BaseSlide, {type: string, content: $ReadOnlyArray<MultilingualString>}>,
-    type: 'clock',
+    type: "clock",
 }>;
 
 export type DhikrSlide = $ReadOnly<{
     ...$Diff<BaseSlide, {type: string}>,
-    type: 'dhikr',
+    type: "dhikr",
     count: number;
 }>;
 

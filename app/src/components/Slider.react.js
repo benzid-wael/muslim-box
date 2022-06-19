@@ -45,7 +45,13 @@ const Slider = (props): React$Node => {
   useEffect(() => {
     // let"s have static duration for all slides right now
     // TODO we need to find out the minimum duration for each slide on a per slide basis
-    const duration = 10000;
+    const duration = slides.length > 0
+      ?
+      slides[position].durationInSeconds || 10
+      :
+      .3  // by default 3ms
+    ;
+    console.log(`sliding after ${duration} seconds`)
     const timer = setTimeout(
       async () => {
         if(props.slides.length === 0) {
@@ -54,7 +60,7 @@ const Slider = (props): React$Node => {
         } else {
           transition()
         }
-    }, duration)
+    }, duration * 1000)
     return () => clearTimeout(timer)
   }, [position])
 
@@ -67,7 +73,7 @@ const Slider = (props): React$Node => {
   const onReachEnd = async () => {
     console.log(`onReachEnd called`)
     const loader = SlideLoaderFactory.getLoader()
-    const slides = await loader.load();
+    const slides = await loader.load()
     if(slides.length > 1000) {
       props.dispatch(resetSlides(slides));
     } else {
