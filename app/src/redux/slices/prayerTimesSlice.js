@@ -57,13 +57,13 @@ const slice: any = createSlice({
 
             const lastIndex = state.prayers.length - 1
             // compute current prayer
-            if (currentIdx > -1 && now > moment(state.prayers[currentIdx].end)) {
+            if (currentIdx > -1 && now > moment.unix(state.prayers[currentIdx].end)) {
                 // we fall under a gap (no prayer at the time)
                 // This will happen after sunrise
                 //  as well as Isha if it ends before midnight
                 current = null
             } else if (currentIdx > - 1) {
-                current = state.prayers[lastIndex]
+                current = state.prayers[currentIdx]
             }
 
             // compute next prayer

@@ -133,7 +133,7 @@ const Slide = (props: Props): React$Node => {
   }
 
   const config = getConfig(i18n, props.slide, props.currentPrayer, props.nextPrayer)
-  const time = moment(config.time * 1000)
+  const time = moment.unix(config.time)
   const remaining = moment.duration(time.diff(moment(now)))
 
   return <Main direction={props.direction}>
