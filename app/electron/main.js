@@ -1,6 +1,7 @@
-const path = require("path");
-const fs = require("fs");
+// const { fork } = require("child_process");
 const crypto = require("crypto");
+const fs = require("fs");
+const path = require("path");
 
 const {
   app,
@@ -16,6 +17,7 @@ const i18nextBackend = require("i18next-electron-fs-backend");
 const Store = require("secure-electron-store").default;
 const ContextMenu = require("secure-electron-context-menu").default;
 
+// const findPort = require("./find-open-port");
 const Protocol = require("./protocol");
 const MenuBuilder = require("./menu");
 const i18nextMainBackend = require("../localization/i18n.mainconfig");
@@ -26,8 +28,10 @@ const selfHost = `http://localhost:${port}`;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let win;
+let mainWindow;
 let menuBuilder;
+let serverProcess;
+let serverPort;
 
 const installExtensions = () => {
   logger.info("[🛠️ ] installing extensions...")
@@ -44,17 +48,21 @@ const installExtensions = () => {
       logger.info("[🛠️ ] failed to install extension: %s", error)
     }
   })
-
-  // return installer
-  //   .default(
-  //     extensions.map((name) => installer[name]),
-  //     forceDownload
-  //   )
-  //   .then((name) => logger.info("[🛠️ ] extension '%s' installed 👌🏻", name))
-  //   .catch((error) => logger.info("[🛠️ ] failed to install extension: %s", error));
 };
 
+const createBackgroundProcess = (socketName) => {
+  serverProcess = fork(path.join(__dirname, 'server.js'), [
+    '--port',
+    serverPort
+  ])
+
+  serverProcess.on('message', msg => {
+    console.log(`[server] ${msg}`)
+  })
+}
+
 const createWindow = () => {
+  console.log(`createWindow invoked`)
 
   // If you'd like to set up auto-updating for your app,
   // I'd recommend looking at https://github.com/iffy/electron-updater-example
@@ -78,7 +86,7 @@ const createWindow = () => {
   // let savedConfig = store.mainInitialStore(fs);
 
   // Create the browser window.
-  win = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
     title: "MuslimBox...",
@@ -97,7 +105,7 @@ const createWindow = () => {
   });
 
   // Sets up main.js bindings for our i18next backend
-  i18nextBackend.mainBindings(ipcMain, win, fs);
+  i18nextBackend.mainBindings(ipcMain, mainWindow, fs);
 
   // Sets up main.js bindings for our electron store;
   // callback is optional and allows you to use store in main process
@@ -106,10 +114,10 @@ const createWindow = () => {
     logger.log(initialStore); // {"key1": "value1", ... }
   };
 
-  store.mainBindings(ipcMain, win, fs, callback);
+  store.mainBindings(ipcMain, mainWindow, fs, callback);
 
   // Sets up bindings for our custom context menu
-  ContextMenu.mainBindings(ipcMain, win, Menu, isDev, {
+  ContextMenu.mainBindings(ipcMain, mainWindow, Menu, isDev, {
     "loudAlertTemplate": [{
       id: "loudAlert",
       label: "AN ALERT!"
@@ -121,28 +129,28 @@ const createWindow = () => {
   });
 
   // Setup bindings for offline license verification
-  SecureElectronLicenseKeys.mainBindings(ipcMain, win, fs, crypto, {
+  SecureElectronLicenseKeys.mainBindings(ipcMain, mainWindow, fs, crypto, {
     root: process.cwd(),
     version: app.getVersion()
   });
 
   // Load app
   if (isDev) {
-    win.loadURL(selfHost);
+    mainWindow.loadURL(selfHost);
   } else {
-    win.loadURL(`${Protocol.scheme}://rse/index.html`);
+    mainWindow.loadURL(`${Protocol.scheme}://rse/index.html`);
   }
 
-  win.webContents.on("did-finish-load", () => {
-    win.setTitle(`MuslimBox (v${app.getVersion()})`);
+  mainWindow.webContents.on("did-finish-load", () => {
+    mainWindow.setTitle(`MuslimBox (v${app.getVersion()})`);
   });
 
   // Emitted when the window is closed.
-  win.on("closed", () => {
+  mainWindow.on("closed", () => {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
-    win = null;
+    mainWindow = null;
   });
 
   // https://electronjs.org/docs/tutorial/security#4-handle-session-permission-requests-from-remote-content
@@ -175,7 +183,7 @@ const createWindow = () => {
   //   }
   // });
 
-  menuBuilder = MenuBuilder(win);
+  menuBuilder = MenuBuilder(mainWindow);
 
   // Set up necessary bindings to update the menu items
   // based on the current language selected
@@ -213,6 +221,25 @@ protocol.registerSchemesAsPrivileged([{
   }
 }]);
 
+const start = async () => {
+
+  // if (isDev) {
+  //   installExtensions();
+  // }
+
+  require("electron-debug")(); // https://github.com/sindresorhus/electron-debug
+
+  // if(serverProcess === null) {
+  //   serverPort = await findPort();
+  //   console.log(`Running server on 0.0.0.0:${serverPort}`)
+  //   createBackgroundProcess(serverSocket);
+  // }
+
+  if(mainWindow === null) {
+    createWindow();
+  }
+}
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -220,14 +247,24 @@ protocol.registerSchemesAsPrivileged([{
 // Create a new browser window by invoking the createWindow
 // function once the Electron application is initialized.
 // Install REACT_DEVELOPER_TOOLS as well if isDev
-app.whenReady().then(() => {
-  if (isDev) {
-    installExtensions();
-  }
-
-  require("electron-debug")(); // https://github.com/sindresorhus/electron-debug
-  createWindow();
+app.whenReady().then(async () => {
+  await start();
 });
+
+app.on("activate", async () => {
+  // On macOS it's common to re-create a window in the app when the
+  // dock icon is clicked and there are no other windows open.
+  if (mainWindow === null) {
+    await start();
+  }
+});
+
+app.on("before-quit", () => {
+  if (serverProcess) {
+    serverProcess.kill()
+    serverProcess = null
+  }
+})
 
 // Quit when all windows are closed.
 app.on("window-all-closed", () => {
@@ -240,14 +277,6 @@ app.on("window-all-closed", () => {
     ContextMenu.clearMainBindings(ipcMain);
     SecureElectronLicenseKeys.clearMainBindings(ipcMain);
     store.clearMainBindings(ipcMain);
-  }
-});
-
-app.on("activate", () => {
-  // On macOS it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (win === null) {
-    createWindow();
   }
 });
 
