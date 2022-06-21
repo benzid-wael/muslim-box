@@ -1,4 +1,4 @@
-// const { fork } = require("child_process");
+const { fork } = require("child_process");
 const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
@@ -17,7 +17,7 @@ const i18nextBackend = require("i18next-electron-fs-backend");
 const Store = require("secure-electron-store").default;
 const ContextMenu = require("secure-electron-context-menu").default;
 
-// const findPort = require("./find-open-port");
+const findPort = require("./find-open-port").default;
 const Protocol = require("./protocol");
 const MenuBuilder = require("./menu");
 const i18nextMainBackend = require("../localization/i18n.mainconfig");
@@ -28,10 +28,10 @@ const selfHost = `http://localhost:${port}`;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let mainWindow;
-let menuBuilder;
-let serverProcess;
-let serverPort;
+let mainWindow = null;
+let menuBuilder = null;
+let serverProcess = null;
+let serverPort = null;
 
 const installExtensions = () => {
   logger.info("[🛠️ ] installing extensions...")
@@ -50,10 +50,10 @@ const installExtensions = () => {
   })
 };
 
-const createBackgroundProcess = (socketName) => {
+const createBackgroundProcess = (port) => {
   serverProcess = fork(path.join(__dirname, 'server.js'), [
     '--port',
-    serverPort
+    port
   ])
 
   serverProcess.on('message', msg => {
@@ -229,11 +229,11 @@ const start = async () => {
 
   require("electron-debug")(); // https://github.com/sindresorhus/electron-debug
 
-  // if(serverProcess === null) {
-  //   serverPort = await findPort();
-  //   console.log(`Running server on 0.0.0.0:${serverPort}`)
-  //   createBackgroundProcess(serverSocket);
-  // }
+  if(serverProcess === null) {
+    serverPort = await findPort();
+    console.log(`Running server on 0.0.0.0:${serverPort}`)
+    createBackgroundProcess(serverPort);
+  }
 
   if(mainWindow === null) {
     createWindow();
@@ -262,6 +262,7 @@ app.on("activate", async () => {
 app.on("before-quit", () => {
   if (serverProcess) {
     serverProcess.kill()
+    serverPort = null
     serverProcess = null
   }
 })
