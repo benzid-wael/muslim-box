@@ -14,7 +14,7 @@ function findPort() {
   });
 }
 
-function isAvailable(port) {
+function isPortAvailable(port) {
   return new Promise((resolve, reject) => {
     const socket = net.connect(port);
     socket.setTimeout(400, () => {
@@ -39,4 +39,4 @@ function isAvailable(port) {
 module.exports = findPort;
 findPort.findPort = findPort;
 findPort.default = findPort;
-findPort.isAvailable = isAvailable;
+findPort.isPortAvailable = isPortAvailable;

@@ -121,18 +121,6 @@ type BaseSlide = $ReadOnly<{
     durationInSeconds?: number,
 }>;
 
-export type QuranVerseSlide = $ReadOnly<{
-    ...$Diff<BaseSlide, {type: string}>,
-    type: "quran",
-    reference?: QuranReference,
-}>;
-
-export type HadithSlide = $ReadOnly<{
-    ...$Diff<BaseSlide, {type: string}>,
-    type: "hadith",
-    references?: $ReadOnlyArray<HadithReference>,
-}>;
-
 export type CurrentPrayerSlide = $ReadOnly<{
     ...$Diff<BaseSlide, {type: string, content: $ReadOnlyArray<MultilingualString>}>,
     type: "current-prayer"
@@ -148,6 +136,18 @@ export type ClockSlide = $ReadOnly<{
     type: "clock",
 }>;
 
+export type QuranVerseSlide = $ReadOnly<{
+    ...$Diff<BaseSlide, {type: string}>,
+    type: "quran",
+    reference?: QuranReference,
+}>;
+
+export type HadithSlide = $ReadOnly<{
+    ...$Diff<BaseSlide, {type: string}>,
+    type: "hadith",
+    references?: $ReadOnlyArray<HadithReference>,
+}>;
+
 export type DhikrSlide = $ReadOnly<{
     ...$Diff<BaseSlide, {type: string}>,
     type: "dhikr",
@@ -155,8 +155,9 @@ export type DhikrSlide = $ReadOnly<{
 }>;
 
 export type Slide =
-    | QuranVerseSlide
-    | HadithSlide
+    | CurrentPrayerSlide
     | NextPrayerSlide
     | ClockSlide
+    | QuranVerseSlide
+    | HadithSlide
     | DhikrSlide;

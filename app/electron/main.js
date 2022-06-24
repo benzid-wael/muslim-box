@@ -17,7 +17,7 @@ const i18nextBackend = require("i18next-electron-fs-backend");
 const Store = require("secure-electron-store").default;
 const ContextMenu = require("secure-electron-context-menu").default;
 
-const findPort = require("./find-open-port").default;
+const { findPort, isPortAvailable } = require("./find-open-port");
 const Protocol = require("./protocol");
 const MenuBuilder = require("./menu");
 const i18nextMainBackend = require("../localization/i18n.mainconfig");
@@ -51,7 +51,7 @@ const installExtensions = () => {
 };
 
 const createBackgroundProcess = (port) => {
-  serverProcess = fork(path.join(__dirname, 'server.js'), [
+  serverProcess = fork(path.join(__dirname, '../server'), [
     '--port',
     port
   ])
@@ -223,14 +223,15 @@ protocol.registerSchemesAsPrivileged([{
 
 const start = async () => {
 
-  // if (isDev) {
-  //   installExtensions();
-  // }
+  if (isDev) {
+    installExtensions();
+  }
 
   require("electron-debug")(); // https://github.com/sindresorhus/electron-debug
 
   if(serverProcess === null) {
-    serverPort = await findPort();
+    openServerPort = await findPort();
+    const serverPort = isPortAvailable(3001) ? 3001 : openServerPort
     console.log(`Running server on 0.0.0.0:${serverPort}`)
     createBackgroundProcess(serverPort);
   }

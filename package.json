@@ -111,6 +111,8 @@
     "electron-devtools-installer": "^3.2.0",
     "electron-log": "^4.4.7",
     "express": "^4.18.1",
+    "express-graphql": "^0.12.0",
+    "graphql": "^15.8.0",
     "i18next": "^21.6.6",
     "i18next-electron-fs-backend": "^2.0.0",
     "i18next-fs-backend": "^1.1.4",
