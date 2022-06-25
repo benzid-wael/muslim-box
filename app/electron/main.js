@@ -142,7 +142,13 @@ const createWindow = () => {
   }
 
   mainWindow.webContents.on("did-finish-load", () => {
+    console.log("did-finish-load")
     mainWindow.setTitle(`MuslimBox (v${app.getVersion()})`);
+
+    // update renderer
+    console.log(`send new backendURL`)
+    mainWindow.webContents.send("backend-url-changed", {backendURL: `http://localhost:${serverPort}/gql/`})
+
   });
 
   // Emitted when the window is closed.
@@ -230,8 +236,9 @@ const start = async () => {
   require("electron-debug")(); // https://github.com/sindresorhus/electron-debug
 
   if(serverProcess === null) {
-    openServerPort = await findPort();
-    const serverPort = isPortAvailable(3001) ? 3001 : openServerPort
+    // openServerPort = await findPort();
+    // serverPort = isPortAvailable(3001) ? 3001 : openServerPort
+    serverPort = 8888
     console.log(`Running server on 0.0.0.0:${serverPort}`)
     createBackgroundProcess(serverPort);
   }

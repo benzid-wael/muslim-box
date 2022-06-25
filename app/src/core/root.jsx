@@ -11,7 +11,7 @@ import styled from "styled-components";
 
 import i18n from "@localization/i18n.config";
 import { changeLanguage } from "@redux/slices/configSlice";
-import { loadCoordinates } from "@redux/slices/userSlice";
+import { loadCoordinates, setBackendURL } from "@redux/slices/userSlice";
 import { computePrayerTimes, updatePrayerTimes } from "@redux/slices/prayerTimesSlice";
 
 import Nav from "./nav";
@@ -27,6 +27,11 @@ window.api.i18nextElectronBackend.onLanguageChange((args) => {
       store.dispatch(changeLanguage(args.lng));
     }
   });
+});
+
+window.api.onBackendUrlChanged((message) => {
+  console.error(`[Renderer] backend address changed`);
+  store.dispatch(setBackendURL(message.backendURL));
 });
 
 const Main = styled.div`

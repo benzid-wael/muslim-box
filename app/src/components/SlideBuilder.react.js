@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 
 import QuranVerseSlide from "@components/QuranVerseSlide.react"
 import PrayerSlide from "@components/PrayerSlide.react"
+import HadithSlide from "@components/HadithSlide.react"
 
 const SlideBuilder = ({slide}: {slide: Slide}): React$Element<any> => {
   const { i18n } = useTranslation();
@@ -18,6 +19,8 @@ const SlideBuilder = ({slide}: {slide: Slide}): React$Element<any> => {
     case "current-prayer":
     case "next-prayer":
       return <PrayerSlide slide={slide} />
+    case "hadith":
+      return <HadithSlide slide={slide} />
   }
 
   return <div>{i18n.t("Unsupported slide")}</div>

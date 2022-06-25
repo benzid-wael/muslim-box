@@ -1,9 +1,12 @@
+const cors = require("cors")
 const express = require("express")
 const { graphqlHTTP } = require("express-graphql")
 
 const schema = require("./schema")
 
 const app = express()
+
+app.use(cors())
 
 app.use("/gql", graphqlHTTP({ schema: schema.schema, graphiql: true}));
 
@@ -20,6 +23,6 @@ const init = (port) => {
 // main
 if (process.argv[2] === "--port") {
   const port = process.argv[3]
-  console.log(`[server] espress server started, listenning on port ${port}`)
+  console.log(`[server] express server started, listenning on port ${port}`)
   init(port)
 }

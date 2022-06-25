@@ -7,10 +7,11 @@ import { getCoordinates } from "@src/GeoLocation"
 type Config = $ReadOnly<{
   isLoading: boolean,
   coordinates?: GeoCoordinates,
+  backendURL?: string,
 }>
 
 const initial = {
-  isLoading: false
+  isLoading: false,
 }
 
 const slice = createSlice({
@@ -22,12 +23,15 @@ const slice = createSlice({
     },
     setCoordinates: (state, {payload}: {payload: GeoCoordinates}) => {
         return {...state, coordinates: payload}
-    }
+    },
+    setBackendURL: (state, {payload}: {payload: string}) => {
+        return {...state, backendURL: payload}
+    },
   }
 });
 
 // Export actions
-export const { setLoading, setCoordinates } = slice.actions;
+export const { setBackendURL, setCoordinates, setLoading } = slice.actions;
 
 export const loadCoordinates = (apiKey?: string): any => async (dispatch: any) => {
     try {

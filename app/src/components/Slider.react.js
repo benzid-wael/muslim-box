@@ -35,12 +35,14 @@ const Container = styled.div`
 `
 
 const mapStateToProps = state => ({
+  language: state.config.present.general.language,
   slides: state.slide.slides,
-  position: state.slide.position
+  position: state.slide.position,
+  backendURL: state.user.backendURL,
 })
 
 const Slider = (props): React$Node => {
-  const { position, slides } = props;
+  const { language, slides, position } = props;
 
   useEffect(() => {
     // let"s have static duration for all slides right now
@@ -51,29 +53,45 @@ const Slider = (props): React$Node => {
       :
       .3  // by default 3ms
     ;
-    console.log(`sliding after ${duration} seconds`)
     const timer = setTimeout(
       async () => {
         if(props.slides.length === 0) {
+          console.log(`[Slider] loading slides after ${duration} seconds`)
           const slides = await loadSlides()
           props.dispatch(resetSlides(slides));
         } else {
+          console.log(`[Slider] sliding after ${duration} seconds`)
           transition()
         }
     }, duration * 1000)
     return () => clearTimeout(timer)
-  }, [position])
+  }, [position, slides])
+
+  useEffect(() => {
+    console.log(`[Slider] language changed: reloading slides`)
+    const timer = setTimeout(
+      async () => {
+        const slides = await loadSlides()
+        props.dispatch(resetSlides(slides));
+    }, 200)
+    return () => clearTimeout(timer)
+  }, [language])
 
   const loadSlides = async (): Promise<Array<Slide>> => {
-    const loader = SlideLoaderFactory.getLoader()
-    const slides = await loader.load();
+    console.log(`loadSlides...`)
+    const loader = SlideLoaderFactory.getLoader({
+      provider: "database",
+      backendURL: props.backendURL,
+    })
+    if(!loader) return []
+    const lang = language.split("-")[0]
+    const slides = await loader.load(10, lang);
     return slides;
   }
 
   const onReachEnd = async () => {
     console.log(`onReachEnd called`)
-    const loader = SlideLoaderFactory.getLoader()
-    const slides = await loader.load()
+    const slides = await loadSlides()
     if(slides.length > 1000) {
       props.dispatch(resetSlides(slides));
     } else {

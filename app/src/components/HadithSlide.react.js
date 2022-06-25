@@ -1,14 +1,12 @@
 /*
 * @flow
 */
-import type { Language, LayoutDirection, QuranVerseSlide } from "@src/types";
+import type { Language, LayoutDirection, HadithSlide } from "@src/types";
 
 import React from "react"
 import { connect } from "react-redux"
 import { useTranslation } from "react-i18next"
 import styled from "styled-components"
-
-import Ayah from "@components/Ayah.react"
 
 const Main = styled.div`
   display: table;
@@ -21,7 +19,7 @@ const Main = styled.div`
 
 const Title = styled.h1`
   font-weight: 800;
-  font-size: 12px;
+  font-size: 16px;
   font-size: 3vw;
 `
 
@@ -39,8 +37,7 @@ type StateProps = $ReadOnly<{
 }>
 
 type ComponentProps = $ReadOnly<{
-  slide: QuranVerseSlide,
-  direction: LayoutDirection,
+  slide: HadithSlide,
 }>
 
 type Props = StateProps & ComponentProps;
@@ -51,20 +48,10 @@ const mapStateToProps = (state): StateProps => ({
 
 const Slide = (props: Props): React$Node => {
   const { i18n } = useTranslation();
-  const index = props.slide.reference
-    ?
-    props.slide.reference.index || props.slide.reference.indexes[0]
-    :
-    null;
-  return <Main className="Quran" direction={props.direction}>
+  return <Main direction={props.direction}>
     <Inner>
-      <Title>{i18n.t("Verse of the day")}</Title>
-      <Ayah
-          verse={props.slide.content}
-          surah={null}
-          verseNumber={null}
-          isSajda={false}
-      />
+      <Title>{i18n.t("Hadith of the day")}</Title>
+      <span>{props.slide.content}</span>
     </Inner>
   </Main>
 }

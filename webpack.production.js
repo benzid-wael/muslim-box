@@ -21,7 +21,7 @@ module.exports = merge(base, {
     new CspHtmlWebpackPlugin(
       {
         "base-uri": ["'self'"],
-        "connect-src": ["'self'", "ipinfo.io"],
+        "connect-src": ["'self'", "ipinfo.io", "localhost"],
         "object-src": ["'none'"],
         "script-src": ["'self'"],
         "style-src": ["'self'"],

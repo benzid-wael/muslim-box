@@ -91,7 +91,7 @@ export type MultilingualString = $ReadOnlyMap<Language, string>;
 
 export type BaseReference = $ReadOnly<{
     type: "quran" | "hadith" | "tafsir" | "other",
-    name: MultilingualString,
+    name: string,
     page?: number,
     // this will be used mainly for Hadith
     index?: number,
@@ -116,13 +116,13 @@ export type Reference =
 
 type BaseSlide = $ReadOnly<{
     type: string,
-    content: $ReadOnlyArray<MultilingualString>,
+    content: $ReadOnlyArray<string>,
     events?: $ReadOnlyArray<Event>,
     durationInSeconds?: number,
 }>;
 
 export type CurrentPrayerSlide = $ReadOnly<{
-    ...$Diff<BaseSlide, {type: string, content: $ReadOnlyArray<MultilingualString>}>,
+    ...$Diff<BaseSlide, {type: string, content: $ReadOnlyArray<string>}>,
     type: "current-prayer"
 }>;
 
@@ -132,7 +132,7 @@ export type NextPrayerSlide = $ReadOnly<{
 }>;
 
 export type ClockSlide = $ReadOnly<{
-    ...$Diff<BaseSlide, {type: string, content: $ReadOnlyArray<MultilingualString>}>,
+    ...$Diff<BaseSlide, {type: string, content: $ReadOnlyArray<string>}>,
     type: "clock",
 }>;
 

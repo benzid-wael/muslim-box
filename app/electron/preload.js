@@ -14,5 +14,11 @@ contextBridge.exposeInMainWorld("api", {
   i18nextElectronBackend: i18nextBackend.preloadBindings(ipcRenderer, process),
   store: store.preloadBindings(ipcRenderer, fs),
   contextMenu: ContextMenu.preloadBindings(ipcRenderer),
-  licenseKeys: SecureElectronLicenseKeys.preloadBindings(ipcRenderer)
+  licenseKeys: SecureElectronLicenseKeys.preloadBindings(ipcRenderer),
+  onBackendUrlChanged: (callback) => {
+    ipcRenderer.on("backend-url-changed", function (evt, message) {
+      console.log(`backendUrlChanged: ${message.backendURL}`)
+      callback(message)
+    })
+  },
 });
