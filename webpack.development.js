@@ -51,7 +51,7 @@ module.exports = merge(base, {
     }),
     new CspHtmlWebpackPlugin({
       "base-uri": ["'self'"],
-      "connect-src": ["'self'", "ipinfo.io", "localhost:3001"],
+      "connect-src": ["'self'", "ipinfo.io", "localhost:8888"],
       "default-src": ["'unsafe-inline'", "'self'", "'unsafe-eval'"],
       "object-src": ["'none'"],
       "script-src": ["'unsafe-inline'", "'self'", "'unsafe-eval'"],
