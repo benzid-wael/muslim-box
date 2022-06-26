@@ -21,4 +21,9 @@ contextBridge.exposeInMainWorld("api", {
       callback(message)
     })
   },
+  onLanguageInitialized: (callback) => {
+    ipcRenderer.on("language-initialized", function (evt, message) {
+      callback(message)
+    })
+  },
 });

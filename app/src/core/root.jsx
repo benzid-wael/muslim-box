@@ -18,15 +18,23 @@ import Nav from "./nav";
 import Routes from "./routes";
 import "./root.css";
 
-window.api.i18nextElectronBackend.onLanguageChange((args) => {
-  console.error(`[Renderer] language changed event`);
-  i18n.changeLanguage(args.lng, (error, t) => {
+const loadI18nResources = (language) => {
+  console.info(`[Renderer] language changed event received`);
+  i18n.changeLanguage(language, (error, t) => {
     if (error) {
-      console.error(`cannot change language: ${error}`);
+      console.error(`[Renderer] cannot change language: ${error}`);
     } else {
-      store.dispatch(changeLanguage(args.lng));
+      store.dispatch(changeLanguage(language));
     }
   });
+}
+
+window.api.i18nextElectronBackend.onLanguageChange((args) => {
+  loadI18nResources(args.lng);
+});
+
+window.api.onLanguageInitialized((message) => {
+  loadI18nResources(message.language);
 });
 
 window.api.onBackendUrlChanged((message) => {

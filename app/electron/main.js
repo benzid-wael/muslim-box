@@ -146,9 +146,10 @@ const createWindow = () => {
     mainWindow.setTitle(`MuslimBox (v${app.getVersion()})`);
 
     // update renderer
-    console.log(`send new backendURL`)
+    console.log(`[ipcMain] sync ipcRenderer`)
     mainWindow.webContents.send("backend-url-changed", {backendURL: `http://localhost:${serverPort}/gql/`})
-
+    console.log(`[ipcMain] language: ${i18nextMainBackend.language}`)
+    mainWindow.webContents.send("language-initialized", {language: i18nextMainBackend.language})
   });
 
   // Emitted when the window is closed.

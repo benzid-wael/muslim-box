@@ -8,8 +8,7 @@ import React from "react"
 import moment from "moment"
 import momentDurationFormatSetup from "moment-duration-format"
 import styled from "styled-components"
-
-import i18n from "@localization/i18n.config"
+import { useTranslation } from "react-i18next"
 
 const Main = styled.div`
   width: 50%;
@@ -75,6 +74,7 @@ type Props = $ReadOnly<{
 
 const PrayerTime = (props: Props): React$Node => {
   const {prayer, isCurrent} = props;
+  const { i18n } = useTranslation();
   const start = moment.unix(prayer.start);
   const end = moment.unix(prayer.end);
   const remaining = moment.duration(end.diff(moment()))
