@@ -1,13 +1,16 @@
 /*
 * @flow
 */
-import React from "react"
+import type { PrayerTime as PrayerTimeType } from "@src/types";
+
+import React, { useEffect, useState } from "react";
 import { connect } from "react-redux"
 import styled from "styled-components"
 
 import Clock from "@components/Clock.react"
-import PrayerTime from "@components/PrayerTime.react"
 import Slider from "@components/Slider.react"
+import AdhanSlide from "@components/AdhanSlide.react";
+import PrayerTime from "@components/PrayerTime.react";
 
 const Main = styled.div`
   height: 100%;
@@ -37,33 +40,48 @@ const PrayerTimeWrapper = styled.div`
 `
 
 type StateProps = $ReadOnly<{
-  prayers: $ReadOnlyArray<PrayerTime>,
-  currentPrayer?: PrayerTime,
+  prayers: $ReadOnlyArray<PrayerTimeType>,
+  currentPrayer?: PrayerTimeType,
+  currentTime?: PrayerTimeType,
 }>
 
 const mapStateToProps = state => ({
   prayers: state.prayerTimes.prayers,
   currentPrayer: state.prayerTimes.current,
+  currentTime: state.prayerTimes.currentTime,
 })
 
 const Home = (props: StateProps): React$Node => {
-    return <Main>
-      <Content>
-        <Slider />
-      </Content>
-      <Footer>
-        <Clock />
-        <PrayerTimeWrapper>
-          {props.prayers.map((prayer: PrayerTime, i: number) => {
+  const [adhan, showAdhan] = useState(true);
+
+  useEffect(() => {
+    if(!adhan && props.currentTime?.tag === "adhan") {
+      showAdhan(true)
+    } else if(adhan && props.currentTime?.tag !== "adhan") {
+      showAdhan(false)
+    }
+  }, [props.currentTime])
+
+  return <Main>
+    <Content>
+      {adhan ? <AdhanSlide /> : <Slider />}
+    </Content>
+    <Footer>
+      <Clock />
+      <PrayerTimeWrapper>
+        {props.prayers
+          .filter(p => p.visible)
+          .map((prayer: PrayerTimeType, i: number) => {
             const isLastItem = i == props.prayers.length - 1
             const isCurrent = props.currentPrayer?.name === prayer.name
             return <>
               <PrayerTime prayer={prayer} isCurrent={isCurrent} />
             </>
-          })}
-        </PrayerTimeWrapper>
-      </Footer>
-    </Main>
+          })
+        }
+      </PrayerTimeWrapper>
+    </Footer>
+  </Main>
 }
 
 export default (connect(mapStateToProps)(Home): any)

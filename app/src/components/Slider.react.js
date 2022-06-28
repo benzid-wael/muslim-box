@@ -3,7 +3,7 @@
 */
 import type { Slide } from "@src/types";
 
-import React, { useEffect } from "react"
+import React, { useEffect } from "react";
 import { connect } from "react-redux"
 import { animated, Transition, config } from "react-spring"
 import styled from "styled-components"
@@ -11,6 +11,7 @@ import styled from "styled-components"
 import { addSlides, moveNext, resetSlides } from "@redux/slices/slideSlice"
 import SlideBuilder from "@components/SlideBuilder.react"
 import { SlideLoaderFactory } from "@src/SlideLoader";
+import AdhanSlide from "./AdhanSlide.react";
 
 
 const Main = styled.div`
@@ -106,29 +107,29 @@ const Slider = (props): React$Node => {
 
   return props.slides.length === 0 ? <></> : (
     <Main>
-    <Container onClick={transition}>
-      <Transition
-        native
-        reset
-        unique
-        items={position}
-        from={{ opacity: 0, transform: "translate3d(100%, 0 ,0)" }}
-        enter={{ opacity: 1, transform: "translate3d(0%, 0, 0)" }}
-        leave={{ opacity: 0, transform: "translate3d(-50%, 0, 0)" }}
-        config={config.molasses}
-      >
-        {(style, index) => {
-          const slide = slides[index];
-          return (
-            <animated.div style={{
-              ...style,
-            }}>
-              <SlideBuilder slide={slide} />
-            </animated.div>
-          )
-        }}
-      </Transition>
-    </Container>
+      <Container onClick={transition}>
+        <Transition
+          native
+          reset
+          unique
+          items={position}
+          from={{ opacity: 0, transform: "translate3d(100%, 0 ,0)" }}
+          enter={{ opacity: 1, transform: "translate3d(0%, 0, 0)" }}
+          leave={{ opacity: 0, transform: "translate3d(-50%, 0, 0)" }}
+          config={config.molasses}
+        >
+          {(style, index) => {
+            const slide = slides[index];
+            return (
+              <animated.div style={{
+                ...style,
+              }}>
+                <SlideBuilder slide={slide} />
+              </animated.div>
+            )
+          }}
+        </Transition>
+      </Container>
     </Main>
   )
 }

@@ -16,57 +16,139 @@ import {
     PolarCircleResolution,
 } from "adhan";
 
-const PrayerTimeConfigs: Array<$ReadOnly<{
+import PRAYER_TIMES from "@constants/prayer";
+import type { PrayerTime, PrayerTimeConfig } from "./types";
+
+type PTConfig = $ReadOnly<{
     // $FlowFixMe[value-as-type]
     prayer: Prayer,
     // $FlowFixMe[value-as-type]
-    start: (pt: PrayerTimes) => moment,
+    start: (pt: PrayerTimes, cfg: PrayerTimeConfig) => moment,
     // $FlowFixMe[value-as-type]
-    end: (pt: PrayerTimes) => moment,
+    end: (pt: PrayerTimes, cfg: PrayerTimeConfig) => moment,
+    visible: boolean,
+    isPrayer?: boolean,
+    tag?: string,
+}>
+
+const generatePT = (
+    prayer: Prayer,
+    // $FlowFixMe[value-as-type]
+    startFunc: (pt: PrayerTimes, cfg: PrayerTimeConfig) => moment,
+    // $FlowFixMe[value-as-type]
+    endFunc: (pt: PrayerTimes, cfg: PrayerTimeConfig) => moment,
     isPrayer: boolean,
-}>> = [
-    {
-        prayer: Prayer.Fajr,
-        start: (pt) => moment(pt.fajr),
-        end: (pt) => moment(pt.sunrise),
-        isPrayer: true,
-    },
+): Array<PTConfig> => {
+    const iqamaTime = (pt, cfg): moment => {
+        const start = startFunc(pt, cfg)
+        const iqamaAfterInMinutes = cfg.iqamaAfterInMinutes || PRAYER_TIMES.IqamaAfterInMinutes
+        return start.add(iqamaAfterInMinutes, "minutes")
+    }
+
+    const adhkarSalahTime = (pt, cfg): moment => {
+        const start = startFunc(pt, cfg)
+        const iqamaAfterInMinutes = cfg.iqamaAfterInMinutes || PRAYER_TIMES.IqamaAfterInMinutes
+        const iqamaDuration = cfg.iqamaDurationInMinutes || PRAYER_TIMES.IqamaDurationInMinutes
+        const prayerTime = cfg.prayerDurationInMinutes || PRAYER_TIMES.PrayerDurationInMinutes
+        const totalDuration = iqamaAfterInMinutes + iqamaDuration + prayerTime
+        return start.add(totalDuration, "minutes")
+    }
+
+    return [
+        {
+            prayer: prayer,
+            start: (pt, cfg) => startFunc(pt, cfg),
+            end: (pt, cfg) => startFunc(pt, cfg).add(3, "minutes"),
+            isPrayer: isPrayer,
+            visible: false,
+            tag: "adhan"
+        },
+        {
+            prayer: prayer,
+            start: (pt, cfg) => startFunc(pt, cfg),
+            end: (pt, cfg) => iqamaTime(pt, cfg),
+            isPrayer: isPrayer,
+            visible: false,
+            tag: "before_prayer"
+        },
+        {
+            prayer: prayer,
+            start: (pt, cfg) => iqamaTime(pt, cfg),
+            end: (pt, cfg) => adhkarSalahTime(pt, cfg),
+            isPrayer: isPrayer,
+            visible: false,
+            tag: "during_prayer"
+        },
+        {
+            prayer: prayer,
+            start: (pt, cfg) => adhkarSalahTime(pt, cfg),
+            end: (pt, cfg) => {
+                const adhkarDuration = cfg.adhkarDurationInMinutes || PRAYER_TIMES.AdhkarDurationInMinutes
+                return adhkarSalahTime(pt, cfg).add(adhkarDuration, "minutes")
+            },
+            isPrayer: isPrayer,
+            visible: false,
+            tag: "after_prayer"
+        },
+        {
+            prayer: prayer,
+            start: (pt, cfg) => startFunc(pt, cfg),
+            end: (pt, cfg) => endFunc(pt, cfg),
+            isPrayer: isPrayer,
+            isPrayer: true,
+            visible: true,
+        },
+    ]
+}
+
+const PrayerTimeConfigs: Array<PTConfig> = [
+    ...generatePT(
+        Prayer.Fajr,
+        (pt, cfg) => moment(pt.fajr),
+        (pt, cfg) => moment(pt.sunrise),
+        true,
+    ),
     {
         prayer: Prayer.Sunrise,
-        start: (pt) => moment(pt.sunrise),
-        end: (pt) => moment(pt.sunrise).add(20, 'minutes'),
+        start: (pt, cfg) => moment(pt.sunrise),
+        end: (pt, cfg) => moment(pt.sunrise).add(20, "minutes"),
         isPrayer: false,
+        visible: true,
     },
-    {
-        prayer: Prayer.Dhuhr,
-        start: (pt) => moment(pt.dhuhr),
-        end: (pt) => moment(pt.asr),
-        isPrayer: true,
-    },
-    {
-        prayer: Prayer.Asr,
-        start: (pt) => moment(pt.asr),
-        end: (pt) => moment(pt.maghrib),
-        isPrayer: true,
-    },
-    {
-        prayer: Prayer.Maghrib,
-        start: (pt) => moment(pt.maghrib),
-        end: (pt) => moment(pt.isha),
-        isPrayer: true,
-    },
-    {
-        prayer: Prayer.Isha,
-        start: (pt) => moment(pt.isha),
-        end: (pt) => {
+    ...generatePT(
+        Prayer.Dhuhr,
+        (pt, cfg) => moment(pt.dhuhr),
+        (pt, cfg) => moment(pt.asr),
+        true,
+    ),
+    ...generatePT(
+        Prayer.Asr,
+        (pt, cfg) => moment(pt.asr),
+        (pt, cfg) => moment(pt.maghrib),
+        true,
+    ),
+    ...generatePT(
+        Prayer.Maghrib,
+        (pt, cfg) => moment(pt.maghrib),
+        (pt, cfg) => moment(pt.isha),
+        true,
+    ),
+    ...generatePT(
+        Prayer.Isha,
+        (pt, cfg) => moment(pt.isha),
+        (pt, cfg) => {
             const sunnahTimes = new SunnahTimes(pt);
             return moment(sunnahTimes.middleOfTheNight);
         },
-        isPrayer: true,
-    },
+        true,
+    ),
 ];
 
-export const getPrayerTimes = (position: GeoCoordinates, date: Date): Array<Prayer> => {
+export const getPrayerTimes = (
+    position: GeoCoordinates,
+    date: Date,
+    cfg?: $ReadOnlyMap<Prayer, PrayerTimeConfig>,
+): Array<Prayer> => {
     try {
         // For configuration, see https://github.com/batoulapps/adhan-js/blob/master/METHODS.md
         const {latitude, longitude} = position;
@@ -83,13 +165,24 @@ export const getPrayerTimes = (position: GeoCoordinates, date: Date): Array<Pray
         params.polarCircleResolution = PolarCircleResolution.AqrabBalad;
         console.log(`Calcuating prayer times for ${date.toLocaleDateString()}`)
         const prayerTimes = new PrayerTimes(coordinates, date, params);
-        return PrayerTimeConfigs.map(config => ({
-            name: config.prayer,
-            start: config.start(prayerTimes).unix(),
-            end: config.end(prayerTimes).unix(),
-            isPrayer: config.isPrayer,
-            // isCurrent: prayerTimes.currentPrayer() === config.prayer,
-        }));
+        return PrayerTimeConfigs
+            .map(config => {
+                const ptConfig = cfg?.get(config.prayer) || {}
+                try {
+                    return {
+                        name: config.prayer,
+                        start: config.start(prayerTimes, ptConfig)?.unix(),
+                        end: config.end(prayerTimes, ptConfig)?.unix(),
+                        isPrayer: config.isPrayer,
+                        visible: config.visible,
+                        tag: config.tag,
+                        // isCurrent: prayerTimes.currentPrayer() === config.prayer,
+                    }
+                } catch(err) {
+                    console.error(`cannot compute pt: ${err}`)
+                }
+            })
+            .filter(pt => pt);
     } catch (err) {
         return [];
     }

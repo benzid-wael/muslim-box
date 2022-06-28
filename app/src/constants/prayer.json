@@ -1,0 +1,8 @@
+{
+    "IqamaAfterInMinutes": 15,
+    "IqamaDurationInMinutes": 1,
+    "PrayerDurationInMinutes": 10,
+    "AdhkarDurationInMinutes": 10,
+    "AdhkarSabahMasaaDurationInMinutes": 10,
+    "EndTimeReminderInMinutes": 20
+  }

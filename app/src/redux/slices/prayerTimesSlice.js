@@ -15,6 +15,9 @@ type State = $ReadOnly<{
     prayers: Array<PrayerTime>,
     current?: PrayerTime,
     next?: PrayerTime,
+    // This will point to the 1st current time, this is useful to
+    // select the exact sub portion of prayer time
+    currentTime?: PrayerTime,
 }>;
 
 const initialState: State = {
@@ -24,7 +27,7 @@ const initialState: State = {
     *   - update time shown in the digital clock
     */
     timestamp: 0,
-    // this is used to ensure that we recompute prayer times every day
+    // used to ensure that we recompute prayer times every day
     day: "",
     prayers: [],
 };
@@ -46,12 +49,16 @@ const slice: any = createSlice({
         updateCurrentPrayer: (state) => {
             let currentIdx = -1
             let current: PrayerTime
+            let currentTime: PrayerTime
             let next: PrayerTime
             const now = moment();
 
             state.prayers.map(p => {
                 if(now > moment.unix(p.start)) {
                     currentIdx++
+                }
+                if(!currentTime && now > moment.unix(p.start) && now < moment.unix(p.end)) {
+                    currentTime = p
                 }
             })
 
@@ -83,10 +90,11 @@ const slice: any = createSlice({
                 ...state,
                 timestamp: moment().unix(),
                 day: moment().format(DayFormat),
-                current: current,
-                next: next
+                current,
+                currentTime,
+                next,
             }
-        }
+        },
     }
 });
 

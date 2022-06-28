@@ -21,11 +21,20 @@ export type GeoCoordinates = $ReadOnly<{
     latitude: number;
 }>;
 
+export type PrayerTimeConfig = $ReadOnly<{
+    iqamaAfterInMinutes?: number,
+    iqamaDurationInMinutes?: number,
+    prayerDurationInMinutes?: number,
+    adhkarDurationInMinutes?: number,
+}>
+
 export type PrayerTime = $ReadOnly<{
     name: Prayer,
     isPrayer: boolean,
     start: number,
     end: number,
+    visible: boolean,
+    tag?: string,
 }>;
 
 export type HijriMonth =
@@ -58,25 +67,36 @@ export type Season =
     | "spring";
 
 export type Time =
-    | "night"
-    | "suhur"
-    | "before_fajr"
-    | "after_fajr"
-    | "before_sunrise"
-    | "after_sunrise"
+    | "fajr"
+    | "after_fajr"      // after fajr prayer
+    | "sabeh"           // used to track adhkar sabeh
+    | "sunrise"         // last for 20 minutes: no prayer during this time
     | "dhuha"
-    | "evening"
-    | "bwfore_sunset"
-    | "after_sunset";
+    | "hajerah"
+    | "before_dhuhr"    // 20 minutes before zawal shames
+    | "dhuhr"
+    | "after_dhuhr"     // after dhuhr prayer
+    | "asr"
+    | "after_asr"       // after asr prayer
+    | "masaa"
+    | "before_maghreb"   // 20 minutes before sunset
+    | "maghreb"
+    | "after_maghreb"   // after maghreb prayer
+    | "isha"
+    | "after_isha"      // after isha prayer
+    | "midnight"
+    | "last_third_night"
+    | "sahar"           // last 15m: reading 50 verses
 
 export type GenericEvent =
-    | "before_prayer"
-    | "prayer"
-    | "after_prayer"
-    | "arafa"
-    | "tashriq"
+    | "ashura"
+    | "haram_month"
+    | "last_10d_ramadhan"
     | "eid_fitr"
-    | "eif_adha"
+    | "first_10d_dhu_qaada"
+    | "arafa"
+    | "eid_adha"
+    | "tashriq"
     | "rain"
     | "wind";
 
