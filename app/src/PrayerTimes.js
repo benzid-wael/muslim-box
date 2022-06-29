@@ -163,7 +163,7 @@ export const getPrayerTimes = (
         params.rounding = Rounding.Up;
         // PolarCircleResolution: AqrabBalad, AqrabYaum, Unresolved
         params.polarCircleResolution = PolarCircleResolution.AqrabBalad;
-        console.log(`Calcuating prayer times for ${date.toLocaleDateString()}`)
+        console.log(`Calcuating prayer times on ${date.toLocaleDateString()} for location: [${longitude}, ${latitude}]`)
         const prayerTimes = new PrayerTimes(coordinates, date, params);
         return PrayerTimeConfigs
             .map(config => {

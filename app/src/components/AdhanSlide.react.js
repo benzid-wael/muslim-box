@@ -95,9 +95,9 @@ const Slide = (props: Props): React$Node => {
     play: false,
   });
 
-  const prayerName = i18n.t(props.currentPrayer?.name, {context: "name"})
+  const prayer = i18n.t(props.currentPrayer?.name, {context: "name"})
 
-  if(!prayerName) {
+  if(!prayer) {
     return null
   }
 
@@ -119,7 +119,8 @@ const Slide = (props: Props): React$Node => {
 
   return <Main direction={props.direction} onClick={togglePlay}>
     <Inner>
-        <Title>{i18n.t("Now is the time for {{prayer}} prayer", {prayer: prayerName})}</Title>
+        <Title>{i18n.t("Now is the time for {{prayer}} prayer", {prayer})}</Title>
+
         {state.ended
           ?
           <DuaaAfterAdhan direction={props.direction} />

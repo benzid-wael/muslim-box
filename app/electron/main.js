@@ -2,6 +2,8 @@ const { fork } = require("child_process");
 const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
+const geoip = require("fast-geoip");
+const axios = require("axios");
 
 const {
   app,
@@ -51,17 +53,17 @@ const installExtensions = () => {
 };
 
 const createBackgroundProcess = (port) => {
-  serverProcess = fork(path.join(__dirname, '../server'), [
-    '--port',
+  serverProcess = fork(path.join(__dirname, "../server"), [
+    "--port",
     port
   ])
 
-  serverProcess.on('message', msg => {
+  serverProcess.on("message", msg => {
     console.log(`[server] ${msg}`)
   })
 }
 
-const createWindow = () => {
+const createWindow = async () => {
   console.log(`createWindow invoked`)
 
   // If you'd like to set up auto-updating for your app,
@@ -141,6 +143,12 @@ const createWindow = () => {
     mainWindow.loadURL(`${Protocol.scheme}://rse/index.html`);
   }
 
+  const ipResponse = await axios.get("http://api.ipify.org")
+  const ip = ipResponse.data
+  console.log(`[ipcMain] IP address: ${ip}`)
+  const geo = await geoip.lookup(ip);
+  console.log(`[ipcMain] geographical info: ${JSON.stringify(geo)}`)
+
   mainWindow.webContents.on("did-finish-load", () => {
     console.log("did-finish-load")
     mainWindow.setTitle(`MuslimBox (v${app.getVersion()})`);
@@ -148,8 +156,12 @@ const createWindow = () => {
     // update renderer
     console.log(`[ipcMain] sync ipcRenderer`)
     mainWindow.webContents.send("backend-url-changed", {backendURL: `http://localhost:${serverPort}/gql/`})
-    console.log(`[ipcMain] language: ${i18nextMainBackend.language}`)
     mainWindow.webContents.send("language-initialized", {language: i18nextMainBackend.language})
+    mainWindow.webContents.send("geocordinates-changed", {
+      coordinates: {longitude: geo.ll[1], latitude: geo.ll[0]},
+      city: geo.city,
+      timezone: geo.timezone,
+    })
   });
 
   // Emitted when the window is closed.
@@ -171,7 +183,7 @@ const createWindow = () => {
         permCallback(true); // Approve permission request
       } else {
         logger.error(
-          `The application tried to request permission for '${permission}'. `
+          `The application tried to request permission for "${permission}". `
           `This permission was not whitelisted and has been blocked.`
         );
 
@@ -245,7 +257,7 @@ const start = async () => {
   }
 
   if(mainWindow === null) {
-    createWindow();
+    await createWindow();
   }
 }
 
@@ -297,10 +309,10 @@ app.on("web-contents-created", (event, contents) => {
     const parsedUrl = new URL(navigationUrl);
     const validOrigins = [selfHost];
 
-    // Log and prevent the app from navigating to a new page if that page's origin is not whitelisted
+    // Log and prevent the app from navigating to a new page if that page"s origin is not whitelisted
     if (!validOrigins.includes(parsedUrl.origin)) {
       logger.error(
-        `The application tried to navigate to the following address: '${parsedUrl}'. This origin is not whitelisted and the attempt to navigate was blocked.`
+        `The application tried to navigate to the following address: "${parsedUrl}". This origin is not whitelisted and the attempt to navigate was blocked.`
       );
 
       contentsEvent.preventDefault();
@@ -314,7 +326,7 @@ app.on("web-contents-created", (event, contents) => {
     // Log and prevent the app from redirecting to a new page
     if (!validOrigins.includes(parsedUrl.origin)) {
       logger.error(
-        `The application tried to redirect to the following address: '${navigationUrl}'. This attempt was blocked.`
+        `The application tried to redirect to the following address: "${navigationUrl}". This attempt was blocked.`
       );
 
       contentsEvent.preventDefault();
@@ -343,7 +355,7 @@ app.on("web-contents-created", (event, contents) => {
     // Log and prevent opening up a new window
     if (!validOrigins.includes(parsedUrl.origin)) {
       logger.error(
-        `The application tried to open a new window at the following address: '${url}'. This attempt was blocked.`
+        `The application tried to open a new window at the following address: "${url}". This attempt was blocked.`
       );
 
       return {
