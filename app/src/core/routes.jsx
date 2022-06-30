@@ -9,7 +9,7 @@ const Home = loadable(() =>
   import(/* webpackChunkName: "HomeChunk" */ "@pages/Home.react")
 );
 
-class Routes extends React.Component {
+class MyRoutes extends React.Component {
   render() {
     return (
       <Switch>
@@ -20,4 +20,4 @@ class Routes extends React.Component {
   }
 }
 
-export default Routes;
+export default MyRoutes;

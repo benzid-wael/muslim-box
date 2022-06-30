@@ -4,6 +4,10 @@ const {
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const webpack = require("webpack");
 const path = require("path");
+const CircularDependencyPlugin = require("circular-dependency-plugin");
+
+const MAX_CYCLES = 5;
+let numCyclesDetected = 0;
 
 module.exports = {
   target: "web", // Our app can run without electron
@@ -79,6 +83,33 @@ module.exports = {
     new webpack.ProvidePlugin({
       process: "process/browser.js",
     }),
-    new CleanWebpackPlugin()
+    new CircularDependencyPlugin({
+      // exclude detection of files based on a RegExp
+      exclude: /node_modules\/adhan/,
+      // include specific files based on a RegExp
+      // include: /dir/,
+      // add errors to webpack instead of warnings
+      failOnError: true,
+      // allow import cycles that include an asyncronous import,
+      // e.g. via import(/* webpackMode: "weak" */ './file.js')
+      allowAsyncCycles: false,
+      // set the current working directory for displaying module paths
+      cwd: process.cwd(),
+      onStart({ compilation }) {
+        numCyclesDetected = 0;
+      },
+      onDetected({ module: webpackModuleRecord, paths, compilation }) {
+        numCyclesDetected++;
+        compilation.warnings.push(new Error(paths.join(' -> ')))
+      },
+      onEnd({ compilation }) {
+        if (numCyclesDetected > MAX_CYCLES) {
+          compilation.errors.push(new Error(
+            `Detected ${numCyclesDetected} cycles which exceeds configured limit of ${MAX_CYCLES}`
+          ));
+        }
+      },
+    }),
+    // new CleanWebpackPlugin()
   ]
 };

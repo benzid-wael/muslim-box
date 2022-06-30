@@ -13,6 +13,7 @@ import SlideBuilder from "@components/SlideBuilder.react"
 import { SlideLoaderFactory } from "@src/SlideLoader";
 import AdhanSlide from "./AdhanSlide.react";
 
+import SLIDER from "@constants/slider";
 
 const Main = styled.div`
   display: flex;
@@ -46,22 +47,21 @@ const Slider = (props): React$Node => {
   const { language, slides, position } = props;
 
   useEffect(() => {
-    // let"s have static duration for all slides right now
-    // TODO we need to find out the minimum duration for each slide on a per slide basis
+    const wordsCount = slides[position]?.content.split(" ").length
+    const durationInSeconds = ((wordsCount / SLIDER.WordsPerMinute) * 60) + 1
+    console.log(`[Slider] slide contains ${wordsCount} words, requires ${durationInSeconds}s`)
     const duration = slides.length > 0
       ?
-      slides[position].durationInSeconds || 10
+      slides[position].durationInSeconds || durationInSeconds
       :
       .3  // by default 3ms
     ;
     const timer = setTimeout(
       async () => {
         if(props.slides.length === 0) {
-          console.log(`[Slider] loading slides after ${duration} seconds`)
           const slides = await loadSlides()
           props.dispatch(resetSlides(slides));
         } else {
-          console.log(`[Slider] sliding after ${duration} seconds`)
           transition()
         }
     }, duration * 1000)

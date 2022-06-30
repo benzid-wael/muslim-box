@@ -1,10 +1,32 @@
 const cors = require("cors")
 const express = require("express")
 const { graphqlHTTP } = require("express-graphql")
+const Sentry = require("@sentry/node")
+
+// Importing @sentry/tracing patches the global hub for tracing to work.
+const SentryTracing = require("@sentry/tracing");
+
+Sentry.init({
+  dsn: "https://7be09d9523de40bc84b57affd0b45e22@o100308.ingest.sentry.io/6475421",
+
+  // We recommend adjusting this value in production, or using tracesSampler
+  // for finer control
+  tracesSampleRate: 1.0,
+});
+
+process.send("Hello :)");
 
 const schema = require("./schema")
 
 const app = express()
+
+app.use(function (req, res, next) {
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'self' 'unsafe-eval' 'unsafe-inline'; connect-src 'self', o100308.ingest.sentry.io app://rse"
+  );
+  next();
+});
 
 app.use(cors())
 
@@ -16,7 +38,7 @@ app.get("/healthcheck", (req, res) => {
 
 const init = (port) => {
   app.listen(port, () => {
-    console.log(`Listening on port ${port}`)
+    console.log(`[server] Listening on port ${port}`)
   })
 }
 

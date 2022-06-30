@@ -4,6 +4,11 @@ const fs = require("fs");
 const path = require("path");
 const geoip = require("fast-geoip");
 const axios = require("axios");
+const Sentry = require("@sentry/electron");
+const {
+  MessageChannel, // remember to require it in main.js even if you don't use it
+  ProcessManager
+} = require("electron-re");
 
 const {
   app,
@@ -34,6 +39,18 @@ let mainWindow = null;
 let menuBuilder = null;
 let serverProcess = null;
 let serverPort = null;
+let geoInfo = null;
+
+Sentry.init({ dsn: "https://7be09d9523de40bc84b57affd0b45e22@o100308.ingest.sentry.io/6475421" });
+
+const getGeoCoordinates = async () => {
+  const ipResponse = await axios.get("http://api.ipify.org")
+  const ip = ipResponse.data
+  logger.info(`[ipcMain] IP address: ${ip}`)
+  const geocordinates = await geoip.lookup(ip);
+  logger.info(`[ipcMain] geographical info: ${JSON.stringify(geocordinates)}`)
+  return geocordinates
+}
 
 const installExtensions = () => {
   logger.info("[🛠️ ] installing extensions...")
@@ -53,19 +70,40 @@ const installExtensions = () => {
 };
 
 const createBackgroundProcess = (port) => {
-  serverProcess = fork(path.join(__dirname, "../server"), [
-    "--port",
-    port
-  ])
+  const args = ["--port", port]
+  const options = {}
+  serverProcess = fork(path.join(__dirname, "../server"), args, options)
 
   serverProcess.on("message", msg => {
-    console.log(`[server] ${msg}`)
+    logger.info(`[ipcMain] server sent this message: ${msg}`)
   })
+  serverProcess.on("error", (err) => {
+    // This will be called with err being an AbortError if the controller aborts
+    logger.error(`[ipcMain] server crashed: ${err}`)
+  });
+  serverProcess.on("close", function (code) {
+    logger.error("[ipcMain] server process exited with code " + code);
+  });
 }
 
-const createWindow = async () => {
-  console.log(`createWindow invoked`)
+const createDevToolsWindow = (mw) => {
+  devtools = new BrowserWindow();
+  mw.webContents.setDevToolsWebContents(devtools.webContents);
+  mw.webContents.openDevTools({ mode: "detach" });
 
+  mw.webContents.once("did-finish-load", function () {
+    const windowBounds = mw.getBounds();
+    devtools.setPosition(windowBounds.x + windowBounds.width, windowBounds.y);
+    devtools.setSize(windowBounds.width/2, windowBounds.height);
+  });
+
+  mw.on("move", function () {
+    const windowBounds = mw.getBounds();
+    devtools.setPosition(windowBounds.x + windowBounds.width, windowBounds.y);
+  });
+}
+
+const createWindow = () => {
   // If you'd like to set up auto-updating for your app,
   // I'd recommend looking at https://github.com/iffy/electron-updater-example
   // to use the method most suitable for you.
@@ -106,14 +144,20 @@ const createWindow = async () => {
     }
   });
 
+  if (isDev) {
+    mainWindow.webContents.openDevTools({
+      mode: "bottom"
+    })
+  }
+
   // Sets up main.js bindings for our i18next backend
   i18nextBackend.mainBindings(ipcMain, mainWindow, fs);
 
   // Sets up main.js bindings for our electron store;
   // callback is optional and allows you to use store in main process
   const callback = function (success, initialStore) {
-    logger.log(`${!success ? "Un-s" : "S"}uccessfully retrieved store in main process.`);
-    logger.log(initialStore); // {"key1": "value1", ... }
+    logger.info(`[ipcMain] ${!success ? "Un-s" : "S"}uccessfully retrieved store in main process.`);
+    logger.log(`[ipcMain] configuration: ${initialStore}`); // {"key1": "value1", ... }
   };
 
   store.mainBindings(ipcMain, mainWindow, fs, callback);
@@ -143,24 +187,34 @@ const createWindow = async () => {
     mainWindow.loadURL(`${Protocol.scheme}://rse/index.html`);
   }
 
-  const ipResponse = await axios.get("http://api.ipify.org")
-  const ip = ipResponse.data
-  console.log(`[ipcMain] IP address: ${ip}`)
-  const geo = await geoip.lookup(ip);
-  console.log(`[ipcMain] geographical info: ${JSON.stringify(geo)}`)
+  mainWindow.once("ready-to-show", () => {
+    mainWindow.maximize()
+  })
 
   mainWindow.webContents.on("did-finish-load", () => {
-    console.log("did-finish-load")
     mainWindow.setTitle(`MuslimBox (v${app.getVersion()})`);
 
     // update renderer
-    console.log(`[ipcMain] sync ipcRenderer`)
     mainWindow.webContents.send("backend-url-changed", {backendURL: `http://localhost:${serverPort}/gql/`})
     mainWindow.webContents.send("language-initialized", {language: i18nextMainBackend.language})
-    mainWindow.webContents.send("geocordinates-changed", {
-      coordinates: {longitude: geo.ll[1], latitude: geo.ll[0]},
-      city: geo.city,
-      timezone: geo.timezone,
+    // mainWindow.webContents.send("geocordinates-changed", {
+    //   coordinates: {longitude: geoInfo.ll[1], latitude: geoInfo.ll[0]},
+    //   city: geoInfo.city,
+    //   timezone: geoInfo.timezone,
+    // })
+
+    axios.get("http://api.ipify.org").then(response => {
+      const ip = response.data
+      logger.log(`[ipcMain] IP address: ${ip}`)
+      geoip.lookup(ip).then(geo => {
+        logger.log(`[ipcMain] geographical info: ${geo}`)
+        mainWindow.webContents.send("geocordinates-changed", {
+          coordinates: {longitude: geo.ll[1], latitude: geo.ll[0]},
+          city: geo.city,
+          timezone: geo.timezone,
+        })
+      })
+
     })
   });
 
@@ -202,16 +256,16 @@ const createWindow = async () => {
   //   }
   // });
 
-  menuBuilder = MenuBuilder(mainWindow);
+  menuBuilder = MenuBuilder(mainWindow, ProcessManager);
 
   // Set up necessary bindings to update the menu items
   // based on the current language selected
   // i18nextMainBackend.on("loaded", (loaded) => {
-  //   i18nextMainBackend.changeLanguage("en");
+  //   i18nextMainBackend.changeLanguage("ar-TN");
   //   i18nextMainBackend.off("loaded"); // Remove listener to this event as it's not needed anymore
   // });
   i18nextMainBackend.on("initialized", (loaded) => {
-    i18nextMainBackend.changeLanguage("en");
+    i18nextMainBackend.changeLanguage("ar-TN");
     i18nextMainBackend.off("initialized"); // Remove listener to this event as it's not needed anymore
   });
 
@@ -242,22 +296,21 @@ protocol.registerSchemesAsPrivileged([{
 
 const start = async () => {
 
-  if (isDev) {
-    installExtensions();
-  }
-
-  require("electron-debug")(); // https://github.com/sindresorhus/electron-debug
-
   if(serverProcess === null) {
     // openServerPort = await findPort();
     // serverPort = isPortAvailable(3001) ? 3001 : openServerPort
-    serverPort = 8888
-    console.log(`Running server on 0.0.0.0:${serverPort}`)
+    serverPort = isDev ? 3001 : 8888
+    logger.info(`[ipcMain] Running server on 0.0.0.0:${serverPort}`)
     createBackgroundProcess(serverPort);
   }
 
+  if (isDev) {
+    installExtensions();
+    require("electron-debug")(); // https://github.com/sindresorhus/electron-isDev
+  }
+
   if(mainWindow === null) {
-    await createWindow();
+    createWindow();
   }
 }
 
@@ -309,7 +362,7 @@ app.on("web-contents-created", (event, contents) => {
     const parsedUrl = new URL(navigationUrl);
     const validOrigins = [selfHost];
 
-    // Log and prevent the app from navigating to a new page if that page"s origin is not whitelisted
+    // Log and prevent the app from navigating to a new page if that page's origin is not whitelisted
     if (!validOrigins.includes(parsedUrl.origin)) {
       logger.error(
         `The application tried to navigate to the following address: "${parsedUrl}". This origin is not whitelisted and the attempt to navigate was blocked.`

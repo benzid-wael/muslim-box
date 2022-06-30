@@ -28,31 +28,12 @@ module.exports = merge(base, {
     new MiniCssExtractPlugin(),
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, "app/src/index.html"),
-      filename: "index.html",
-      cspPlugin: {
-        enabled: true,
-        policy: {
-          "base-uri": "'self'",
-          "default-src": ["'unsafe-inline'", "'self'", "'unsafe-eval'"],
-          "object-src": "'none'",
-          "script-src": ["'unsafe-inline'", "'self'", "'unsafe-eval'"],
-          "style-src": ["'unsafe-inline'", "'self'", "'unsafe-eval'"]
-        },
-        hashEnabled: {
-          "script-src": true,
-          "style-src": true
-        },
-        nonceEnabled: {
-          "script-src": true,
-          "style-src": true
-        }
-        // processFn: defaultProcessFn  // defined in the plugin itself
-      }
+      filename: "index.html"
     }),
     new CspHtmlWebpackPlugin({
       "base-uri": ["'self'"],
-      "connect-src": ["'self'", "ipinfo.io", "localhost:8888"],
       "default-src": ["'unsafe-inline'", "'self'", "'unsafe-eval'"],
+      "connect-src": ["'self'", "o100308.ingest.sentry.io", "localhost:3001"],
       "object-src": ["'none'"],
       "script-src": ["'unsafe-inline'", "'self'", "'unsafe-eval'"],
       "style-src": ["'unsafe-inline'", "'self'", "'unsafe-eval'"],

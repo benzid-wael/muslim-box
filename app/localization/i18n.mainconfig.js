@@ -21,7 +21,7 @@ i18n
     namespace: "translation",
     saveMissing: true,
     saveMissingTo: "current",
-    lng: "en",
+    lng: "ar-TN",
     fallbackLng: false, // set to false when generating translation files locally
     supportedLngs: whitelist.langs
   });
