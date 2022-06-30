@@ -4,12 +4,12 @@
 import type { Slide } from "@src/types";
 
 import React, { useEffect } from "react";
-import { connect } from "react-redux"
-import { animated, Transition, config } from "react-spring"
-import styled from "styled-components"
+import { connect } from "react-redux";
+import { animated, Transition, config } from "react-spring";
+import styled from "styled-components";
 
-import { addSlides, moveNext, resetSlides } from "@redux/slices/slideSlice"
-import SlideBuilder from "@components/SlideBuilder.react"
+import { addSlides, moveNext, resetSlides } from "@redux/slices/slideSlice";
+import SlideBuilder from "@components/SlideBuilder.react";
 import { SlideLoaderFactory } from "@src/SlideLoader";
 import AdhanSlide from "./AdhanSlide.react";
 
@@ -48,11 +48,11 @@ const Slider = (props): React$Node => {
 
   useEffect(() => {
     const wordsCount = slides[position]?.content.split(" ").length
-    const durationInSeconds = ((wordsCount / SLIDER.WordsPerMinute) * 60) + 1
+    const durationInSeconds = ((wordsCount / SLIDER.WordsPerMinute) * 60) + 2
     console.log(`[Slider] slide contains ${wordsCount} words, requires ${durationInSeconds}s`)
     const duration = slides.length > 0
       ?
-      slides[position].durationInSeconds || durationInSeconds
+      Math.max(slides[position].durationInSeconds || durationInSeconds, SLIDER.MinimumSlideDurationInSeconds)
       :
       .3  // by default 3ms
     ;
@@ -74,26 +74,26 @@ const Slider = (props): React$Node => {
       async () => {
         const slides = await loadSlides()
         props.dispatch(resetSlides(slides));
-    }, 200)
+    }, 100)
     return () => clearTimeout(timer)
   }, [language])
 
   const loadSlides = async (): Promise<Array<Slide>> => {
     console.log(`loadSlides...`)
     const loader = SlideLoaderFactory.getLoader({
-      provider: "database",
+      provider: SLIDER.DefaultProvider,
       backendURL: props.backendURL,
     })
     if(!loader) return []
     const lang = language.split("-")[0]
-    const slides = await loader.load(10, lang);
+    const slides = await loader.load(SLIDER.PageSize, lang);
     return slides;
   }
 
   const onReachEnd = async () => {
     console.log(`onReachEnd called`)
     const slides = await loadSlides()
-    if(slides.length > 1000) {
+    if(slides.length > SLIDER.MaxSlidesBeforeReset) {
       props.dispatch(resetSlides(slides));
     } else {
       props.dispatch(addSlides(slides));

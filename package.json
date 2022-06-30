@@ -1,6 +1,6 @@
 {
   "name": "muslim-box",
-  "version": "0.0.0+1",
+  "version": "0.0.0+2",
   "description": "Muslim gadgets on your TV",
   "private": true,
   "main": "app/electron/main.js",

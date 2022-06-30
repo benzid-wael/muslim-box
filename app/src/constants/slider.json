@@ -1,3 +1,7 @@
 {
-    "WordsPerMinute": 100
+    "WordsPerMinute": 100,
+    "DefaultProvider": "database",
+    "PageSize": 30,
+    "MaxSlidesBeforeReset": 1000,
+    "MinimumSlideDurationInSeconds": 5
 }
