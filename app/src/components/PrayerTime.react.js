@@ -49,39 +49,20 @@ const Item = styled.div`
   padding: 2px;
 `
 
-const Name = styled.div`
-  text-align: center;
-  vertical-align: middle;
-  box-sizing: border-box;
-  width: 100%;
-  padding: 2px;
-
+const Name = styled(Item)`
   font-weight: 600;
   font-stretch: ultra-condensed;
   font-size: 24px;
   text-transform: uppercase;
 `
 
-const StartTime = styled.div`
-  text-align: center;
-  vertical-align: middle;
-  box-sizing: border-box;
-  width: 100%;
-
+const StartTime = styled(Item)`
   font-weight: 400;
   font-size: 48px;
   padding: 4px;
 `
 
-const EndTime = styled.div`
-  text-align: center;
-  vertical-align: middle;
-  box-sizing: border-box;
-  width: 100%;
-
-  font-size: 48px;
-  padding: 4px;
-
+const EndTime = styled(StartTime)`
   font-weight: 800;
   background-color: ${props => !props.primary ? "teal" : "white"};
   color: ${props => !props.primary ? "white" : "teal"};

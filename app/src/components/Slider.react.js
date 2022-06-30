@@ -8,12 +8,12 @@ import { connect } from "react-redux";
 import { animated, Transition, config } from "react-spring";
 import styled from "styled-components";
 
-import { addSlides, moveNext, resetSlides } from "@redux/slices/slideSlice";
-import SlideBuilder from "@components/SlideBuilder.react";
-import { SlideLoaderFactory } from "@src/SlideLoader";
 import AdhanSlide from "./AdhanSlide.react";
-
 import SLIDER from "@constants/slider";
+import SlideBuilder from "@components/SlideBuilder.react";
+import { addSlides, moveNext, resetSlides } from "@redux/slices/slideSlice";
+import { getDurationInSeconds } from "@src/Slide";
+import { SlideLoaderFactory } from "@src/SlideLoader";
 
 const Main = styled.div`
   display: flex;
@@ -47,12 +47,9 @@ const Slider = (props): React$Node => {
   const { language, slides, position } = props;
 
   useEffect(() => {
-    const wordsCount = slides[position]?.content.split(" ").length
-    const durationInSeconds = ((wordsCount / SLIDER.WordsPerMinute) * 60) + 2
-    console.log(`[Slider] slide contains ${wordsCount} words, requires ${durationInSeconds}s`)
     const duration = slides.length > 0
       ?
-      Math.max(slides[position].durationInSeconds || durationInSeconds, SLIDER.MinimumSlideDurationInSeconds)
+      getDurationInSeconds(slides[position])
       :
       .3  // by default 3ms
     ;

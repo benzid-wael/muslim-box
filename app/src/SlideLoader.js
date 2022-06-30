@@ -1,30 +1,39 @@
 /*
 * @flow
 */
-import type { Language } from "./types";
-import type { Slide } from "@src/types";
+import type { Language, Slide } from "@src/types";
 
-import slides from "@resources/slides.json"
+import _ from "lodash";
 
+import SLIDER from "@constants/slider";
+import slides from "@resources/slides.json";
 
 export class SlideLoader {
-    async load(count: number, language: Language): Promise<Array<Slide>> {
-        throw Error(".load() should be overridden")
+    async _load(count: number, language: Language): Promise<Array<Slide>> {
+        throw Error("._load() should be overridden")
     }
-}
 
-export class StaticSlideLoader extends SlideLoader {
     async load(count: number, language: Language): Promise<Array<Slide>> {
-        const chunkSize = 10;
+        const loadedSlides = await this._load(count, language)
         let result = []
-        slides.map((s, i) => {
-            if (i % chunkSize === 0) {
+
+        console.log(`[SlideLoader] loaded ${loadedSlides.length} slides`)
+        // insert prayer reminder slides
+        loadedSlides.map((s, i) => {
+            if (i % SLIDER.PrayerReminderEveryNSlides === 0) {
                 result.push({type: "current-prayer"})
                 result.push({type: "next-prayer"})
             }
             result.push(s)
         })
-        return result
+
+        return _.flatten(_.times(SLIDER.PageRepeatRatioNOutOfOne, _.constant(result)))
+    }
+}
+
+export class StaticSlideLoader extends SlideLoader {
+    async _load(count: number, language: Language): Promise<Array<Slide>> {
+        return slides
     }
 }
 
@@ -37,7 +46,7 @@ export class LocalBackendSlideLoader extends SlideLoader {
         this.backendUrl = backendUrl
     }
 
-    async load(count: number, language: Language): Promise<Array<Slide>> {
+    async _load(count: number, language: Language): Promise<Array<Slide>> {
         const query = `query GetRandomSlides($count: Int!, $language: String!) {
             getRandomSlides(count: $count, language: $language) {
                 id
