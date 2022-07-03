@@ -31,7 +31,7 @@ def gen():
 
     res.sort(key=lambda i: (i["surah"], i["number"]))
     for index, row in enumerate(res):
-        print(f"({index + 2}, {row['surah']}, {row['number']}, \"{row['verse_ar']}\", \"{row['verse_en']}\", \"\"),")
+        print(f"({index + 2}, {row['surah']}, {row['number']}, \"{row['verse_ar']}\", \"{row['verse_en']}\", null),")
 
 
 

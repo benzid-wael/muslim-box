@@ -127,9 +127,8 @@ const createWindow = () => {
 
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
     title: "MuslimBox...",
+    fullscreen: true,
     webPreferences: {
       devTools: isDev,
       nodeIntegration: false,
@@ -187,9 +186,9 @@ const createWindow = () => {
     mainWindow.loadURL(`${Protocol.scheme}://rse/index.html`);
   }
 
-  mainWindow.once("ready-to-show", () => {
-    mainWindow.maximize()
-  })
+  // mainWindow.once("ready-to-show", () => {
+  //   mainWindow.maximize()
+  // })
 
   mainWindow.webContents.on("did-finish-load", () => {
     mainWindow.setTitle(`MuslimBox (v${app.getVersion()})`);

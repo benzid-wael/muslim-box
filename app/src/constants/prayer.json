@@ -1,8 +1,13 @@
 {
-    "IqamaAfterInMinutes": 15,
-    "IqamaDurationInMinutes": 1,
-    "PrayerDurationInMinutes": 10,
-    "AdhkarDurationInMinutes": 10,
-    "AdhkarSabahMasaaDurationInMinutes": 10,
-    "EndTimeReminderInMinutes": 20
-  }
+  "AdhanDurationInMinutes": 3,
+  "AfterAdhanDurationInMinutes": 2,
+  "IqamahAfterInMinutes": 15,
+  "IqamahDurationInMinutes": 1,
+  "PrayerDurationInMinutes": 10,
+  "AdhkarDurationInMinutes": 10,
+  "AfterPrayerSunnahDurationInMinutes": 15,
+  "AdhkarSabahMasaaDurationInMinutes": 20,
+  "EndTimeReminderInMinutes": 20,
+  "SaharTimeDurationInMinutes": 20,
+  "ZawalDurationInMinutes": 15
+}

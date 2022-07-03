@@ -1,6 +1,7 @@
 const path = require("path");
 const graphql = require("graphql");
 const sqlite3 = require("sqlite3").verbose();
+const DAO = require("./DAO").DAO;
 
 const isDev = process.env.NODE_ENV === "development";
 const isMac = process.platform === "darwin";
@@ -45,11 +46,27 @@ const slideType = new graphql.GraphQLObjectType({
   }
 });
 
+const SearchOperatorType = new graphql.GraphQLEnumType({
+  name: "SearchOperator",
+  values: {
+    ANY: { value: "any" },
+    ALL: { value: "all" },
+  }
+})
+
+const SearchOrderByType = new graphql.GraphQLEnumType({
+  name: "SearchOrderBy",
+  values: {
+    RANDOM: { value: "random" },
+    ID: { value: "id" },
+  }
+})
+
 // create a graphql query to select all and by id
 var queryType = new graphql.GraphQLObjectType({
   name: "Query",
   fields: {
-    // first query to select all
+    // first query to get random slides
     getRandomSlides: {
       type: graphql.GraphQLList(slideType),
       args: {
@@ -60,39 +77,17 @@ var queryType = new graphql.GraphQLObjectType({
           type: new graphql.GraphQLNonNull(graphql.GraphQLString),
         },
       },
-      resolve: (root, {count, language}, context, info) => {
-        return new Promise((resolve, reject) => {
-          const getRandomSlidesQuery = `
-            SELECT s.id, s.type, s.meta,
-              s.content_${language} as content,
-              s.note_${language} as note,
-              qv.verse_${language} as verse,
-              qs.name_${language} as surah,
-              qs.ayah,
-              qs.sajda
-            FROM slide s
-            LEFT JOIN quran_verse qv
-              ON qv.id = s.verse_start
-            LEFT JOIN quran_surah qs
-              ON qs.id = qv.surah
-            ORDER BY random()
-            LIMIT (?)
-          `
-          // raw SQLite query to select from table
-          database.all(getRandomSlidesQuery, [count], function(err, rows) {
-            if(err){
-              reject([]);
-            }
-            const result = (
-              !!rows && rows.length > 0
-              ?
-              rows.map(row => serializeSlide(row))
-              :
-              []
-            )
-            resolve(result);
-          });
-        });
+      resolve: async (root, {count, language}, context, info) => {
+        const dao = new DAO(dbPath)
+        const rows = await dao.random(count, language)
+        const result = (
+          !!rows && rows.length > 0
+          ?
+          rows.map(row => serializeSlide(row))
+          :
+          []
+        )
+        return result
       }
     },
     // second query to select by id
@@ -106,32 +101,51 @@ var queryType = new graphql.GraphQLObjectType({
           type: new graphql.GraphQLNonNull(graphql.GraphQLString),
         },
       },
-      resolve: (root, {id, language}, context, info) => {
-        return new Promise((resolve, reject) => {
-          const getSlideByIdQuery = `
-            SELECT s.id, s.type, s.meta,
-              s.content_${language} as content,
-              s.note_${language} as note,
-              qv.verse_${language} as verse,
-              qs.name_${language} as surah,
-              qs.ayah,
-              qs.sajda
-            FROM slide s
-            LEFT JOIN quran_verse qv
-              ON qv.id = s.verse_start
-            LEFT JOIN quran_surah qs
-              ON qs.id = qv.surah
-            WHERE s.id = (?);`
-          database.all(getSlideByIdQuery, [id], function(err, rows) {
-            if(err){
-              reject(null);
-            }
-            const result = !!rows && rows.length > 0 ? serializeSlide(rows[0]) : null
-            resolve(result);
-          });
-        });
+      resolve: async (root, {id, language}, context, info) => {
+        const dao = new DAO(dbPath)
+        const rows = await dao.getSlideById(id, language)
+        const result = !!rows && rows.length > 0 ? serializeSlide(rows[0]) : null
+        return result
       }
-    }
+    },
+    // search for slides matching the given query
+    search: {
+      type: graphql.GraphQLList(slideType),
+      args:{
+        include: {
+          type: new graphql.GraphQLList(
+            new graphql.GraphQLNonNull(graphql.GraphQLString),
+          ),
+        },
+        exclude: {
+          type: new graphql.GraphQLList(
+            new graphql.GraphQLNonNull(graphql.GraphQLString),
+          ),
+        },
+        operator: {
+          type: SearchOperatorType,
+        },
+        orderBy: {
+          type: SearchOrderByType,
+        },
+        language: {
+          type: new graphql.GraphQLNonNull(graphql.GraphQLString),
+        },
+      },
+      resolve: async (root, {include, exclude, operator, orderBy, language}, context, info) => {
+        const dao = new DAO(dbPath)
+        console.log(`check slides matching: ${operator} tag of ${include}`)
+        let rows = []
+        if (operator === "all") {
+          rows = await dao.all(include, exclude, orderBy, language)
+        } else if(operator === "any") {
+          rows = await dao.any(include, exclude, orderBy, language)
+        } else {
+          throw new Error(`unsupported operator: ${operator}`)
+        }
+        return rows.map(row => serializeSlide(row))
+      }
+    },
   }
 });
 

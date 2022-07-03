@@ -83,7 +83,7 @@ const Slider = (props): React$Node => {
     })
     if(!loader) return []
     const lang = language.split("-")[0]
-    const slides = await loader.load(SLIDER.PageSize, lang);
+    const slides = await loader.random(SLIDER.PageSize, lang);
     return slides;
   }
 

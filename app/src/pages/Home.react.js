@@ -51,20 +51,25 @@ const mapStateToProps = state => ({
   currentTime: state.prayerTimes.currentTime,
 })
 
+const getView = (key?: string) => {
+  switch(key) {
+    case "adhan":
+      return <AdhanSlide />
+  }
+
+  return <Slider />
+}
+
 const Home = (props: StateProps): React$Node => {
-  const [adhan, showAdhan] = useState(true);
+  const [view, showView] = useState("slider");
 
   useEffect(() => {
-    if(!adhan && props.currentTime?.tag === "adhan") {
-      showAdhan(true)
-    } else if(adhan && props.currentTime?.tag !== "adhan") {
-      showAdhan(false)
-    }
+    showView(props.currentTime?.modifier)
   }, [props.currentTime])
 
   return <Main>
     <Content>
-      {adhan ? <AdhanSlide /> : <Slider />}
+      { getView(view) }
     </Content>
     <Footer>
       <Clock />
