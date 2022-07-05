@@ -1,5 +1,5 @@
 {
-    "WordsPerMinute": 100,
+    "WordsPerMinute": 50,
     "DefaultProvider": "database",
     "PageSize": 10,
     "PageRepeatRatioNOutOfOne": 3,

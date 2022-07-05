@@ -27,7 +27,6 @@ contextBridge.exposeInMainWorld("api", {
     })
   },
   onGeocoordinatesChanged: (callback) => {
-    console.log(`[preload] onGeocoordinatesChanged initialized`)
     ipcRenderer.on("geocordinates-changed", function (evt, message) {
       console.log(`[preload] onGeocoordinatesChanged: ${JSON.stringify(message)}`)
       callback(message)

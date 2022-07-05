@@ -94,18 +94,39 @@ export class LocalBackendSlideLoader extends SlideLoader {
   }
 
   async _random(count: number, language: Language): Promise<Array<Slide>> {
-    const query = `query GetRandomSlides($count: Int!, $language: String!) {
-      getRandomSlides(count: $count, language: $language) {
-        id
-        type
-        content
-        note
-        meta
+    const fields = ["id", "type", "category", "content", "note", "meta"]
+    const pageSize = Math.floor(count / 4)
+    const quranPageSize = count - (3 * pageSize)
+    const query = `query random($verses: Int!, $count: Int!, $language: String!) {
+      quran: versesOfTheDay(count: $verses, language: $language) {
+        ${fields.join(', ')}
       }
-    }`
 
-    const response = await this.fetch(query, language, {count})
-    return response.data["data"]["getRandomSlides"]
+      hadith: random(count: $count, language: $language, type: HADITH) {
+        ${fields.join(', ')}
+      }
+
+      athar: random(count: $count, language: $language, type: ATHAR) {
+        ${fields.join(', ')}
+      }
+
+      dhikr: random(count: $count, language: $language, type: DHIKR) {
+        ${fields.join(', ')}
+      }
+    }
+    `
+
+    const response = await this.fetch(
+      query,
+      language,
+      {count: pageSize, verses: quranPageSize},
+    )
+    return _.shuffle([
+      ...response.data["data"]["quran"],
+      ...response.data["data"]["hadith"],
+      ...response.data["data"]["dhikr"],
+      ...response.data["data"]["athar"],
+    ])
   }
 
   async _search(filter: SlideFilter, language: Language): Promise<Array<Slide>> {

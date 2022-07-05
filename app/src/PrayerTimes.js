@@ -82,7 +82,7 @@ const generatePT = (options: {
           name: "general",
           include: ["prayer:after"],
         }, {
-          name: "prayer",
+          name: "time",
           include: [`prayer:after:${prayerId}`],
         }],
       }
@@ -113,6 +113,9 @@ const generatePT = (options: {
         onReachEnd: "reset",
         queries: [{
           name: "general",
+          include: ["adhkar:sabah_masaa"],
+        }, {
+          name: "time",
           include: [`time:${options.adhkarSabahMasaa}`],
         }],
       },
@@ -134,7 +137,7 @@ const generatePT = (options: {
         name: "general",
         include: ["adhan"],
       }, {
-        name: "prayer",
+        name: "time",
         include: [`adhan:${prayerId}`],
       }],
     },
@@ -165,7 +168,7 @@ const generatePT = (options: {
         name: "general",
         include: ["prayer:before"],
       }, {
-        name: "prayer",
+        name: "time",
         include: [`prayer:before:${prayerId}`],
       }],
     },
@@ -201,10 +204,10 @@ const generatePT = (options: {
       onReachEnd: "reset",
       queries: [{
         name: "general",
-        include: ["adhkar"],
+        include: ["adhkar:prayer"],
       }, {
-        name: "prayer",
-        include: [`adhkar:${prayerId}`],
+        name: "time",
+        include: [`adhkar:prayer:${prayerId}`],
       }],
     }
   },

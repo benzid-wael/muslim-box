@@ -26,6 +26,10 @@ export type Time = $ReadOnly<{
   minute: number,
 }>;
 
+export type SlideFilterOperator =
+  | "all"
+  | "any"
+
 export type SlideFilterOrderType =
   | "random"  // random order
   | "id"      // sort by id (default)
@@ -36,8 +40,9 @@ export type SlideFilterOnReachEndStrategy =
 
 export type SlideFilterQuery = $ReadOnly<{
   name: string,
-  include?: Array<String>,
+  include: Array<String>,
   exclude?: Array<String>,
+  operator?: SlideFilterOperator,
   orderBy?: SlideFilterOrderType,
   count?: number,
   // by default result will not be merged with others.
@@ -196,13 +201,14 @@ export type Reference =
 
 type BaseSlide = $ReadOnly<{
   type: string,
+  category: string,
   content: $ReadOnlyArray<string>,
   events?: $ReadOnlyArray<Event>,
   durationInSeconds?: number,
 }>;
 
 export type CurrentPrayerSlide = $ReadOnly<{
-  ...$Diff<BaseSlide, {type: string, content: $ReadOnlyArray<string>}>,
+  ...$Diff<BaseSlide, {type: string, category: string, content: $ReadOnlyArray<string>}>,
   type: "current-prayer"
 }>;
 
@@ -212,7 +218,7 @@ export type NextPrayerSlide = $ReadOnly<{
 }>;
 
 export type ClockSlide = $ReadOnly<{
-  ...$Diff<BaseSlide, {type: string, content: $ReadOnlyArray<string>}>,
+  ...$Diff<BaseSlide, {type: string, category: string, content: $ReadOnlyArray<string>}>,
   type: "clock",
 }>;
 
@@ -234,10 +240,17 @@ export type DhikrSlide = $ReadOnly<{
   count: number;
 }>;
 
+export type AtharSlide = $ReadOnly<{
+  ...$Diff<BaseSlide, {type: string}>,
+  type: "athar",
+  count: number;
+}>;
+
 export type Slide =
   | CurrentPrayerSlide
   | NextPrayerSlide
   | ClockSlide
   | QuranVerseSlide
   | HadithSlide
-  | DhikrSlide;
+  | DhikrSlide
+  | AtharSlide;

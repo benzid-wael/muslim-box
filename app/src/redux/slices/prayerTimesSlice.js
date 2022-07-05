@@ -98,7 +98,7 @@ export const computePrayerTimes = (position: GeoCoordinates): any => (dispatch: 
 }
 
 export const updatePrayerTimes = (): any => (dispatch: any) => {
-  console.log(`⏳ updatePrayerTimes`)
+  // console.log(`⏳ updatePrayerTimes`)
   dispatch(updateCurrentPrayer());
 }
 

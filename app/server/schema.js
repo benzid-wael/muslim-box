@@ -1,7 +1,8 @@
 const path = require("path");
 const graphql = require("graphql");
 const sqlite3 = require("sqlite3").verbose();
-const DAO = require("./DAO").DAO;
+const Database = require("./Database").Database;
+const Repository = require("./Repository");
 
 const isDev = process.env.NODE_ENV === "development";
 const isMac = process.platform === "darwin";
@@ -13,40 +14,32 @@ const dbPath = (
   path.join(__dirname, "../../../muslimbox.db")
 )
 console.log(`[server] database: ${dbPath}`)
-const database = new sqlite3.Database(dbPath);
-
-const serializeSlide = (row) => {
-  const note = (
-    row.type === "quran"
-    ?
-    JSON.stringify({
-
-    })
-    :
-    row.note
-  )
-  return {
-    id: row.id,
-    type: row.type,
-    content: row.content || row.verse,
-    note: note,
-    meta: row.meta
-  }
-}
+// const database = new sqlite3.Database(dbPath);
 
 //creacte graphql slide object
-const slideType = new graphql.GraphQLObjectType({
+const Slide = new graphql.GraphQLObjectType({
   name: "Slide",
   fields: {
     id: { type: graphql.GraphQLID },
     type: { type: graphql.GraphQLString },
     content: { type: graphql.GraphQLString },
+    category: { type: graphql.GraphQLString },
     note: { type: graphql.GraphQLString },
     meta: { type: graphql.GraphQLString },
   }
 });
 
-const SearchOperatorType = new graphql.GraphQLEnumType({
+const SlideTypeEnum = new graphql.GraphQLEnumType({
+  name: "SlideType",
+  values: {
+    QURAN: { value: "quran" },
+    HADITH: { value: "hadith" },
+    DHIKR: { value: "dhikr" },
+    ATHAR: { value: "ATHAR" },
+  }
+})
+
+const SearchOperatorEnum = new graphql.GraphQLEnumType({
   name: "SearchOperator",
   values: {
     ANY: { value: "any" },
@@ -54,7 +47,7 @@ const SearchOperatorType = new graphql.GraphQLEnumType({
   }
 })
 
-const SearchOrderByType = new graphql.GraphQLEnumType({
+const SearchOrderByEnum = new graphql.GraphQLEnumType({
   name: "SearchOrderBy",
   values: {
     RANDOM: { value: "random" },
@@ -66,9 +59,8 @@ const SearchOrderByType = new graphql.GraphQLEnumType({
 var queryType = new graphql.GraphQLObjectType({
   name: "Query",
   fields: {
-    // first query to get random slides
-    getRandomSlides: {
-      type: graphql.GraphQLList(slideType),
+    versesOfTheDay: {
+      type: graphql.GraphQLList(Slide),
       args: {
         count: {
           type: new graphql.GraphQLNonNull(graphql.GraphQLInt),
@@ -78,21 +70,34 @@ var queryType = new graphql.GraphQLObjectType({
         },
       },
       resolve: async (root, {count, language}, context, info) => {
-        const dao = new DAO(dbPath)
-        const rows = await dao.random(count, language)
-        const result = (
-          !!rows && rows.length > 0
-          ?
-          rows.map(row => serializeSlide(row))
-          :
-          []
-        )
+        const db = new Database(dbPath)
+        const result = await Repository.versesOfTheDay(db, count, language)
+        return result
+      }
+    },
+    // get random slides
+    random: {
+      type: graphql.GraphQLList(Slide),
+      args: {
+        count: {
+          type: new graphql.GraphQLNonNull(graphql.GraphQLInt),
+        },
+        language: {
+          type: new graphql.GraphQLNonNull(graphql.GraphQLString),
+        },
+        type: {
+          type: SlideTypeEnum,
+        },
+      },
+      resolve: async (root, {count, language, type}, context, info) => {
+        const db = new Database(dbPath)
+        const result = await Repository.random(db, count, language, type)
         return result
       }
     },
     // second query to select by id
     getSlideById: {
-      type: slideType,
+      type: Slide,
       args:{
         id:{
           type: new graphql.GraphQLNonNull(graphql.GraphQLID),
@@ -102,15 +107,14 @@ var queryType = new graphql.GraphQLObjectType({
         },
       },
       resolve: async (root, {id, language}, context, info) => {
-        const dao = new DAO(dbPath)
-        const rows = await dao.getSlideById(id, language)
-        const result = !!rows && rows.length > 0 ? serializeSlide(rows[0]) : null
+        const db = new Database(dbPath)
+        const result = await Repository.getSlideById(db, id, language)
         return result
       }
     },
     // search for slides matching the given query
     search: {
-      type: graphql.GraphQLList(slideType),
+      type: graphql.GraphQLList(Slide),
       args:{
         include: {
           type: new graphql.GraphQLList(
@@ -123,27 +127,19 @@ var queryType = new graphql.GraphQLObjectType({
           ),
         },
         operator: {
-          type: SearchOperatorType,
+          type: SearchOperatorEnum,
         },
         orderBy: {
-          type: SearchOrderByType,
+          type: SearchOrderByEnum,
         },
         language: {
           type: new graphql.GraphQLNonNull(graphql.GraphQLString),
         },
       },
       resolve: async (root, {include, exclude, operator, orderBy, language}, context, info) => {
-        const dao = new DAO(dbPath)
-        console.log(`check slides matching: ${operator} tag of ${include}`)
-        let rows = []
-        if (operator === "all") {
-          rows = await dao.all(include, exclude, orderBy, language)
-        } else if(operator === "any") {
-          rows = await dao.any(include, exclude, orderBy, language)
-        } else {
-          throw new Error(`unsupported operator: ${operator}`)
-        }
-        return rows.map(row => serializeSlide(row))
+        const db = new Database(dbPath)
+        const result = await Repository.search(db, operator, include, exclude, orderBy, language)
+        return result
       }
     },
   }
