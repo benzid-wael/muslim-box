@@ -6,15 +6,28 @@ import type { Language, Slide, SlideFilter } from "@src/types";
 import _ from "lodash";
 import axios from "axios";
 import axiosRetry from "axios-retry";
+import isRetryAllowed from 'is-retry-allowed';
 
 import SLIDER from "@constants/slider";
 import Slides from "@resources/slides.json";
 
 
+const isRetryableError = (error): boolean => {
+  console.error(`isRetryableError: ${error.code}`)
+  return (
+    // !error.response &&
+    Boolean(error.code) && // Prevents retrying cancelled requests
+    error.code !== 'ECONNABORTED' && // Prevents retrying timed out requests
+    isRetryAllowed(error)
+  )
+}
+
+const http = axios.create()
 // Exponential back-off retry delay between requests
-axiosRetry(axios, {
+axiosRetry(http, {
   retries: 10,
   retryDelay: axiosRetry.exponentialDelay,
+  retryCondition: isRetryableError,
   onRetry: (retryCount, error, requestConfig) => {
     console.warn(`[SlideLoader] fetching slides failed for the ${retryCount}nd time: ${error}`)
   }
@@ -96,7 +109,7 @@ export class LocalBackendSlideLoader extends SlideLoader {
         "Accept": "application/json",
       }
     }
-    const response = await axios.post(this.backendUrl, data, config)
+    const response = await http.post(this.backendUrl, data, config)
     return response
   }
 

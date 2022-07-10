@@ -4,6 +4,7 @@ const { Menu, MenuItem, BrowserWindow, shell } = require("electron");
 const i18nBackend = require("i18next-electron-fs-backend");
 const openAboutWindow = require("about-window").default;
 
+const { checkForUpdates } = require("./updater");
 const whitelist = require("../localization/whitelist");
 const isMac = process.platform === "darwin";
 const isDev = process.env.NODE_ENV === "development";
@@ -24,6 +25,9 @@ const MenuBuilder = function(mainWindow, processManager) {
       label: i18nextMainBackend.t("About MuslimBox"),
       click: () => (
         openAboutWindow({
+          fullScreenable: false,
+          width: 600,
+          height: 600,
           icon_path: icon,
           description: packageJson.description,
           copyright: `Copyright ©️ ${copyrightYear} MuslimBox`,
@@ -37,9 +41,8 @@ const MenuBuilder = function(mainWindow, processManager) {
       )
     }, {
       label: i18nextMainBackend.t("Check for Updates..."),
-      click: () => {
-        console.log(`checking for updates...`)
-      }
+      accelerator: 'Command+U',
+      click: checkForUpdates
     }, {
       type: 'separator'
     }, {

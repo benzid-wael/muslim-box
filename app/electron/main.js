@@ -128,7 +128,9 @@ const createWindow = () => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     title: "MuslimBox...",
-    fullscreen: true,
+    // fullscreen: true,
+    width: 600,
+    height: 600,
     webPreferences: {
       devTools: isDev,
       nodeIntegration: false,
@@ -148,6 +150,8 @@ const createWindow = () => {
       mode: "bottom"
     })
   }
+
+  mainWindow.setFullScreen(true)
 
   // Sets up main.js bindings for our i18next backend
   i18nextBackend.mainBindings(ipcMain, mainWindow, fs);

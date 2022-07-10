@@ -1,9 +1,13 @@
 {
   "name": "muslim-box",
-  "version": "0.0.0.4-dev",
-  "description": "Muslim gadgets on your TV",
+  "version": "0.0.1",
+  "description": "Muslim gadgets on your TV & Desktop",
   "private": true,
   "main": "app/electron/main.js",
+  "author": {
+    "name": "Wael Ben Zid El Guebsi",
+    "email": "benzid.wael@hotmail.fr"
+  },
   "scripts": {
     "flow": "flow",
     "postinstall": "electron-builder install-app-deps",
@@ -19,11 +23,20 @@
     "dist-linux": "npm run prod-build && electron-builder --linux",
     "dist-windows": "npm run prod-build && electron-builder --windows",
     "dist-all": "npm run prod-build && electron-builder --mac --linux --windows",
+    "publish": "npm run prod-build && electron-builder --mac --linux --windows -p always",
     "test": "mocha"
   },
   "build": {
     "productName": "MuslimBox",
     "appId": "org.muslimbox",
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "benzid-wael",
+        "repo": "muslim-box",
+        "private": false
+      }
+    ],
     "directories": {
       "buildResources": "resources"
     },
@@ -65,7 +78,6 @@
     "masjid",
     "playlist"
   ],
-  "author": "wbenzid",
   "browserslist": [
     "last 2 Chrome versions"
   ],
@@ -125,9 +137,11 @@
     "electron-devtools-installer": "^3.2.0",
     "electron-log": "^4.4.7",
     "electron-re": "^1.2.2",
+    "electron-updater": "^5.0.5",
     "express": "^4.18.1",
     "express-graphql": "^0.12.0",
     "fast-geoip": "^1.1.84",
+    "github-url-to-object": "^4.0.6",
     "graphql": "^15.8.0",
     "i18next": "^21.6.6",
     "i18next-electron-fs-backend": "^2.0.0",
