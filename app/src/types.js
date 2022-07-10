@@ -26,6 +26,23 @@ export type Time = $ReadOnly<{
   minute: number,
 }>;
 
+export type AdhanSound =
+  | "adhan-fajr"
+  | "adhan-madinah"
+  | "adhan-makkah-dua"
+  | "adhan-makkah"
+  | "adhan-makkah2-dua"
+  | "adhan-makkah2"
+  | "adhan-mishary-rashad"
+  | "adhan-turkish"
+
+export type AdhanSoundMetadata = $ReadOnly<{
+  sound: Audio,
+  durationInSeconds: number,
+  dua: boolean,
+  fajr?: boolean,
+}>
+
 export type SlideFilterOperator =
   | "all"
   | "any"
@@ -62,6 +79,20 @@ export type PrayerTimeConfig = $ReadOnly<{
   adhkarDurationInMinutes?: number,
   afterPrayerSunnahDurationInMinutes?: number,
   adhkarSabahMasaaDurationInMinutes?: number,
+}>
+
+export type AdhanConfig = $ReadOnly<{
+  autoPlayAdhan?: boolean,
+  autoPlayFajrAdhan?: boolean,
+  autoPlayDhuhrAdhan?: boolean,
+  autoPlayAsrAdhan?: boolean,
+  autoPlayMaghribAdhan?: boolean,
+  autoPlayIshaAdhan?: boolean,
+  fajrAdhanSound?: AdhanSound,
+  dhuhrAdhanSound?: AdhanSound,
+  asrAdhanSound?: AdhanSound,
+  maghribAdhanSound?: AdhanSound,
+  ishaAdhanSound?: AdhanSound,
 }>
 
 export type PrayerTime = $ReadOnly<{

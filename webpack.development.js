@@ -37,6 +37,7 @@ module.exports = merge(base, {
       "object-src": ["'none'"],
       "script-src": ["'unsafe-inline'", "'self'", "'unsafe-eval'"],
       "style-src": ["'unsafe-inline'", "'self'", "'unsafe-eval'"],
+      "img-src": ["'unsafe-inline'", "'self'", "'unsafe-eval'", "data:", "localhost:3001"],
       "frame-src": ["'none'"],
       "worker-src": ["'none'"]
     }, {

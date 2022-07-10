@@ -11,7 +11,14 @@ import SLIDER from "@constants/slider";
 import Slides from "@resources/slides.json";
 
 
-axiosRetry(axios, { retries: 5 });
+// Exponential back-off retry delay between requests
+axiosRetry(axios, {
+  retries: 10,
+  retryDelay: axiosRetry.exponentialDelay,
+  onRetry: (retryCount, error, requestConfig) => {
+    console.warn(`[SlideLoader] fetching slides failed for the ${retryCount}nd time: ${error}`)
+  }
+});
 
 
 export class SlideLoader {

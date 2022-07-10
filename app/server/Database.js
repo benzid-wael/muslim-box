@@ -6,6 +6,37 @@ class Database {
     this.database = new sqlite3.Database(path);
   }
 
+  getSlideById(id, language) {
+    return new Promise((resolve, reject) => {
+      const getSlideByIdQuery = `
+        SELECT s.id, s.type, s.meta,
+          s.content_${language} as content,
+          c.name_${language} as category,
+          s.note_${language} as note,
+          qv.verse_${language} as verse,
+          qs.name_${language} as surah,
+          qv.number,
+          qs.ayah,
+          qs.sajda
+        FROM slide s
+        LEFT JOIN category c
+          ON c.id = s.category
+        LEFT JOIN quran_verse qv
+          ON qv.id = s.verse_start
+        LEFT JOIN quran_surah qs
+          ON qs.id = qv.surah
+        WHERE s.id = (?);`
+
+      database.all(getSlideByIdQuery, [id], function(err, rows) {
+        if(err){
+          reject(err);
+        }
+        const result = !!rows && rows.length > 0 ? rows[0] : null
+        resolve(result);
+      });
+    });
+  }
+
   randomVerses(count, language) {
     return new Promise((resolve, reject) => {
       const query = `
@@ -70,35 +101,42 @@ class Database {
     });
   }
 
-  getSlideById(id, language) {
+  /*
+  * Returns slides matching the given category
+  */
+  getSlideByCategory(categoryId, language) {
     return new Promise((resolve, reject) => {
-      const getSlideByIdQuery = `
-        SELECT s.id, s.type, s.meta,
-          s.content_${language} as content,
-          c.name_${language} as category,
-          s.note_${language} as note,
-          qv.verse_${language} as verse,
-          qs.name_${language} as surah,
-          qv.number,
-          qs.ayah,
-          qs.sajda
-        FROM slide s
-        LEFT JOIN category c
-          ON c.id = s.category
-        LEFT JOIN quran_verse qv
-          ON qv.id = s.verse_start
-        LEFT JOIN quran_surah qs
-          ON qs.id = qv.surah
-        WHERE s.id = (?);`
+      const query = `
+      SELECT s.id, s.type, s.meta,
+        s.content_${language} as content,
+        c.name_${language} as category,
+        s.note_${language} as note,
+        qv.verse_${language} as verse,
+        qs.name_${language} as surah,
+        qv.number,
+        qs.ayah,
+        qs.sajda
+      FROM slide s
+      LEFT JOIN category c
+        ON c.id = s.category
+      LEFT JOIN quran_verse qv
+        ON qv.id = s.verse_start
+      LEFT JOIN quran_surah qs
+        ON qs.id = qv.surah
+      WHERE (s.content_${language} IS NOT NULL OR qv.verse_${language} IS NOT NULL)
+        AND s.category = (?)
+      GROUP BY s.id
+      ORDER BY s.id
+      `
 
-      database.all(getSlideByIdQuery, [id], function(err, rows) {
+      this.database.all(query, [categoryId], function(err, rows) {
         if(err){
           reject(err);
         }
-        const result = !!rows && rows.length > 0 ? rows[0] : null
+        const result = !!rows && rows.length > 0 ? rows : []
         resolve(result);
       });
-    });
+    })
   }
 
   /*

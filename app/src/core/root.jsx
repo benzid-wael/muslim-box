@@ -11,7 +11,7 @@ import styled from "styled-components";
 
 import i18n from "@localization/i18n.config";
 import { changeLanguage } from "@redux/slices/configSlice";
-import { setBackendURL, setCoordinates } from "@redux/slices/userSlice";
+import { setBackendURLs, setCoordinates } from "@redux/slices/userSlice";
 import { computePrayerTimes, updatePrayerTimes } from "@redux/slices/prayerTimesSlice";
 
 import Nav from "./nav";
@@ -38,13 +38,12 @@ window.api.onLanguageInitialized((message) => {
 });
 
 window.api.onGeocoordinatesChanged((message) => {
-  console.error(`[Renderer] geo-coordinates changed: ${JSON.stringify(message)}`);
+  console.log(`[Renderer] geo-coordinates changed: ${JSON.stringify(message)}`);
   store.dispatch(setCoordinates(message));
 });
 
 window.api.onBackendUrlChanged((message) => {
-  console.error(`[Renderer] backend address changed`);
-  store.dispatch(setBackendURL(message.backendURL));
+  store.dispatch(setBackendURLs(message));
 });
 
 const Main = styled.div`

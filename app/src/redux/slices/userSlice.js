@@ -8,6 +8,7 @@ type Config = $ReadOnly<{
   city?: string,
   timezone?: string,
   backendURL?: string,
+  mediaURL?: string,
 }>
 
 const initial = {
@@ -24,14 +25,18 @@ const slice = createSlice({
     setCoordinates: (state, {payload}) => {
         return {...state, ...payload}
     },
-    setBackendURL: (state, {payload}: {payload: string}) => {
-        return {...state, backendURL: payload}
+    setBackendURLs: (state, {payload}: {payload: string}) => {
+        return {
+          ...state,
+          backendURL: payload.backendURL,
+          mediaURL: payload.mediaURL,
+        }
     },
   }
 });
 
 // Export actions
-export const { setBackendURL, setCoordinates, setLoading } = slice.actions;
+export const { setBackendURLs, setCoordinates, setLoading } = slice.actions;
 
 // Export reducer
 export default slice.reducer;

@@ -2,6 +2,7 @@ const cors = require("cors")
 const express = require("express")
 const { graphqlHTTP } = require("express-graphql")
 const Sentry = require("@sentry/node")
+const path = require("path");
 
 // Importing @sentry/tracing patches the global hub for tracing to work.
 const SentryTracing = require("@sentry/tracing");
@@ -19,6 +20,9 @@ process.send("Hello :)");
 const schema = require("./schema")
 
 const app = express()
+
+const resources = path.join(__dirname, "/../../resources/images")
+app.use('/public', express.static(resources))
 
 app.use(function (req, res, next) {
   res.setHeader(

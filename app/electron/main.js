@@ -194,7 +194,10 @@ const createWindow = () => {
     mainWindow.setTitle(`MuslimBox (v${app.getVersion()})`);
 
     // update renderer
-    mainWindow.webContents.send("backend-url-changed", {backendURL: `http://localhost:${serverPort}/gql/`})
+    mainWindow.webContents.send("backend-url-changed", {
+      backendURL: `http://localhost:${serverPort}/gql`,
+      mediaURL: `http://localhost:${serverPort}/public`
+    })
     mainWindow.webContents.send("language-initialized", {language: i18nextMainBackend.language})
     // mainWindow.webContents.send("geocordinates-changed", {
     //   coordinates: {longitude: geoInfo.ll[1], latitude: geoInfo.ll[0]},

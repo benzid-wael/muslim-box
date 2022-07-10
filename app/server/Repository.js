@@ -66,6 +66,11 @@ const getSlideById = async (db, id, language) => {
   return result
 }
 
+const getSlideByCategory = async (db, id, language) => {
+  const rows = await db.getSlideByCategory(id, language)
+  return rows.map(row => serializeSlide(row))
+}
+
 const search = async (db, operator, include, exclude, orderBy, language) => {
   console.log(`check slides matching: ${operator} tag of ${include}`)
   let rows = []
@@ -83,5 +88,6 @@ module.exports = {
   versesOfTheDay,
   random,
   getSlideById,
-  search
+  getSlideByCategory,
+  search,
 }

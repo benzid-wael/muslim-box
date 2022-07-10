@@ -1,14 +1,15 @@
 /*
 * @flow
 */
-import type { PrayerTime, Language, LayoutDirection } from "@src/types";
+import type { PrayerTime, Language, LayoutDirection } from "@src/types"
 
 import React, { useState, useEffect } from "react";
 import { connect } from "react-redux"
 import { useTranslation } from "react-i18next"
 import styled from "styled-components"
 
-import AdhanMadinah from "@resources/audio/Adhan-Madinah.mp3";
+import ADHAN from "@constants/adhan"
+import { autoPlayAdhan, getAdhanMetadataForPrayer } from "@src/Adhan"
 
 const Main = styled.div`
   display: table;
@@ -57,14 +58,13 @@ type StateProps = $ReadOnly<{
 }>
 
 type ComponentProps = $ReadOnly<{
-  silent?: boolean; // silent mode by default
 }>
 
 type Props = StateProps & ComponentProps;
 
 const mapStateToProps = (state): StateProps => ({
   direction: state.config.present.general.direction,
-  currentPrayer: state.prayerTimes.next,
+  currentPrayer: state.prayerTimes.current,
 })
 
 const DuaaDuringAdhan = (props) => {
@@ -75,7 +75,6 @@ const DuaaDuringAdhan = (props) => {
     <Reference>{i18n.t("Sahih Al-Bukhari {{hadith}}", {hadith: 614})}</Reference>
   </div>
 }
-
 
 const DuaaAfterAdhan = (props) => {
   const { i18n } = useTranslation();
@@ -89,7 +88,8 @@ const DuaaAfterAdhan = (props) => {
 
 const Slide = (props: Props): React$Node => {
   const { i18n } = useTranslation();
-  const [audio] = useState(new Audio(AdhanMadinah))
+  const adhan = getAdhanMetadataForPrayer(props.currentPrayer?.name)
+  const [audio] = useState(new Audio(adhan.sound))
   const [state, setState] = useState({
     ended: false,
     play: false,
@@ -109,13 +109,22 @@ const Slide = (props: Props): React$Node => {
   }
 
   useEffect(() => {
+
     const timer = setTimeout(
       () => {
-        console.log(`[Adhan] playing adhan`)
-        togglePlay()
+        console.log(`[Adhan] auto playing adhan for ${props.currentPrayer?.name} prayer`)
+        if (autoPlayAdhan(props.currentPrayer?.name)) {
+          togglePlay()
+        }
     }, 300)
     return () => clearTimeout(timer)
-  }, [props.silent])
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      console.log("[Adhan] cleaned up");
+    };
+  }, []);
 
   return <Main direction={props.direction} onClick={togglePlay}>
     <Inner>

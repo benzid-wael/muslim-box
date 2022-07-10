@@ -10,12 +10,24 @@ import styled from "styled-components"
 import Clock from "@components/Clock.react"
 import Slider from "@components/Slider.react"
 import AdhanSlide from "@components/AdhanSlide.react";
+import ImageSlide from "@components/ImageSlide.react";
 import PrayerTime from "@components/PrayerTime.react";
+
+import bg from "@resources/bg.png"
 
 const Main = styled.div`
   height: 100%;
   display: grid;
   grid-template-rows: auto 25%;
+`
+
+const BackgroundImage = styled.img`
+  opacity: 0.2;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 80%;
 `
 
 const Content = styled.section`
@@ -68,6 +80,8 @@ const Home = (props: StateProps): React$Node => {
   }, [props.currentTime])
 
   return <Main>
+    <BackgroundImage src={bg} />
+
     <Content>
       { getView(view) }
     </Content>

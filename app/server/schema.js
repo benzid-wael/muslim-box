@@ -35,7 +35,7 @@ const SlideTypeEnum = new graphql.GraphQLEnumType({
     QURAN: { value: "quran" },
     HADITH: { value: "hadith" },
     DHIKR: { value: "dhikr" },
-    ATHAR: { value: "ATHAR" },
+    ATHAR: { value: "athar" },
   }
 })
 
@@ -113,6 +113,22 @@ var queryType = new graphql.GraphQLObjectType({
       }
     },
     // search for slides matching the given query
+    slideCategory: {
+      type: graphql.GraphQLList(Slide),
+      args: {
+        id:{
+          type: new graphql.GraphQLNonNull(graphql.GraphQLID),
+        },
+        language: {
+          type: new graphql.GraphQLNonNull(graphql.GraphQLString),
+        },
+      },
+      resolve: async (root, {id, language}, context, info) => {
+        const db = new Database(dbPath)
+        const result = await Repository.getSlideByCategory(db, id, language)
+        return result
+      }
+    },
     search: {
       type: graphql.GraphQLList(Slide),
       args:{
