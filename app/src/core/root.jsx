@@ -11,22 +11,39 @@ import styled from "styled-components";
 
 import i18n from "@localization/i18n.config";
 import { changeLanguage } from "@redux/slices/configSlice";
-import { loadCoordinates } from "@redux/slices/userSlice";
+import { setBackendURLs, setCoordinates } from "@redux/slices/userSlice";
 import { computePrayerTimes, updatePrayerTimes } from "@redux/slices/prayerTimesSlice";
 
 import Nav from "./nav";
 import Routes from "./routes";
 import "./root.css";
 
-window.api.i18nextElectronBackend.onLanguageChange((args) => {
-  console.error(`[Renderer] language changed event`);
-  i18n.changeLanguage(args.lng, (error, t) => {
+const loadI18nResources = (language) => {
+  console.info(`[Renderer] language changed event received`);
+  i18n.changeLanguage(language, (error, t) => {
     if (error) {
-      console.error(`cannot change language: ${error}`);
+      console.error(`[Renderer] cannot change language: ${error}`);
     } else {
-      store.dispatch(changeLanguage(args.lng));
+      store.dispatch(changeLanguage(language));
     }
   });
+}
+
+window.api.i18nextElectronBackend.onLanguageChange((args) => {
+  loadI18nResources(args.lng);
+});
+
+window.api.onLanguageInitialized((message) => {
+  loadI18nResources(message.language);
+});
+
+window.api.onGeocoordinatesChanged((message) => {
+  console.log(`[Renderer] geo-coordinates changed: ${JSON.stringify(message)}`);
+  store.dispatch(setCoordinates(message));
+});
+
+window.api.onBackendUrlChanged((message) => {
+  store.dispatch(setBackendURLs(message));
 });
 
 const Main = styled.div`
@@ -58,9 +75,6 @@ const Root = (props: Props) => {
   const { history } = props;
 
   useEffect(() => {
-    if (!props.coordinates) {
-      props.dispatch(loadCoordinates())
-    }
     props.dispatch(computePrayerTimes(props.coordinates));
   }, [props.day, props.coordinates])
 

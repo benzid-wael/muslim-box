@@ -12,6 +12,12 @@ npm run dev
 
 When you'd like to test your app in production, or package it for distribution, please navigate to [this page](https://github.com/benzid-wael/muslim-box/blob/master/docs/scripts.md) for more details on how to do this.
 
+To edit the SQLite database, you can use [SQLite Browser](https://sqlitebrowser.org/dl/)
+
+```
+brew install --cask db-browser-for-sqlite
+```
+
 ## Features
 Taken from the [best-practices](https://electronjs.org/docs/tutorial/security) official page, here is what this repository offers!
 
@@ -37,6 +43,7 @@ Taken from the [best-practices](https://electronjs.org/docs/tutorial/security) o
 Built-in to this template are a number of popular frameworks already wired up to get you on the road running.
 
 - [Electron](https://electronjs.org/)
+- [Express JS](https://expressjs.com/)
 - [React](https://reactjs.org/)
 - [Redux](https://redux.js.org/) (with [Redux toolkit](https://redux-toolkit.js.org/))
 - [Babel](https://babeljs.io/)

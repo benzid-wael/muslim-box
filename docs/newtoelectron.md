@@ -96,7 +96,7 @@ contextBridge.exposeInMainWorld(
         receive: (channel, func) => {
             let validChannels = ["fromMain"];
             if (validChannels.includes(channel)) {
-                // Deliberately strip event as it includes `sender` 
+                // Deliberately strip event as it includes `sender`
                 ipcRenderer.on(channel, (event, ...args) => func(...args));
             }
         }
@@ -158,7 +158,7 @@ contextBridge.exposeInMainWorld(
         receive: (channel, func) => {
             let validChannels = ["fromMain"];
             if (validChannels.includes(channel)) {
-                // Deliberately strip event as it includes `sender` 
+                // Deliberately strip event as it includes `sender`
                 ipcRenderer.on(channel, (event, ...args) => func(...args));
             }
         }
@@ -235,7 +235,7 @@ contextBridge.exposeInMainWorld(
             ipcRenderer.send(channel, data);
         },
         receive: (channel, func) => {
-            // Deliberately strip event as it includes `sender` 
+            // Deliberately strip event as it includes `sender`
             ipcRenderer.on(channel, (event, ...args) => func(...args));
         }
     }
@@ -285,7 +285,7 @@ ipcMain.on("fs", (event, args) => {
   // We allow _any_ methods to be called here
   // dynamically. This example is what we should
   // NOT be doing.
-  fs[args.method.toString()].apply(null, args.arguments);  
+  fs[args.method.toString()].apply(null, args.arguments);
 
   // Send result back to renderer process
   win.webContents.send("fromfs", result); // return result to renderer process
@@ -316,7 +316,7 @@ window.send = function(channel, data){
 window.recieve = function(channel, func){
     let validChannels = ["fromMain"];
     if (validChannels.includes(channel)) {
-        // Deliberately strip event as it includes `sender` 
+        // Deliberately strip event as it includes `sender`
         ipcRenderer.on(channel, (event, ...args) => func(...args));
     }
 };

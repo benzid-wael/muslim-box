@@ -2,15 +2,17 @@ import type { GeoCoordinates } from "@src/l10n"
 
 import { createSlice } from "@reduxjs/toolkit"
 
-import { getCoordinates } from "@src/GeoLocation"
-
 type Config = $ReadOnly<{
   isLoading: boolean,
   coordinates?: GeoCoordinates,
+  city?: string,
+  timezone?: string,
+  backendURL?: string,
+  mediaURL?: string,
 }>
 
 const initial = {
-  isLoading: false
+  isLoading: false,
 }
 
 const slice = createSlice({
@@ -20,24 +22,21 @@ const slice = createSlice({
     setLoading: (state, {payload}) => {
         return {...state, isLoading: payload}
     },
-    setCoordinates: (state, {payload}: {payload: GeoCoordinates}) => {
-        return {...state, coordinates: payload}
-    }
+    setCoordinates: (state, {payload}) => {
+        return {...state, ...payload}
+    },
+    setBackendURLs: (state, {payload}: {payload: string}) => {
+        return {
+          ...state,
+          backendURL: payload.backendURL,
+          mediaURL: payload.mediaURL,
+        }
+    },
   }
 });
 
 // Export actions
-export const { setLoading, setCoordinates } = slice.actions;
-
-export const loadCoordinates = (apiKey?: string): any => async (dispatch: any) => {
-    try {
-        dispatch(setLoading(true));
-        const coordinates = await getCoordinates(apiKey);
-        dispatch(setCoordinates(coordinates));
-    } finally {
-        dispatch(setLoading(false))
-    }
-}
+export const { setBackendURLs, setCoordinates, setLoading } = slice.actions;
 
 // Export reducer
 export default slice.reducer;

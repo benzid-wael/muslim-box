@@ -35,7 +35,6 @@ const Inner = styled.div`
 `
 
 type StateProps = $ReadOnly<{
-  language: Language,
   direction: LayoutDirection,
 }>
 
@@ -47,7 +46,6 @@ type ComponentProps = $ReadOnly<{
 type Props = StateProps & ComponentProps;
 
 const mapStateToProps = (state): StateProps => ({
-    language: state.config.present.general.language,
     direction: state.config.present.general.direction,
 })
 
@@ -58,16 +56,17 @@ const Slide = (props: Props): React$Node => {
     props.slide.reference.index || props.slide.reference.indexes[0]
     :
     null;
+  const { surah, number, sajda } = JSON.parse(props.slide.note)
+
   return <Main className="Quran" direction={props.direction}>
     <Inner>
       <Title>{i18n.t("Verse of the day")}</Title>
-      {props.slide.content.map((verse, i) => {
-          return <Ayah
-              language={props.language}
-              verse={verse}
-              verseId={index ? index + i : undefined}
-          />
-      })}
+      <Ayah
+        verse={props.slide.content}
+        surah={surah}
+        verseNumber={number}
+        isSajda={sajda}
+      />
     </Inner>
   </Main>
 }

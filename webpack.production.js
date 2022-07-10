@@ -8,7 +8,7 @@ const path = require("path");
 
 module.exports = merge(base, {
   mode: "production",
-  devtool: false,
+  devtool: "source-map",
   plugins: [
     new MiniCssExtractPlugin(),
     new HtmlWebpackPlugin({
@@ -18,22 +18,29 @@ module.exports = merge(base, {
     }),
     // You can paste your CSP in this website https://csp-evaluator.withgoogle.com/
     // for it to give you suggestions on how strong your CSP is
-    new CspHtmlWebpackPlugin(
-      {
-        "base-uri": ["'self'"],
-        "connect-src": ["'self'", "ipinfo.io"],
-        "object-src": ["'none'"],
-        "script-src": ["'self'"],
-        "style-src": ["'self'"],
-        "frame-src": ["'none'"],
-        "worker-src": ["'none'"]
+    new CspHtmlWebpackPlugin({
+      "base-uri": ["'self'"],
+      "default-src": ["'unsafe-inline'", "'self'", "'unsafe-eval'"],
+      "connect-src": ["'self'", "https://o100308.ingest.sentry.io", "http://localhost:8888"],
+      "object-src": ["'none'"],
+      "script-src": ["'unsafe-inline'", "'self'", "'unsafe-eval'"],
+      "style-src": ["'unsafe-inline'", "'self'", "'unsafe-eval'"],
+      "img-src": ["'unsafe-inline'", "'self'", "'unsafe-eval'", "data:", "http://localhost:8888"],
+      "frame-src": ["'none'"],
+      "worker-src": ["'none'"]
+    }, {
+      enabled: true,
+      hashingMethod: "sha256",
+      hashEnabled: {
+        "script-src": true,
+        "style-src": true
       },
-      {
-        hashEnabled: {
-          "style-src": false
-        }
+      nonceEnabled: {
+        "script-src": true,
+        "style-src": true
       }
-    )
+      // processFn: defaultProcessFn  // defined in the plugin itself
+    })
   ],
   optimization: {
     minimize: true,

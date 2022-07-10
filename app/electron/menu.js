@@ -9,7 +9,7 @@ const isMac = process.platform === "darwin";
 const isDev = process.env.NODE_ENV === "development";
 const prependPath = path.join(__dirname, "../..");
 
-const MenuBuilder = function(mainWindow) {
+const MenuBuilder = function(mainWindow, processManager) {
   // https://electronjs.org/docs/api/menu#main-process
   const defaultTemplate = function(i18nextMainBackend) {
     const firstReleaseYear = 2022;
@@ -81,6 +81,11 @@ const MenuBuilder = function(mainWindow) {
     }, {
       role: "toggledevtools",
       label: i18nextMainBackend.t("Toggle Developer Tools")
+    }, {
+      label: i18nextMainBackend.t("Process Manager"),
+      click: () => {
+        processManager.openWindow()
+      }
     }, {
       type: "separator"
     }, {

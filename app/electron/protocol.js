@@ -50,6 +50,8 @@ function requestHandler(req, next) {
   if (reqPath === "/") {
     reqPath = "/index.html";
   }
+
+  console.log(`[static] requesting ${reqPath}`)
   const reqFilename = path.basename(reqPath);
   fs.readFile(path.join(DIST_PATH, reqPath), (err, data) => {
     const { mimeExt, mimeType } = mime(reqFilename);

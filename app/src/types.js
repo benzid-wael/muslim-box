@@ -17,146 +17,271 @@ export type Localization = $ReadOnly<{
 }>;
 
 export type GeoCoordinates = $ReadOnly<{
-    longitude: number;
-    latitude: number;
+  longitude: number;
+  latitude: number;
 }>;
 
+export type Time = $ReadOnly<{
+  hour: number,
+  minute: number,
+}>;
+
+export type AdhanSound =
+  | "adhan-fajr"
+  | "adhan-madinah"
+  | "adhan-makkah-dua"
+  | "adhan-makkah"
+  | "adhan-makkah2-dua"
+  | "adhan-makkah2"
+  | "adhan-mishary-rashad"
+  | "adhan-turkish"
+
+export type AdhanSoundMetadata = $ReadOnly<{
+  sound: Audio,
+  durationInSeconds: number,
+  dua: boolean,
+  fajr?: boolean,
+}>
+
+export type SlideFilterOperator =
+  | "all"
+  | "any"
+
+export type SlideFilterOrderType =
+  | "random"  // random order
+  | "id"      // sort by id (default)
+
+export type SlideFilterOnReachEndStrategy =
+  | "reset"   // reset slider: go to 1st slide (default)
+  | "load"    // load more slides
+
+export type SlideFilterQuery = $ReadOnly<{
+  name: string,
+  include: Array<String>,
+  exclude?: Array<String>,
+  operator?: SlideFilterOperator,
+  orderBy?: SlideFilterOrderType,
+  count?: number,
+  // by default result will not be merged with others.
+  allowMerge?: boolean,
+}>
+
+export type SlideFilter = $ReadOnly<{
+  queries: Array<SlideFilterQuery>,
+  onReachEnd?: SlideFilterOnReachEndStrategy,
+}>
+
+export type PrayerTimeConfig = $ReadOnly<{
+  iqamahAfterInMinutes?: number,
+  iqamahTime?: Time,
+  iqamahDurationInMinutes?: number,
+  prayerDurationInMinutes?: number,
+  adhkarDurationInMinutes?: number,
+  afterPrayerSunnahDurationInMinutes?: number,
+  adhkarSabahMasaaDurationInMinutes?: number,
+}>
+
+export type AdhanConfig = $ReadOnly<{
+  autoPlayAdhan?: boolean,
+  autoPlayFajrAdhan?: boolean,
+  autoPlayDhuhrAdhan?: boolean,
+  autoPlayAsrAdhan?: boolean,
+  autoPlayMaghribAdhan?: boolean,
+  autoPlayIshaAdhan?: boolean,
+  fajrAdhanSound?: AdhanSound,
+  dhuhrAdhanSound?: AdhanSound,
+  asrAdhanSound?: AdhanSound,
+  maghribAdhanSound?: AdhanSound,
+  ishaAdhanSound?: AdhanSound,
+}>
+
 export type PrayerTime = $ReadOnly<{
-    name: Prayer,
-    isPrayer: boolean,
-    start: number,
-    end: number,
+  name: Prayer,
+  // is it a time for a specific prayer
+  isPrayer: boolean,
+  // used to filter out internal times: those will not get populated to
+  // prayer.prayers reducer but will show up under prayer.times
+  internal?: boolean,
+  start: number,
+  end: number,
+  // show the time slot in PrayerTimes component
+  visible: boolean,
+  modifier?: string,
+  slide?: SlideFilter,
 }>;
 
 export type HijriMonth =
-    | "muḥarram"
-    | "safar"
-    | "rabii_awal"
-    | "rabii_thani"
-    | "jumada_awal"
-    | "jumada_thani"
-    | "rajab"
-    | "shaban"
-    | "ramadhan"
-    | "shawwal"
-    | "dhu_qaada"
-    | "dhu_hijja";
+  | "month:muḥarram"
+  | "month:safar"
+  | "month:rabii_awal"
+  | "month:rabii_thani"
+  | "month:jumada_ula"
+  | "month:jumada_thania"
+  | "month:rajab"
+  | "month:shaaban"
+  | "month:ramadhan"
+  | "month:shawwal"
+  | "month:dhul_qaadah"
+  | "month:dhul_hijjah";
 
 export type Day =
-    | "monday"
-    | "tuesday"
-    | "wednesday"
-    | "thursday"
-    | "friday"
-    | "saturday"
-    | "sunday";
+  | "weekday:monday"
+  | "weekday:tuesday"
+  | "weekday:wednesday"
+  | "weekday:thursday"
+  | "weekday:friday"
+  | "weekday:saturday"
+  | "weekday:sunday";
 
 export type Season =
-    | "summer"
-    | "autumn"
-    | "winter"
-    | "spring";
+  | "season:summer"
+  | "season:autumn"
+  | "season:winter"
+  | "season:spring";
 
-export type Time =
-    | "night"
-    | "suhur"
-    | "before_fajr"
-    | "after_fajr"
-    | "before_sunrise"
-    | "after_sunrise"
-    | "dhuha"
-    | "evening"
-    | "bwfore_sunset"
-    | "after_sunset";
+export type TimePeriod =
+  | "adhan:before"
+  | "adhan"
+  | "adhan:after"
+  | "prayer:before"
+  | "prayer:before:fajr"
+  | "prayer:before:dhuhr"
+  | "prayer:before:asr"
+  | "prayer:before:maghrib"
+  | "prayer:before:isha"
+  | "iqamah:before"
+  | "iqamah"
+  | "iqamah:after"
+  | "prayer"
+  | "adhkar"
+  | "adhkar:fajr"
+  | "adhkar:dhuhr"
+  | "adhkar:asr"
+  | "adhkar:maghrib"
+  | "adhkar:isha"
+  | "prayer:after"
+  | "prayer:after:fajr"
+  | "prayer:after:dhuhr"
+  | "prayer:after:asr"
+  | "prayer:after:maghrib"
+  | "prayer:after:isha"
+  | "time:sabah"
+  | "time:before:sunrise"
+  | "time:sunrise"
+  | "time:after:sunrise"
+  | "time:dhuha"
+  | "time:hajirah"
+  | "time:before:zawal"
+  | "time:masaa"
+  | "time:before:sunset"
+  | "time:night:midnight"
+  | "time:night:last_third"
+  | "time:night:sahar"      // last 15m: reading 50 verses
 
 export type GenericEvent =
-    | "before_prayer"
-    | "prayer"
-    | "after_prayer"
-    | "arafa"
-    | "tashriq"
-    | "eid_fitr"
-    | "eif_adha"
-    | "rain"
-    | "wind";
+  | "event:ashura"
+  | "event:haram_month"
+  | "event:shaaban:mid"
+  | "event:ramadhan:last_10"
+  | "event:zakat_fitr"
+  | "event:eid"
+  | "event:eid_fitr"
+  | "event:dhul_hijjah:before"
+  | "event:dhul_hijjah:first_10"
+  | "event:arafa"
+  | "event:eid_adha"
+  | "event:qarr"
+  | "event:tashriq"
+  | "event:rain"
+  | "event:wind"
+  | "event:ayam_bydh";
 
 export type Event =
-    | HijriMonth
-    | Day
-    | Season
-    | Time
-    | GenericEvent;
+  | HijriMonth
+  | Day
+  | Season
+  | TimePeriod
+  | GenericEvent;
 
 export type MultilingualString = $ReadOnlyMap<Language, string>;
 
 export type BaseReference = $ReadOnly<{
-    type: "quran" | "hadith" | "tafsir" | "other",
-    name: MultilingualString,
-    page?: number,
-    // this will be used mainly for Hadith
-    index?: number,
-    // this will be used mainly for Quran as we can have more than one verse
-    indexes: $ReadOnlyArray<number>,
+  type: "quran" | "hadith" | "tafsir" | "other",
+  name: string,
+  page?: number,
+  // this will be used mainly for Hadith
+  index?: number,
+  // this will be used mainly for Quran as we can have more than one verse
+  indexes: $ReadOnlyArray<number>,
 }>;
 
 export type QuranReference = $ReadOnly<{
-    ...$Diff<BaseReference, {page?: number, index?: number}>,
-    type: "quran",
+  ...$Diff<BaseReference, {page?: number, index?: number}>,
+  type: "quran",
 }>;
 
 export type HadithReference = $ReadOnly<{
-    ...$Diff<BaseReference, {page?: number, indexes?: number}>,
-    type: "hadith",
+  ...$Diff<BaseReference, {page?: number, indexes?: number}>,
+  type: "hadith",
 }>;
 
 export type Reference =
-    | QuranReference
-    | HadithReference;
+  | QuranReference
+  | HadithReference;
 
 
 type BaseSlide = $ReadOnly<{
-    type: string,
-    content: $ReadOnlyArray<MultilingualString>,
-    events?: $ReadOnlyArray<Event>,
-    durationInSeconds?: number,
-}>;
-
-export type QuranVerseSlide = $ReadOnly<{
-    ...$Diff<BaseSlide, {type: string}>,
-    type: "quran",
-    reference?: QuranReference,
-}>;
-
-export type HadithSlide = $ReadOnly<{
-    ...$Diff<BaseSlide, {type: string}>,
-    type: "hadith",
-    references?: $ReadOnlyArray<HadithReference>,
+  type: string,
+  category: string,
+  content: $ReadOnlyArray<string>,
+  events?: $ReadOnlyArray<Event>,
+  durationInSeconds?: number,
 }>;
 
 export type CurrentPrayerSlide = $ReadOnly<{
-    ...$Diff<BaseSlide, {type: string, content: $ReadOnlyArray<MultilingualString>}>,
-    type: "current-prayer"
+  ...$Diff<BaseSlide, {type: string, category: string, content: $ReadOnlyArray<string>}>,
+  type: "current-prayer"
 }>;
 
 export type NextPrayerSlide = $ReadOnly<{
-    ...$Diff<CurrentPrayerSlide, {type: string}>,
-    type: "next-prayer",
+  ...$Diff<CurrentPrayerSlide, {type: string}>,
+  type: "next-prayer",
 }>;
 
 export type ClockSlide = $ReadOnly<{
-    ...$Diff<BaseSlide, {type: string, content: $ReadOnlyArray<MultilingualString>}>,
-    type: "clock",
+  ...$Diff<BaseSlide, {type: string, category: string, content: $ReadOnlyArray<string>}>,
+  type: "clock",
+}>;
+
+export type QuranVerseSlide = $ReadOnly<{
+  ...$Diff<BaseSlide, {type: string}>,
+  type: "quran",
+  reference?: QuranReference,
+}>;
+
+export type HadithSlide = $ReadOnly<{
+  ...$Diff<BaseSlide, {type: string}>,
+  type: "hadith",
+  references?: $ReadOnlyArray<HadithReference>,
 }>;
 
 export type DhikrSlide = $ReadOnly<{
-    ...$Diff<BaseSlide, {type: string}>,
-    type: "dhikr",
-    count: number;
+  ...$Diff<BaseSlide, {type: string}>,
+  type: "dhikr",
+  count: number;
+}>;
+
+export type AtharSlide = $ReadOnly<{
+  ...$Diff<BaseSlide, {type: string}>,
+  type: "athar",
+  count: number;
 }>;
 
 export type Slide =
-    | QuranVerseSlide
-    | HadithSlide
-    | NextPrayerSlide
-    | ClockSlide
-    | DhikrSlide;
+  | CurrentPrayerSlide
+  | NextPrayerSlide
+  | ClockSlide
+  | QuranVerseSlide
+  | HadithSlide
+  | DhikrSlide
+  | AtharSlide;

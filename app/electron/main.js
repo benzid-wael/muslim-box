@@ -1,6 +1,14 @@
-const path = require("path");
-const fs = require("fs");
+const { fork } = require("child_process");
 const crypto = require("crypto");
+const fs = require("fs");
+const path = require("path");
+const geoip = require("fast-geoip");
+const axios = require("axios");
+const Sentry = require("@sentry/electron");
+const {
+  MessageChannel, // remember to require it in main.js even if you don't use it
+  ProcessManager
+} = require("electron-re");
 
 const {
   app,
@@ -16,6 +24,7 @@ const i18nextBackend = require("i18next-electron-fs-backend");
 const Store = require("secure-electron-store").default;
 const ContextMenu = require("secure-electron-context-menu").default;
 
+const { findPort, isPortAvailable } = require("./find-open-port");
 const Protocol = require("./protocol");
 const MenuBuilder = require("./menu");
 const i18nextMainBackend = require("../localization/i18n.mainconfig");
@@ -26,8 +35,22 @@ const selfHost = `http://localhost:${port}`;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let win;
-let menuBuilder;
+let mainWindow = null;
+let menuBuilder = null;
+let serverProcess = null;
+let serverPort = null;
+let geoInfo = null;
+
+Sentry.init({ dsn: "https://7be09d9523de40bc84b57affd0b45e22@o100308.ingest.sentry.io/6475421" });
+
+const getGeoCoordinates = async () => {
+  const ipResponse = await axios.get("http://api.ipify.org")
+  const ip = ipResponse.data
+  logger.info(`[ipcMain] IP address: ${ip}`)
+  const geocordinates = await geoip.lookup(ip);
+  logger.info(`[ipcMain] geographical info: ${JSON.stringify(geocordinates)}`)
+  return geocordinates
+}
 
 const installExtensions = () => {
   logger.info("[🛠️ ] installing extensions...")
@@ -44,18 +67,43 @@ const installExtensions = () => {
       logger.info("[🛠️ ] failed to install extension: %s", error)
     }
   })
-
-  // return installer
-  //   .default(
-  //     extensions.map((name) => installer[name]),
-  //     forceDownload
-  //   )
-  //   .then((name) => logger.info("[🛠️ ] extension '%s' installed 👌🏻", name))
-  //   .catch((error) => logger.info("[🛠️ ] failed to install extension: %s", error));
 };
 
-const createWindow = () => {
+const createBackgroundProcess = (port) => {
+  const args = ["--port", port]
+  const options = {}
+  serverProcess = fork(path.join(__dirname, "../server"), args, options)
 
+  serverProcess.on("message", msg => {
+    logger.info(`[ipcMain] server sent this message: ${msg}`)
+  })
+  serverProcess.on("error", (err) => {
+    // This will be called with err being an AbortError if the controller aborts
+    logger.error(`[ipcMain] server crashed: ${err}`)
+  });
+  serverProcess.on("close", function (code) {
+    logger.error("[ipcMain] server process exited with code " + code);
+  });
+}
+
+const createDevToolsWindow = (mw) => {
+  devtools = new BrowserWindow();
+  mw.webContents.setDevToolsWebContents(devtools.webContents);
+  mw.webContents.openDevTools({ mode: "detach" });
+
+  mw.webContents.once("did-finish-load", function () {
+    const windowBounds = mw.getBounds();
+    devtools.setPosition(windowBounds.x + windowBounds.width, windowBounds.y);
+    devtools.setSize(windowBounds.width/2, windowBounds.height);
+  });
+
+  mw.on("move", function () {
+    const windowBounds = mw.getBounds();
+    devtools.setPosition(windowBounds.x + windowBounds.width, windowBounds.y);
+  });
+}
+
+const createWindow = () => {
   // If you'd like to set up auto-updating for your app,
   // I'd recommend looking at https://github.com/iffy/electron-updater-example
   // to use the method most suitable for you.
@@ -78,10 +126,9 @@ const createWindow = () => {
   // let savedConfig = store.mainInitialStore(fs);
 
   // Create the browser window.
-  win = new BrowserWindow({
-    width: 800,
-    height: 600,
+  mainWindow = new BrowserWindow({
     title: "MuslimBox...",
+    fullscreen: true,
     webPreferences: {
       devTools: isDev,
       nodeIntegration: false,
@@ -96,20 +143,26 @@ const createWindow = () => {
     }
   });
 
+  if (isDev) {
+    mainWindow.webContents.openDevTools({
+      mode: "bottom"
+    })
+  }
+
   // Sets up main.js bindings for our i18next backend
-  i18nextBackend.mainBindings(ipcMain, win, fs);
+  i18nextBackend.mainBindings(ipcMain, mainWindow, fs);
 
   // Sets up main.js bindings for our electron store;
   // callback is optional and allows you to use store in main process
   const callback = function (success, initialStore) {
-    logger.log(`${!success ? "Un-s" : "S"}uccessfully retrieved store in main process.`);
-    logger.log(initialStore); // {"key1": "value1", ... }
+    logger.info(`[ipcMain] ${!success ? "Un-s" : "S"}uccessfully retrieved store in main process.`);
+    logger.log(`[ipcMain] configuration: ${initialStore}`); // {"key1": "value1", ... }
   };
 
-  store.mainBindings(ipcMain, win, fs, callback);
+  store.mainBindings(ipcMain, mainWindow, fs, callback);
 
   // Sets up bindings for our custom context menu
-  ContextMenu.mainBindings(ipcMain, win, Menu, isDev, {
+  ContextMenu.mainBindings(ipcMain, mainWindow, Menu, isDev, {
     "loudAlertTemplate": [{
       id: "loudAlert",
       label: "AN ALERT!"
@@ -121,28 +174,58 @@ const createWindow = () => {
   });
 
   // Setup bindings for offline license verification
-  SecureElectronLicenseKeys.mainBindings(ipcMain, win, fs, crypto, {
+  SecureElectronLicenseKeys.mainBindings(ipcMain, mainWindow, fs, crypto, {
     root: process.cwd(),
     version: app.getVersion()
   });
 
   // Load app
   if (isDev) {
-    win.loadURL(selfHost);
+    mainWindow.loadURL(selfHost);
   } else {
-    win.loadURL(`${Protocol.scheme}://rse/index.html`);
+    mainWindow.loadURL(`${Protocol.scheme}://rse/index.html`);
   }
 
-  win.webContents.on("did-finish-load", () => {
-    win.setTitle(`MuslimBox (v${app.getVersion()})`);
+  // mainWindow.once("ready-to-show", () => {
+  //   mainWindow.maximize()
+  // })
+
+  mainWindow.webContents.on("did-finish-load", () => {
+    mainWindow.setTitle(`MuslimBox (v${app.getVersion()})`);
+
+    // update renderer
+    mainWindow.webContents.send("backend-url-changed", {
+      backendURL: `http://localhost:${serverPort}/gql`,
+      mediaURL: `http://localhost:${serverPort}/public`
+    })
+    mainWindow.webContents.send("language-initialized", {language: i18nextMainBackend.language})
+    // mainWindow.webContents.send("geocordinates-changed", {
+    //   coordinates: {longitude: geoInfo.ll[1], latitude: geoInfo.ll[0]},
+    //   city: geoInfo.city,
+    //   timezone: geoInfo.timezone,
+    // })
+
+    axios.get("http://api.ipify.org").then(response => {
+      const ip = response.data
+      logger.log(`[ipcMain] IP address: ${ip}`)
+      geoip.lookup(ip).then(geo => {
+        logger.log(`[ipcMain] geographical info: ${geo}`)
+        mainWindow.webContents.send("geocordinates-changed", {
+          coordinates: {longitude: geo.ll[1], latitude: geo.ll[0]},
+          city: geo.city,
+          timezone: geo.timezone,
+        })
+      })
+
+    })
   });
 
   // Emitted when the window is closed.
-  win.on("closed", () => {
+  mainWindow.on("closed", () => {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
-    win = null;
+    mainWindow = null;
   });
 
   // https://electronjs.org/docs/tutorial/security#4-handle-session-permission-requests-from-remote-content
@@ -156,7 +239,7 @@ const createWindow = () => {
         permCallback(true); // Approve permission request
       } else {
         logger.error(
-          `The application tried to request permission for '${permission}'. `
+          `The application tried to request permission for "${permission}". `
           `This permission was not whitelisted and has been blocked.`
         );
 
@@ -175,16 +258,16 @@ const createWindow = () => {
   //   }
   // });
 
-  menuBuilder = MenuBuilder(win);
+  menuBuilder = MenuBuilder(mainWindow, ProcessManager);
 
   // Set up necessary bindings to update the menu items
   // based on the current language selected
   // i18nextMainBackend.on("loaded", (loaded) => {
-  //   i18nextMainBackend.changeLanguage("en");
+  //   i18nextMainBackend.changeLanguage("ar-TN");
   //   i18nextMainBackend.off("loaded"); // Remove listener to this event as it's not needed anymore
   // });
   i18nextMainBackend.on("initialized", (loaded) => {
-    i18nextMainBackend.changeLanguage("en");
+    i18nextMainBackend.changeLanguage("ar-TN");
     i18nextMainBackend.off("initialized"); // Remove listener to this event as it's not needed anymore
   });
 
@@ -213,6 +296,26 @@ protocol.registerSchemesAsPrivileged([{
   }
 }]);
 
+const start = async () => {
+
+  if(serverProcess === null) {
+    // openServerPort = await findPort();
+    // serverPort = isPortAvailable(3001) ? 3001 : openServerPort
+    serverPort = isDev ? 3001 : 8888
+    logger.info(`[ipcMain] Running server on 0.0.0.0:${serverPort}`)
+    createBackgroundProcess(serverPort);
+  }
+
+  if (isDev) {
+    installExtensions();
+    require("electron-debug")(); // https://github.com/sindresorhus/electron-isDev
+  }
+
+  if(mainWindow === null) {
+    createWindow();
+  }
+}
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -220,14 +323,25 @@ protocol.registerSchemesAsPrivileged([{
 // Create a new browser window by invoking the createWindow
 // function once the Electron application is initialized.
 // Install REACT_DEVELOPER_TOOLS as well if isDev
-app.whenReady().then(() => {
-  if (isDev) {
-    installExtensions();
-  }
-
-  require("electron-debug")(); // https://github.com/sindresorhus/electron-debug
-  createWindow();
+app.whenReady().then(async () => {
+  await start();
 });
+
+app.on("activate", async () => {
+  // On macOS it's common to re-create a window in the app when the
+  // dock icon is clicked and there are no other windows open.
+  if (mainWindow === null) {
+    await start();
+  }
+});
+
+app.on("before-quit", () => {
+  if (serverProcess) {
+    serverProcess.kill()
+    serverPort = null
+    serverProcess = null
+  }
+})
 
 // Quit when all windows are closed.
 app.on("window-all-closed", () => {
@@ -243,14 +357,6 @@ app.on("window-all-closed", () => {
   }
 });
 
-app.on("activate", () => {
-  // On macOS it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (win === null) {
-    createWindow();
-  }
-});
-
 // https://electronjs.org/docs/tutorial/security#12-disable-or-limit-navigation
 app.on("web-contents-created", (event, contents) => {
   contents.on("will-navigate", (contentsEvent, navigationUrl) => {
@@ -261,7 +367,7 @@ app.on("web-contents-created", (event, contents) => {
     // Log and prevent the app from navigating to a new page if that page's origin is not whitelisted
     if (!validOrigins.includes(parsedUrl.origin)) {
       logger.error(
-        `The application tried to navigate to the following address: '${parsedUrl}'. This origin is not whitelisted and the attempt to navigate was blocked.`
+        `The application tried to navigate to the following address: "${parsedUrl}". This origin is not whitelisted and the attempt to navigate was blocked.`
       );
 
       contentsEvent.preventDefault();
@@ -275,7 +381,7 @@ app.on("web-contents-created", (event, contents) => {
     // Log and prevent the app from redirecting to a new page
     if (!validOrigins.includes(parsedUrl.origin)) {
       logger.error(
-        `The application tried to redirect to the following address: '${navigationUrl}'. This attempt was blocked.`
+        `The application tried to redirect to the following address: "${navigationUrl}". This attempt was blocked.`
       );
 
       contentsEvent.preventDefault();
@@ -304,7 +410,7 @@ app.on("web-contents-created", (event, contents) => {
     // Log and prevent opening up a new window
     if (!validOrigins.includes(parsedUrl.origin)) {
       logger.error(
-        `The application tried to open a new window at the following address: '${url}'. This attempt was blocked.`
+        `The application tried to open a new window at the following address: "${url}". This attempt was blocked.`
       );
 
       return {

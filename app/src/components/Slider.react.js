@@ -3,15 +3,17 @@
 */
 import type { Slide } from "@src/types";
 
-import React, { useEffect } from "react"
-import { connect } from "react-redux"
-import { animated, Transition, config } from "react-spring"
-import styled from "styled-components"
+import React, { useEffect } from "react";
+import { connect } from "react-redux";
+import { animated, Transition, config } from "react-spring";
+import styled from "styled-components";
 
-import { addSlides, moveNext, resetSlides } from "@redux/slices/slideSlice"
-import SlideBuilder from "@components/SlideBuilder.react"
+import AdhanSlide from "./AdhanSlide.react";
+import SLIDER from "@constants/slider";
+import SlideBuilder from "@components/SlideBuilder.react";
+import { addSlides, moveNext, resetSlides } from "@redux/slices/slideSlice";
+import { getDurationInSeconds } from "@src/Slide";
 import { SlideLoaderFactory } from "@src/SlideLoader";
-
 
 const Main = styled.div`
   display: flex;
@@ -35,23 +37,22 @@ const Container = styled.div`
 `
 
 const mapStateToProps = state => ({
+  language: state.config.present.general.language,
   slides: state.slide.slides,
-  position: state.slide.position
+  position: state.slide.position,
+  backendURL: state.user.backendURL,
 })
 
 const Slider = (props): React$Node => {
-  const { position, slides } = props;
+  const { language, slides, position } = props;
 
   useEffect(() => {
-    // let"s have static duration for all slides right now
-    // TODO we need to find out the minimum duration for each slide on a per slide basis
     const duration = slides.length > 0
       ?
-      slides[position].durationInSeconds || 10
+      getDurationInSeconds(slides[position])
       :
       .3  // by default 3ms
     ;
-    console.log(`sliding after ${duration} seconds`)
     const timer = setTimeout(
       async () => {
         if(props.slides.length === 0) {
@@ -62,19 +63,34 @@ const Slider = (props): React$Node => {
         }
     }, duration * 1000)
     return () => clearTimeout(timer)
-  }, [position])
+  }, [position, slides])
+
+  useEffect(() => {
+    console.log(`[Slider] language changed: reloading slides`)
+    const timer = setTimeout(
+      async () => {
+        const slides = await loadSlides()
+        props.dispatch(resetSlides(slides));
+    }, 100)
+    return () => clearTimeout(timer)
+  }, [language])
 
   const loadSlides = async (): Promise<Array<Slide>> => {
-    const loader = SlideLoaderFactory.getLoader()
-    const slides = await loader.load();
+    console.log(`loadSlides...`)
+    const loader = SlideLoaderFactory.getLoader({
+      provider: SLIDER.DefaultProvider,
+      backendURL: props.backendURL,
+    })
+    if(!loader) return []
+    const lang = language.split("-")[0]
+    const slides = await loader.random(SLIDER.PageSize, lang);
     return slides;
   }
 
   const onReachEnd = async () => {
     console.log(`onReachEnd called`)
-    const loader = SlideLoaderFactory.getLoader()
-    const slides = await loader.load()
-    if(slides.length > 1000) {
+    const slides = await loadSlides()
+    if(slides.length > SLIDER.MaxSlidesBeforeReset) {
       props.dispatch(resetSlides(slides));
     } else {
       props.dispatch(addSlides(slides));
@@ -88,29 +104,29 @@ const Slider = (props): React$Node => {
 
   return props.slides.length === 0 ? <></> : (
     <Main>
-    <Container onClick={transition}>
-      <Transition
-        native
-        reset
-        unique
-        items={position}
-        from={{ opacity: 0, transform: "translate3d(100%, 0 ,0)" }}
-        enter={{ opacity: 1, transform: "translate3d(0%, 0, 0)" }}
-        leave={{ opacity: 0, transform: "translate3d(-50%, 0, 0)" }}
-        config={config.molasses}
-      >
-        {(style, index) => {
-          const slide = slides[index];
-          return (
-            <animated.div style={{
-              ...style,
-            }}>
-              <SlideBuilder slide={slide} />
-            </animated.div>
-          )
-        }}
-      </Transition>
-    </Container>
+      <Container onClick={transition}>
+        <Transition
+          native
+          reset
+          unique
+          items={position}
+          from={{ opacity: 0, transform: "translate3d(100%, 0 ,0)" }}
+          enter={{ opacity: 1, transform: "translate3d(0%, 0, 0)" }}
+          leave={{ opacity: 0, transform: "translate3d(-50%, 0, 0)" }}
+          config={config.molasses}
+        >
+          {(style, index) => {
+            const slide = slides[index];
+            return (
+              <animated.div style={{
+                ...style,
+              }}>
+                <SlideBuilder slide={slide} />
+              </animated.div>
+            )
+          }}
+        </Transition>
+      </Container>
     </Main>
   )
 }
