@@ -22,8 +22,9 @@
     "dist-mac": "npm run prod-build && electron-builder --mac",
     "dist-linux": "npm run prod-build && electron-builder --linux",
     "dist-windows": "npm run prod-build && electron-builder --windows",
-    "dist-all": "npm run prod-build && electron-builder --mac --linux --windows",
-    "publish": "npm run prod-build && electron-builder --mac --linux --windows -p always",
+    "dist-all": "npm run prod-build && electron-builder -mwl",
+    "arm": "npm run prod-build && electron-builder -l --arm64 --armv7l",
+    "publish": "npm run prod-build && electron-builder --mwl -p always",
     "test": "mocha"
   },
   "build": {
@@ -64,7 +65,6 @@
       "target": [
         "deb",
         "rpm",
-        "snap",
         "AppImage"
       ]
     }
