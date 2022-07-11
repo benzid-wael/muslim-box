@@ -164,6 +164,7 @@
     "secure-electron-license-keys": "^1.1.2",
     "secure-electron-store": "^3.0.3",
     "sqlite3": "^5.0.8",
-    "styled-components": "^5.3.5"
+    "styled-components": "^5.3.5",
+    "v8-compile-cache": "^2.3.0"
   }
 }

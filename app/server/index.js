@@ -1,3 +1,5 @@
+require("v8-compile-cache");
+
 const cors = require("cors")
 const express = require("express")
 const { graphqlHTTP } = require("express-graphql")

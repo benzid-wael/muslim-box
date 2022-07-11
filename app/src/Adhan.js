@@ -40,7 +40,7 @@ export const getAdhanMetadataForPrayer = (prayer: Prayer, cfg: AdhanConfig): Adh
 }
 
 export const getAdhanMetadata = (key: AdhanSound): AdhanSoundMetadata => {
-  return {
+  const config = {
     "adhan-fajr": {
       sound: AdhanFajr,
       durationInSeconds: 233,  // 3:53
@@ -82,5 +82,7 @@ export const getAdhanMetadata = (key: AdhanSound): AdhanSoundMetadata => {
       durationInSeconds: 202,  // 3:22
       dua: false,
     },
-  }[key]
+  }
+
+  return config[key] || config[ADHAN.DefaultAdhanSound]
 }

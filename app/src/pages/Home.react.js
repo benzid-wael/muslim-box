@@ -13,21 +13,25 @@ import AdhanSlide from "@components/AdhanSlide.react";
 import ImageSlide from "@components/ImageSlide.react";
 import PrayerTime from "@components/PrayerTime.react";
 
-import bg from "@resources/bg.png"
+import bg from "@resources/bg.jpg"
 
 const Main = styled.div`
   height: 100%;
   display: grid;
   grid-template-rows: auto 25%;
-`
 
-const BackgroundImage = styled.img`
-  opacity: 0.2;
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 80%;
+  &::before {
+    content: "";
+    background-image: url(${props => props.backgroundImage});
+    background-repeat: ${props => props.repeat};
+    background-size: contain;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    left: 0px;
+    opacity: 0.25;
+  }
 `
 
 const Content = styled.section`
@@ -79,9 +83,7 @@ const Home = (props: StateProps): React$Node => {
     showView(props.currentTime?.modifier)
   }, [props.currentTime])
 
-  return <Main>
-    <BackgroundImage src={bg} />
-
+  return <Main backgroundImage={bg}>
     <Content>
       { getView(view) }
     </Content>
