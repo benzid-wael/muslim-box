@@ -63,6 +63,9 @@ const slice: any = createSlice({
           next = state.prayers[i + 1]
           break
         }
+        if(!next && now < start) {
+          next = p;
+        }
       }
 
       state.times.map(p => {
