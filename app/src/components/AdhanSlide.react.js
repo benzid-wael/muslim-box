@@ -64,7 +64,7 @@ const DuaaAfterAdhan = (props) => {
 const AdhanSlideComponent = (props: Props): React$Node => {
   const { i18n } = useTranslation();
   const adhan = getAdhanMetadataForPrayer(props.currentPrayer?.name)
-  const [audio] = useState(new Audio(adhan.sound))
+  const [audio, setAudio] = useState<?Audio>()
   const [state, setState] = useState({
     ended: false,
     play: false,
@@ -76,8 +76,10 @@ const AdhanSlideComponent = (props: Props): React$Node => {
     return null
   }
 
+  if(audio) setAudio(new Audio(adhan.sound))
+
   const togglePlay = () => {
-    if (!state.ended) {
+    if (!state.ended && audio) {
       state.play ? audio.pause() : audio.play();
       setState({ ...state, play: !state.play });
     }
@@ -86,7 +88,7 @@ const AdhanSlideComponent = (props: Props): React$Node => {
   useEffect(() => {
     const timer = setTimeout(
       () => {
-        console.log(`[Adhan] auto playing adhan for ${props.currentPrayer?.name} prayer`)
+        console.log(`[Adhan] Adhan for ${props.currentPrayer?.name} prayer`)
         if (autoPlayAdhan(props.currentPrayer?.name)) {
           togglePlay()
         }
