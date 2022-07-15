@@ -11,7 +11,7 @@ import styled from "styled-components";
 import AdhanSlide from "./AdhanSlide.react";
 import SLIDER from "@constants/slider";
 import SlideBuilder from "@components/SlideBuilder.react";
-import { addSlides, moveNext, resetSlides } from "@redux/slices/slideSlice";
+import { addSlides, moveNext, init, resetSlides } from "@redux/slices/slideSlice";
 import { getDurationInSeconds } from "@src/Slide";
 import { SlideLoaderFactory } from "@src/SlideLoader";
 
@@ -89,6 +89,11 @@ const Slider = (props): React$Node => {
 
   const onReachEnd = async () => {
     console.log(`onReachEnd called`)
+    if (SLIDER.OnReachEndStrategy === "reset") {
+      props.dispatch(init());
+      transition();
+      return
+    }
     const slides = await loadSlides()
     if(slides.length > SLIDER.MaxSlidesBeforeReset) {
       props.dispatch(resetSlides(slides));

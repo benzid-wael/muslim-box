@@ -26,6 +26,9 @@ const slice: any = createSlice({
         setLoading: (state, {payload}: {payload: boolean}) => {
             return {...state, isLoading: payload}
         },
+        init: (state) => {
+            return {...state, position: 0}
+        },
         addSlides: (state, {payload}: {payload: $ReadOnlyArray<Slide>}) => {
             return {...state, slides: [...state.slides, ...payload]}
         },
@@ -58,7 +61,7 @@ const slice: any = createSlice({
 // Extract the action creators object and the reducer
 const { actions, reducer } = slice;
 // Extract and export each action creator by name
-export const { setLoading, addSlides, moveNext, movePrevious, reset } = actions;
+export const { setLoading, init, addSlides, moveNext, movePrevious, reset } = actions;
 
 export const resetSlides = (slides: $ReadOnlyArray<Slide>): any => async (dispatch: any) => {
     console.log(`resetting slide controller: ${slides.length} slides to be loaded`)

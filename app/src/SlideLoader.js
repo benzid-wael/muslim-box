@@ -117,10 +117,21 @@ export class LocalBackendSlideLoader extends SlideLoader {
     const fields = ["id", "type", "category", "content", "note", "meta"]
     const pageSize = Math.floor(count / 4)
     const quranPageSize = count - (3 * pageSize)
-    const query = `query random($verses: Int!, $count: Int!, $language: String!) {
-      quran: versesOfTheDay(count: $verses, language: $language) {
+
+    const randomVersesQuery = (
+      SLIDER.VerseOfTheDayAPI
+      ?
+      `versesOfTheDay(count: $verses, language: $language) {
         ${fields.join(', ')}
-      }
+      }`
+      :
+      `random(count: $verses, language: $language, type: QURAN) {
+        ${fields.join(', ')}
+      }`
+    )
+
+    const query = `query random($verses: Int!, $count: Int!, $language: String!) {
+      quran: ${randomVersesQuery}
 
       hadith: random(count: $count, language: $language, type: HADITH) {
         ${fields.join(', ')}
