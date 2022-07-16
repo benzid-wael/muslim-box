@@ -38,21 +38,20 @@ export class SlideLoader {
 
   injectDefaultSlides(slides: Array<Slide>): Array<Slide> {
     let result = []
-    // insert prayer reminder slides
     const double = 2 * SLIDER.PrayerReminderEveryNSlides
-    slides.map((s, i) => {
-      if (i % double === 0) {
+
+    _.flatten(
+      _.times(SLIDER.PageRepeatRatioNOutOfOne, _.constant(slides))
+    ).map((s, i) => {
+      if (i > 0 && i % double === 0) {
         result.push({type: "current-prayer"})
-      } else if (i % SLIDER.PrayerReminderEveryNSlides === 0) {
+      } else if (i > 0 && i % SLIDER.PrayerReminderEveryNSlides === 0) {
         result.push({type: "next-prayer"})
       }
       result.push(s)
     })
 
-    return _.flatten(
-      _.times(SLIDER.PageRepeatRatioNOutOfOne, _.constant(result))
-    )
-
+    return result;
   }
 
   async _random(count: number, language: Language): Promise<Array<Slide>> {
@@ -119,7 +118,7 @@ export class LocalBackendSlideLoader extends SlideLoader {
     const quranPageSize = count - (3 * pageSize)
 
     const randomVersesQuery = (
-      SLIDER.VerseOfTheDayAPI
+      SLIDER.EnableVerseOfTheDayAPI
       ?
       `versesOfTheDay(count: $verses, language: $language) {
         ${fields.join(', ')}

@@ -1,14 +1,14 @@
 {
-  "WordsPerMinute": 300,
+  "WordsPerMinute": 100,
   "DefaultProvider": "database",
   "PageSize": 10,
-  "PageRepeatRatioNOutOfOne": 1,
+  "PageRepeatRatioNOutOfOne": 5,
   "PrayerReminderEveryNSlides": 10,
   "MaxSlidesBeforeReset": 1000,
-  "MinimumSlideDurationInSeconds": 5,
+  "MinimumSlideDurationInSeconds": 3,
   "PrayerReminderDurationInSeconds": 10,
   "DefaultSlidingDurationInSeconds": 3,
   "OnReachEndStrategy": "reset",
-  "VerseOfTheDayAPI": true,
-  "EnableAnimation": false
+  "EnableVerseOfTheDayAPI": true,
+  "EnableAnimation": true
 }

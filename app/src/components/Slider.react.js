@@ -39,9 +39,6 @@ const Container = styled.div`
 
   & > div {
     // will-change: transform, opacity;
-    position: relative;
-    width: 100%;
-    height: 100%;
 
     @keyframes SlideIn {
       from {
@@ -75,8 +72,8 @@ const Container = styled.div`
       }
     }
 
-    -webkit-animation: ${props => props.animation} 1s ease;
-    animation: ${props => props.animation} 1s ease;
+    -webkit-animation: ${props => props.animation} 2s ease;
+    animation: ${props => props.animation} 2s ease;
     -webkit-animation-iteration-count: 1;
     animation-iteration-count: 1;
   }
@@ -99,28 +96,24 @@ const Slider = (props): React$Node => {
   const slide = position >= 0 && position < slides.length ? slides[position] : null;
 
   useEffect(() => {
+    console.log(`[Slider] language changed: reloading slides`)
+    const t = setTimeout(
+      async () => {
+        const slides = await loadSlides()
+        props.dispatch(resetSlides(slides));
+    }, 100)
+    return () => clearTimeout(t)
+  }, [language])
 
-    if(!loading && props.slides.length === 0) {
-      setLoading(true);
-      const t = setTimeout(
-        async () => {
-          console.log(`Loading initial slides...`)
-          const slides = await loadSlides()
-          props.dispatch(resetSlides(slides));
-
-          setLoading(false);
-        }, 100);
-
-      return () => clearTimeout(t)
-    }
-
+  useEffect(() => {
     if(timer > 0) {
       setTimer(timer => timer - 1);
       if(timer < 2) {
         // enable onExit animation
         setAnimation("onExit");
       }
-    } else {
+    } else if (!loading) {
+      setLoading(true);
       transition();
     }
   }, [timestamp])
@@ -134,13 +127,14 @@ const Slider = (props): React$Node => {
       .3  // by default 3ms
     ;
 
-    setTimer(duration)
+    console.log(`sliding after ${duration}s`)
+    setTimer(duration);
+    setLoading(false);
+    // activate onEnter animation
+    setAnimation("onEnter");
   }, [position])
 
   const transition = async () => {
-    // activate onEnter animation
-    setAnimation("onEnter")
-
     console.log(`[Slider] transition: ${position}/${slides.length - 1}`)
     if (position < slides.length - 1) {
       props.dispatch(moveNext())
@@ -161,16 +155,6 @@ const Slider = (props): React$Node => {
       props.dispatch(moveNext())
     }
   }
-
-  useEffect(() => {
-    console.log(`[Slider] language changed: reloading slides`)
-    const timer = setTimeout(
-      async () => {
-        const slides = await loadSlides()
-        props.dispatch(resetSlides(slides));
-    }, 100)
-    return () => clearTimeout(timer)
-  }, [language])
 
   const loadSlides = async (): Promise<Array<Slide>> => {
     console.log(`loadSlides...`)

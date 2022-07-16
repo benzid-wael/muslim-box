@@ -6,7 +6,6 @@ import type { Slide, Language } from "@src/types"
 
 import { createSlice } from "@reduxjs/toolkit"
 
-type Callback = () => void | null;
 type State = $ReadOnly<{
     isLoading: boolean;
     position: number;
