@@ -72,8 +72,8 @@ const Container = styled.div`
       }
     }
 
-    -webkit-animation: ${props => props.animation} 2s ease;
-    animation: ${props => props.animation} 2s ease;
+    -webkit-animation: ${props => props.animation} 3s ease;
+    animation: ${props => props.animation} 3s ease;
     -webkit-animation-iteration-count: 1;
     animation-iteration-count: 1;
   }
@@ -106,6 +106,7 @@ const Slider = (props): React$Node => {
   }, [language])
 
   useEffect(() => {
+    console.debug(`[Slider] timer: ${timer}`)
     if(timer > 0) {
       setTimer(timer => timer - 1);
       if(timer < 2) {
@@ -113,6 +114,9 @@ const Slider = (props): React$Node => {
         setAnimation("onExit");
       }
     } else if (!loading) {
+      // Lock further calls to transitions until
+      // Once the slide hass been loaded, we will update the timer and
+      //  unlock transitions
       setLoading(true);
       transition();
     }
@@ -127,7 +131,7 @@ const Slider = (props): React$Node => {
       .3  // by default 3ms
     ;
 
-    console.log(`sliding after ${duration}s`)
+    console.log(`[Slider] sliding after ${duration}s`)
     setTimer(duration);
     setLoading(false);
     // activate onEnter animation
@@ -157,7 +161,7 @@ const Slider = (props): React$Node => {
   }
 
   const loadSlides = async (): Promise<Array<Slide>> => {
-    console.log(`loadSlides...`)
+    console.log(`[Slider] loadSlides...`)
     const loader = SlideLoaderFactory.getLoader({
       provider: SLIDER.DefaultProvider,
       backendURL: props.backendURL,
