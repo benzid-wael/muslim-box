@@ -107,8 +107,8 @@ const Slider = (props): React$Node => {
 
   useEffect(() => {
     console.debug(`[Slider] timer: ${timer}`)
+    setTimer(timer => timer - 1);
     if(timer > 0) {
-      setTimer(timer => timer - 1);
       if(timer < 2) {
         // enable onExit animation
         setAnimation("onExit");
@@ -117,8 +117,18 @@ const Slider = (props): React$Node => {
       // Lock further calls to transitions until
       // Once the slide hass been loaded, we will update the timer and
       //  unlock transitions
+
       setLoading(true);
-      transition();
+      const t = setTimeout(() => {
+        transition();
+      }, 100)
+      return () => clearTimeout(t)
+    }
+
+    // NOTE: we don't want to fall into a blackhole
+    if (timer < -5) {
+      setLoading(false);
+      setTimer(0);
     }
   }, [timestamp])
 
