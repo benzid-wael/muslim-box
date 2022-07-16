@@ -21,6 +21,16 @@ const Main = styled.div`
   height: 100%;
 `
 
+/* NOTE: will-change forces the browser to place the element
+*   in a new layer. Placing elements in a new layer ensure that
+*   they will be repainted without requiring the rest of the page
+*   to be repainted as well.
+*
+* Layer creation can result in other performance issues. Thus,
+*   this property should not be used as a premature optimization.
+*   Instead, you should only use it when you are seeing jank
+*   and think that promoting the element to a new layer may help.
+*/
 const Container = styled.div`
   position: relative;
   width: 100%;
@@ -28,7 +38,7 @@ const Container = styled.div`
   cursor: pointer;
 
   & > div {
-    will-change: transform, opacity;
+    // will-change: transform, opacity;
     position: relative;
     width: 100%;
     height: 100%;
@@ -181,7 +191,7 @@ const Slider = (props): React$Node => {
   return props.slides.length === 0 ? <></> : (
     <Main>
       <Container
-        animation={cssKeyframe}
+        animation={SLIDER.EnableAnimation ? cssKeyframe : ""}
         onClick={transition}
       >
         <SlideBuilder slide={slide} />

@@ -8,6 +8,7 @@
   "MinimumSlideDurationInSeconds": 5,
   "PrayerReminderDurationInSeconds": 10,
   "DefaultSlidingDurationInSeconds": 3,
+  "OnReachEndStrategy": "reset",
   "VerseOfTheDayAPI": true,
-  "OnReachEndStrategy": "reset"
+  "EnableAnimation": false
 }
