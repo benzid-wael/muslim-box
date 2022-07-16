@@ -9,12 +9,12 @@ import SLIDER from "@constants/slider";
 
 const getDurationTimeToReadContent = (content: string, wordsPerMinute: number): number => {
     const wordsCount = content?.split(" ")?.length
-    const durationInSeconds = ((wordsCount / wordsPerMinute) * 60) + 2
+    const durationInSeconds = ((wordsCount / wordsPerMinute) * 60) + 1
     console.debug(`slide contains ${wordsCount} words, requires ${durationInSeconds}s`)
     return durationInSeconds
 }
 
-export const getDurationInSeconds = (slide: Slide): number => {
+export const getDurationInSeconds = (slide: Slide, extra?: number): number => {
     let duration = SLIDER.DefaultSlidingDurationInSeconds
     switch(slide.type) {
         case "current-prayer":
@@ -27,5 +27,5 @@ export const getDurationInSeconds = (slide: Slide): number => {
         duration = slide.durationInSeconds || durationInSeconds
     }
 
-    return Math.max(duration, SLIDER.MinimumSlideDurationInSeconds)
+    return Math.max(duration, SLIDER.MinimumSlideDurationInSeconds) + (extra || 0)
 }

@@ -2,7 +2,7 @@
   "WordsPerMinute": 100,
   "DefaultProvider": "database",
   "PageSize": 10,
-  "PageRepeatRatioNOutOfOne": 5,
+  "PageRepeatRatioNOutOfOne": 10,
   "PrayerReminderEveryNSlides": 10,
   "MaxSlidesBeforeReset": 1000,
   "MinimumSlideDurationInSeconds": 3,

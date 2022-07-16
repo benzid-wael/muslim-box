@@ -5,7 +5,7 @@ import type { AdhanSound, AdhanSoundMetadata, AdhanConfig } from "@src/types"
 
 import { Prayer } from "adhan"
 
-import ADHAN from "@constants/prayer"
+import ADHAN from "@constants/adhan"
 
 import AdhanFajr from "@resources/audio/Adhan-fajr.mp3"
 import AdhanMadinah from "@resources/audio/Adhan-Madinah.mp3"
@@ -18,25 +18,25 @@ import AdhanTurkish from "@resources/audio/Adhan-Turkish.mp3"
 
 
 export const autoPlayAdhan = (prayer: Prayer, cfg: AdhanConfig): boolean => {
-    return {
-        fajr: cfg?.autoPlayFajrAdhan,
-        dhuhr: cfg?.autoPlayDhuhrAdhan,
-        asr: cfg?.autoPlayAsrAdhan,
-        maghrib: cfg?.autoPlayMaghribAdhan,
-        isha: cfg?.autoPlayIshaAdhan,
-    }[prayer.name] || ADHAN.AutoPlayAdhan || false
+  return {
+    fajr: cfg?.autoPlayFajrAdhan,
+    dhuhr: cfg?.autoPlayDhuhrAdhan,
+    asr: cfg?.autoPlayAsrAdhan,
+    maghrib: cfg?.autoPlayMaghribAdhan,
+    isha: cfg?.autoPlayIshaAdhan,
+  }[prayer] || ADHAN.AutoPlayAdhan
 }
 
 export const getAdhanMetadataForPrayer = (prayer: Prayer, cfg: AdhanConfig): AdhanSoundMetadata => {
-    const adhanSound = {
-        fajr: cfg?.fajrAdhanSound || ADHAN.DefaultFajrAdhanSound,
-        dhuhr: cfg?.dhuhrAdhanSound,
-        asr: cfg?.asrAdhanSound,
-        maghrib: cfg?.maghribAdhanSound,
-        isha: cfg?.ishaAdhanSound,
-    }[prayer.name] || ADHAN.DefaultAdhanSound
+  const adhanSound = {
+    fajr: cfg?.fajrAdhanSound || ADHAN.DefaultFajrAdhanSound,
+    dhuhr: cfg?.dhuhrAdhanSound || ADHAN.DefaultAdhanSound,
+    asr: cfg?.asrAdhanSound || ADHAN.DefaultAdhanSound,
+    maghrib: cfg?.maghribAdhanSound || ADHAN.DefaultAdhanSound,
+    isha: cfg?.ishaAdhanSound || ADHAN.DefaultAdhanSound,
+  }[prayer]
 
-    return getAdhanMetadata(adhanSound)
+  return getAdhanMetadata(adhanSound)
 }
 
 export const getAdhanMetadata = (key: AdhanSound): AdhanSoundMetadata => {
