@@ -26,27 +26,25 @@ const slice: any = createSlice({
         setLoading: (state, {payload}: {payload: boolean}) => {
             return {...state, isLoading: payload}
         },
-        init: (state) => {
-            return {...state, position: 0}
+        setPosition: (state, {payload}: {payload: number}) => {
+            return {...state, position: payload}
         },
         addSlides: (state, {payload}: {payload: $ReadOnlyArray<Slide>}) => {
             return {...state, slides: [...state.slides, ...payload]}
         },
-        movePrevious: (state, {payload}: {payload: {onReachStart: Callback}}) => {
+        movePrevious: (state) => {
             if (state.position > 0) {
                 return { ...state, position: state.position - 1 }
-            } else if (payload.onReachStart) {
-                payload.onReachStart()
+            } else {
+                return { ...state, position: state.slides.length - 1 }
             }
-            return state
         },
-        moveNext: (state, {payload}: {payload: {onReachEnd: Callback}}) => {
+        moveNext: (state) => {
             if (state.position < state.slides.length - 1) {
                 return { ...state, position: state.position + 1 }
-            } else if (payload.onReachEnd) {
-                payload.onReachEnd()
+            } else {
+                return { ...state, position: 0 }
             }
-            return state
         },
         reset: (state, {payload}: {payload?: $ReadOnlyArray<Slide>}) => {
             return {
@@ -61,7 +59,7 @@ const slice: any = createSlice({
 // Extract the action creators object and the reducer
 const { actions, reducer } = slice;
 // Extract and export each action creator by name
-export const { setLoading, init, addSlides, moveNext, movePrevious, reset } = actions;
+export const { setLoading, setPosition, addSlides, moveNext, movePrevious, reset } = actions;
 
 export const resetSlides = (slides: $ReadOnlyArray<Slide>): any => async (dispatch: any) => {
     console.log(`resetting slide controller: ${slides.length} slides to be loaded`)

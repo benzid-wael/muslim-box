@@ -3,15 +3,14 @@
 */
 import type { Slide } from "@src/types";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import { animated, Transition, config } from "react-spring";
 import styled from "styled-components";
 
 import AdhanSlide from "./AdhanSlide.react";
 import SLIDER from "@constants/slider";
 import SlideBuilder from "@components/SlideBuilder.react";
-import { addSlides, moveNext, init, resetSlides } from "@redux/slices/slideSlice";
+import { addSlides, moveNext, setPosition, resetSlides } from "@redux/slices/slideSlice";
 import { getDurationInSeconds } from "@src/Slide";
 import { SlideLoaderFactory } from "@src/SlideLoader";
 
@@ -27,13 +26,50 @@ const Container = styled.div`
   width: 100%;
   height: 100%;
   cursor: pointer;
+
   & > div {
     will-change: transform, opacity;
     position: relative;
     width: 100%;
     height: 100%;
+
+    @keyframes SlideIn {
+      from {
+        -webkit-transform: translateY(-100%);
+        -ms-transform: translateY(-100%);
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+
+      to {
+        -webkit-transform: translateY(0);
+        -ms-transform: translateY(0);
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes SlideOut {
+      from {
+        -webkit-transform: translateY(0);
+        -ms-transform: translateY(0);
+        transform: translateY(0);
+        opacity: 1;
+      }
+
+      to {
+        -webkit-transform: translateY(100%);
+        -ms-transform: translateY(100%);
+        transform: translateY(100%);
+        opacity: 0;
+      }
+    }
+
+    -webkit-animation: ${props => props.animation} 1s ease;
+    animation: ${props => props.animation} 1s ease;
+    -webkit-animation-iteration-count: 1;
+    animation-iteration-count: 1;
   }
-  overflow: unset;
 `
 
 const mapStateToProps = state => ({
@@ -41,11 +77,45 @@ const mapStateToProps = state => ({
   slides: state.slide.slides,
   position: state.slide.position,
   backendURL: state.user.backendURL,
+  timestamp: state.prayerTimes.timestamp,
 })
 
 const Slider = (props): React$Node => {
-  const { language, slides, position } = props;
+  const { language, position, slides, timestamp } = props;
+  const [timer, setTimer] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [animation, setAnimation] = useState("enter")
 
+  const slide = position >= 0 && position < slides.length ? slides[position] : null;
+
+  useEffect(() => {
+
+    if(!loading && props.slides.length === 0) {
+      setLoading(true);
+      const t = setTimeout(
+        async () => {
+          console.log(`Loading initial slides...`)
+          const slides = await loadSlides()
+          props.dispatch(resetSlides(slides));
+
+          setLoading(false);
+        }, 100);
+
+      return () => clearTimeout(t)
+    }
+
+    if(timer > 0) {
+      setTimer(timer => timer - 1);
+      if(timer < 2) {
+        // enable onExit animation
+        setAnimation("onExit");
+      }
+    } else {
+      transition();
+    }
+  }, [timestamp])
+
+  /* Compute current slide duration and update the timer */
   useEffect(() => {
     const duration = slides.length > 0
       ?
@@ -53,17 +123,34 @@ const Slider = (props): React$Node => {
       :
       .3  // by default 3ms
     ;
-    const timer = setTimeout(
-      async () => {
-        if(props.slides.length === 0) {
-          const slides = await loadSlides()
-          props.dispatch(resetSlides(slides));
-        } else {
-          transition()
-        }
-    }, duration * 1000)
-    return () => clearTimeout(timer)
-  }, [position, slides])
+
+    setTimer(duration)
+  }, [position])
+
+  const transition = async () => {
+    // activate onEnter animation
+    setAnimation("onEnter")
+
+    console.log(`[Slider] transition: ${position}/${slides.length - 1}`)
+    if (position < slides.length - 1) {
+      props.dispatch(moveNext())
+    } else if (SLIDER.OnReachEndStrategy === "load") {
+      console.warn(`[Slider] loading more slides...`)
+      // load more slides
+      const slides = await loadSlides()
+      if(slides.length > SLIDER.MaxSlidesBeforeReset) {
+        props.dispatch(resetSlides(slides));
+      } else {
+        props.dispatch(addSlides(slides));
+        // When adding new slides, we need to explicitly
+        //  call transition to resume sliding
+        props.dispatch(moveNext());
+      }
+    } else {
+      // by default
+      props.dispatch(moveNext())
+    }
+  }
 
   useEffect(() => {
     console.log(`[Slider] language changed: reloading slides`)
@@ -87,50 +174,17 @@ const Slider = (props): React$Node => {
     return slides;
   }
 
-  const onReachEnd = async () => {
-    console.log(`onReachEnd called`)
-    if (SLIDER.OnReachEndStrategy === "reset") {
-      props.dispatch(init());
-      transition();
-      return
-    }
-    const slides = await loadSlides()
-    if(slides.length > SLIDER.MaxSlidesBeforeReset) {
-      props.dispatch(resetSlides(slides));
-    } else {
-      props.dispatch(addSlides(slides));
-      transition();
-    }
-  }
-
-  const transition = () => {
-    props.dispatch(moveNext({onReachEnd: onReachEnd}))
-  }
+  const cssKeyframe = animation === "onEnter" ? "SlideIn" : (
+    animation === "onExit" ? "SlideOut" : ""
+  )
 
   return props.slides.length === 0 ? <></> : (
     <Main>
-      <Container onClick={transition}>
-        <Transition
-          native
-          reset
-          unique
-          items={position}
-          from={{ opacity: 0, transform: "translate3d(100%, 0 ,0)" }}
-          enter={{ opacity: 1, transform: "translate3d(0%, 0, 0)" }}
-          leave={{ opacity: 0, transform: "translate3d(-50%, 0, 0)" }}
-          config={config.molasses}
-        >
-          {(style, index) => {
-            const slide = slides[index];
-            return (
-              <animated.div style={{
-                ...style,
-              }}>
-                <SlideBuilder slide={slide} />
-              </animated.div>
-            )
-          }}
-        </Transition>
+      <Container
+        animation={cssKeyframe}
+        onClick={transition}
+      >
+        <SlideBuilder slide={slide} />
       </Container>
     </Main>
   )
