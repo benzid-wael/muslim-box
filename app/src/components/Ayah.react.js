@@ -12,14 +12,15 @@ const VerseNumber = styled.span`
   padding: 0 2.5rem;
   display: inline-block;
   position: relative;
-  font-size: 1.2rem;
+  font-size: 1vw;
+  top: -.5rem;
 
   &::after {
     content: "\u06dd";
     display: block;
     position: absolute;
-    font-size: 4rem;
-    top: 50%;
+    font-size: 3.5vw;
+    top: 46%;
     left: 50%;
     transform: translate(-50%, -50%);
   }

@@ -1,11 +1,14 @@
 {
-    "WordsPerMinute": 50,
-    "DefaultProvider": "database",
-    "PageSize": 10,
-    "PageRepeatRatioNOutOfOne": 3,
-    "PrayerReminderEveryNSlides": 10,
-    "MaxSlidesBeforeReset": 1000,
-    "MinimumSlideDurationInSeconds": 5,
-    "PrayerReminderDurationInSeconds": 10,
-    "DefaultSlidingDurationInSeconds": 3
+  "WordsPerMinute": 100,
+  "DefaultProvider": "database",
+  "PageSize": 10,
+  "PageRepeatRatioNOutOfOne": 10,
+  "PrayerReminderEveryNSlides": 10,
+  "MaxSlidesBeforeReset": 1000,
+  "MinimumSlideDurationInSeconds": 3,
+  "PrayerReminderDurationInSeconds": 10,
+  "DefaultSlidingDurationInSeconds": 3,
+  "OnReachEndStrategy": "reset",
+  "EnableVerseOfTheDayAPI": true,
+  "EnableAnimation": true
 }

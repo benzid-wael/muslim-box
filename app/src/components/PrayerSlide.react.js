@@ -3,39 +3,16 @@
 */
 import type {
   CurrentPrayerSlide,
-  Language,
-  LayoutDirection,
   NextPrayerSlide,
   PrayerTime,
 } from "@src/types";
 
 import React, { useState, useEffect } from "react";
-import { connect } from "react-redux"
-import { useTranslation } from "react-i18next"
-import styled from "styled-components"
-import moment from "moment"
-
-const Main = styled.div`
-  display: table;
-  position: relative;
-  width: calc(100% - 80px);
-  height: 100%;
-  margin: 0 40px;
-  direction: ${props => props.direction}
-`
-
-const Title = styled.h1`
-  font-weight: 800;
-  font-size: 16px;
-  font-size: 4vw;
-`
-
-const Inner = styled.div`
-  display: table-cell;
-  vertical-align: middle;
-  text-align: center;
-  font-weight: 600;
-`
+import { connect } from "react-redux";
+import { useTranslation } from "react-i18next";
+import styled from "styled-components";
+import moment from "moment";
+import Slide from "@components/Slide.react";
 
 const Time = styled.h2`
   font-weight: 800;
@@ -45,22 +22,17 @@ const Time = styled.h2`
 `
 
 type StateProps = $ReadOnly<{
-  language: Language,
-  direction: LayoutDirection,
   currentPrayer?: PrayerTime,
   nextPrayer?: PrayerTime,
 }>
 
 type ComponentProps = $ReadOnly<{
   slide: NextPrayerSlide | CurrentPrayerSlide,
-  direction: LayoutDirection
 }>
 
 type Props = StateProps & ComponentProps;
 
 const mapStateToProps = (state): StateProps => ({
-    language: state.config.present.general.language,
-    direction: state.config.present.general.direction,
     currentPrayer: state.prayerTimes.current,
     nextPrayer: state.prayerTimes.next,
 })
@@ -107,7 +79,7 @@ const getConfig = (
   return configMap.isPrayer[prayer.isPrayer].type[slide.type]
 }
 
-const Slide = (props: Props): React$Node => {
+const PrayerSlideComponent = (props: Props): React$Node => {
   const { i18n } = useTranslation();
   const [now, setNow] = useState<number>(moment.now())
 
@@ -136,12 +108,10 @@ const Slide = (props: Props): React$Node => {
   const time = moment.unix(config.time)
   const remaining = moment.duration(time.diff(moment(now)))
 
-  return <Main direction={props.direction}>
-    <Inner>
-      <Title>{config.title}</Title>
-      <Time>{remaining.format("HH:mm:ss")}</Time>
-    </Inner>
-  </Main>
+  return <Slide
+    title={config.title}
+    content={<Time>{remaining.format("HH:mm:ss")}</Time>}
+  />
 }
 
-export default (connect(mapStateToProps)(Slide): any)
+export default (connect(mapStateToProps)(PrayerSlideComponent): any)

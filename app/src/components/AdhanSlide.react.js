@@ -1,7 +1,7 @@
 /*
 * @flow
 */
-import type { PrayerTime, Language, LayoutDirection } from "@src/types"
+import type { PrayerTime } from "@src/types"
 
 import React, { useState, useEffect } from "react";
 import { connect } from "react-redux"
@@ -10,30 +10,7 @@ import styled from "styled-components"
 
 import ADHAN from "@constants/adhan"
 import { autoPlayAdhan, getAdhanMetadataForPrayer } from "@src/Adhan"
-
-const Main = styled.div`
-  display: table;
-  position: relative;
-  width: calc(100% - 80px);
-  height: 100%;
-  margin: 0 40px;
-  direction: ${props => props.direction}
-`
-
-const Title = styled.h1`
-  font-weight: 800;
-  font-size: 24px;
-  font-size: 3vw;
-`
-
-const Inner = styled.div`
-  display: table-cell;
-  vertical-align: middle;
-  text-align: center;
-  font-weight: 400;
-  font-size: 12px;
-  font-size: 3vw;
-`
+import Slide from "@components/Slide.react";
 
 const Matn = styled.h3`
   font-weight: 600;
@@ -53,7 +30,6 @@ const Reference = styled.span`
 `
 
 type StateProps = $ReadOnly<{
-  direction: LayoutDirection,
   currentPrayer: PrayerTime,
 }>
 
@@ -63,7 +39,6 @@ type ComponentProps = $ReadOnly<{
 type Props = StateProps & ComponentProps;
 
 const mapStateToProps = (state): StateProps => ({
-  direction: state.config.present.general.direction,
   currentPrayer: state.prayerTimes.current,
 })
 
@@ -86,10 +61,10 @@ const DuaaAfterAdhan = (props) => {
   </div>
 }
 
-const Slide = (props: Props): React$Node => {
+const AdhanSlideComponent = (props: Props): React$Node => {
   const { i18n } = useTranslation();
   const adhan = getAdhanMetadataForPrayer(props.currentPrayer?.name)
-  const [audio] = useState(new Audio(adhan.sound))
+  const [audio, setAudio] = useState<?Audio>(new Audio(adhan.sound))
   const [state, setState] = useState({
     ended: false,
     play: false,
@@ -102,21 +77,22 @@ const Slide = (props: Props): React$Node => {
   }
 
   const togglePlay = () => {
-    if (!state.ended) {
+    if (!state.ended && audio) {
       state.play ? audio.pause() : audio.play();
       setState({ ...state, play: !state.play });
     }
   }
 
   useEffect(() => {
-
     const timer = setTimeout(
       () => {
-        console.log(`[Adhan] auto playing adhan for ${props.currentPrayer?.name} prayer`)
-        if (autoPlayAdhan(props.currentPrayer?.name)) {
+        const autoplay = autoPlayAdhan(props.currentPrayer?.name)
+        console.log(`[Adhan] Adhan for ${props.currentPrayer?.name} prayer: enabled: ${autoplay}`)
+        if (autoplay) {
+          console.debug(`[Adhan] auto playing adhan`)
           togglePlay()
         }
-    }, 300)
+    }, 500)
     return () => clearTimeout(timer)
   }, [])
 
@@ -126,18 +102,16 @@ const Slide = (props: Props): React$Node => {
     };
   }, []);
 
-  return <Main direction={props.direction} onClick={togglePlay}>
-    <Inner>
-        <Title>{i18n.t("Now is the time for {{prayer}} prayer", {prayer})}</Title>
-
-        {state.ended
-          ?
-          <DuaaAfterAdhan direction={props.direction} />
-          :
-          <DuaaDuringAdhan direction={props.direction} />
-        }
-    </Inner>
-  </Main>
+  return <Slide
+    title={i18n.t("Now is the time for {{prayer}} prayer", {prayer})}
+    onClick={togglePlay}
+    content={state.ended
+      ?
+      <DuaaAfterAdhan direction={props.direction} />
+      :
+      <DuaaDuringAdhan direction={props.direction} />
+    }
+  />
 }
 
-export default (connect(mapStateToProps)(Slide): any)
+export default (connect(mapStateToProps)(AdhanSlideComponent): any)

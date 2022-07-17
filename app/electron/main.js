@@ -1,3 +1,5 @@
+require("v8-compile-cache");
+
 const { fork } = require("child_process");
 const crypto = require("crypto");
 const fs = require("fs");
@@ -5,6 +7,7 @@ const path = require("path");
 const geoip = require("fast-geoip");
 const axios = require("axios");
 const Sentry = require("@sentry/electron");
+
 const {
   MessageChannel, // remember to require it in main.js even if you don't use it
   ProcessManager
