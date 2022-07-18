@@ -10,7 +10,7 @@ import store, { history } from "@redux/store";
 import styled from "styled-components";
 
 import i18n from "@localization/i18n.config";
-import { changeLanguage } from "@redux/slices/configSlice";
+import { changeLanguage, loadSettings } from "@redux/slices/configSlice";
 import { setBackendURLs, setCoordinates } from "@redux/slices/userSlice";
 import { computePrayerTimes, updatePrayerTimes } from "@redux/slices/prayerTimesSlice";
 
@@ -64,6 +64,7 @@ type StateProps = $ReadOnly<{
   day: string,
   dispatch: (any) => void,
   slides: $ReadOnlyArray<Slide>,
+  backendURL: string,
 }>
 
 type Props = $ReadOnly<{
@@ -73,6 +74,10 @@ type Props = $ReadOnly<{
 
 const Root = (props: Props) => {
   const { history } = props;
+
+  useEffect(() => {
+    props.dispatch(loadSettings(props.backendURL));
+  }, [props.backendURL])
 
   useEffect(() => {
     props.dispatch(computePrayerTimes(props.coordinates));
@@ -103,6 +108,7 @@ const mapStateToProps = state => ({
   timestamp: state.prayerTimes.timestamp,
   day: state.prayerTimes.day,
   slides: state.slide.slides,
+  backendURL: state.user.backendURL,
 })
 
 export default (connect(mapStateToProps)(Root): any)

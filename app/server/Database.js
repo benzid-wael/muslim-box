@@ -25,7 +25,9 @@ class Database {
           ON qv.id = s.verse_start
         LEFT JOIN quran_surah qs
           ON qs.id = qv.surah
-        WHERE s.id = (?);`
+        WHERE s.active = 1
+          AND s.id = (?);
+        `
 
       database.all(getSlideByIdQuery, [id], function(err, rows) {
         if(err){
@@ -85,6 +87,7 @@ class Database {
         LEFT JOIN quran_surah qs
           ON qs.id = qv.surah
         WHERE (s.content_${language} IS NOT NULL OR qv.verse_${language} IS NOT NULL)
+          AND s.active = 1
           ${typeFilter}
         ORDER BY random()
         LIMIT (?)
@@ -124,6 +127,7 @@ class Database {
       LEFT JOIN quran_surah qs
         ON qs.id = qv.surah
       WHERE (s.content_${language} IS NOT NULL OR qv.verse_${language} IS NOT NULL)
+        AND s.active = 1
         AND s.category = (?)
       GROUP BY s.id
       ORDER BY s.id
@@ -188,6 +192,7 @@ class Database {
         AND s.id = st.slide
         AND t.id = st.tag
         AND (t.name IN (${tags}))
+        AND s.active = 1
         ${notQ}
       GROUP BY s.id
       ${order}
@@ -214,6 +219,20 @@ class Database {
   any(include, exclude, orderBy, language) {
     return new Promise((resolve, reject) => {
       const query = this.q(include, exclude, orderBy, language)
+      // raw SQLite query to select from table
+      this.database.all(query, [], function(err, rows) {
+        if(err){
+          reject(err);
+        }
+        const result = !!rows && rows.length > 0 ? rows : []
+        resolve(result);
+      });
+    });
+  }
+
+  settings() {
+    return new Promise((resolve, reject) => {
+      const query = "SELECT * from settings where active = 1"
       // raw SQLite query to select from table
       this.database.all(query, [], function(err, rows) {
         if(err){

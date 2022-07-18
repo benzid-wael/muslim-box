@@ -20,6 +20,20 @@ const serializeSlide = (row) => {
   }
 }
 
+const settings = async (db) => {
+  const rows  = await db.settings()
+  return rows.map(row => {
+    return {
+      name: row.name,
+      category: row.category,
+      type: row.type,
+      value: row.value,
+      default: row.default,
+      options: row.options,
+    }
+  })
+}
+
 const versesOfTheDay = async (db, count, language) => {
   const rows = await db.randomVerses(count, language)
   const result = (
@@ -85,6 +99,7 @@ const search = async (db, operator, include, exclude, orderBy, language) => {
 }
 
 module.exports = {
+  settings,
   versesOfTheDay,
   random,
   getSlideById,

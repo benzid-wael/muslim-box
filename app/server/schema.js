@@ -16,6 +16,19 @@ const dbPath = (
 console.log(`[server] database: ${dbPath}`)
 // const database = new sqlite3.Database(dbPath);
 
+
+const Setting = new graphql.GraphQLObjectType({
+  name: "Setting",
+  fields: {
+    name: { type: graphql.GraphQLString },
+    category: { type: graphql.GraphQLString },
+    type: { type: graphql.GraphQLString },
+    value: { type: graphql.GraphQLString },
+    default: { type: graphql.GraphQLString },
+    options: { type: graphql.GraphQLString },
+  }
+});
+
 //creacte graphql slide object
 const Slide = new graphql.GraphQLObjectType({
   name: "Slide",
@@ -59,6 +72,14 @@ const SearchOrderByEnum = new graphql.GraphQLEnumType({
 var queryType = new graphql.GraphQLObjectType({
   name: "Query",
   fields: {
+    settings: {
+      type: graphql.GraphQLList(Setting),
+      resolve: async (root, args, context, info) => {
+        const db = new Database(dbPath)
+        const result = await Repository.settings(db)
+        return result
+      }
+    },
     versesOfTheDay: {
       type: graphql.GraphQLList(Slide),
       args: {
