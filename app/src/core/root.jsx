@@ -17,6 +17,8 @@ import { computePrayerTimes, updatePrayerTimes } from "@redux/slices/prayerTimes
 import Nav from "./nav";
 import Routes from "./routes";
 import "./root.css";
+import type { SettingConfig } from "../Setting";
+import { SettingsManager } from "../SettingsManager";
 
 const loadI18nResources = (language) => {
   console.info(`[Renderer] language changed event received`);
@@ -65,6 +67,7 @@ type StateProps = $ReadOnly<{
   dispatch: (any) => void,
   slides: $ReadOnlyArray<Slide>,
   backendURL: string,
+  settings: Array<SettingConfig>,
 }>
 
 type Props = $ReadOnly<{
@@ -80,7 +83,11 @@ const Root = (props: Props) => {
   }, [props.backendURL])
 
   useEffect(() => {
-    props.dispatch(computePrayerTimes(props.coordinates));
+    console.log(`[Root] SettingsManager`)
+    const sm = SettingsManager.fromConfigs(props.settings);
+    console.log(`[Root] SettingsManager: ${sm.toString()}`)
+    props.dispatch(computePrayerTimes(props.coordinates, sm));
+    console.log(`[Root] computePrayerTimes`)
   }, [props.day, props.coordinates])
 
   useEffect(() => {
@@ -109,6 +116,7 @@ const mapStateToProps = state => ({
   day: state.prayerTimes.day,
   slides: state.slide.slides,
   backendURL: state.user.backendURL,
+  settings: state.config.present.settings,
 })
 
 export default (connect(mapStateToProps)(Root): any)

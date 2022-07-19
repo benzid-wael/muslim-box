@@ -1,12 +1,13 @@
 /*
 * @flow
 */
+import { capitalize } from "@src/utils"
+
 export type SettingType =
   | "boolean"
   | "int"
   | "string"
   | "enum";
-
 
 export type SettingOptions = $ReadOnly<{
   name: string,
@@ -21,9 +22,6 @@ export type SettingConfig = $ReadOnly<{
   default: ?string,
   options: ?SettingOptions,
 }>
-
-const capitalize = ([first, ...rest], lowerRest = false) =>
-  first.toUpperCase() + (lowerRest ? rest.join('').toLowerCase() : rest.join(''));
 
 const validateEnum = (v: string, f: Setting): any => {
   if(!f.options) throw new Error(`Enum should defines options`);
@@ -61,6 +59,7 @@ export class Setting {
   #type: SettingType;
   #value: ?string;
   #default: any;
+  #category: ?string;
   #options: ?SettingOptions;
 
   constructor(
@@ -71,9 +70,10 @@ export class Setting {
   ) {
     this.#name = name;
     this.#type = type;
-    this.#value = null;
     this.#default = defaultValue;
     this.#options = options;
+    this.#value = null;
+    this.#category = null;
   }
 
   toString(): string {
@@ -113,9 +113,27 @@ export class Setting {
     return this
   }
 
+  get category(): ?string {
+    return this.#category
+  }
+
+  setCategory(val: any): Setting {
+    this.#category = val
+    return this
+  }
+
   /* Factory methods */
   static build(name: string, type: SettingType, defaultValue?: any, options?: SettingOptions) {
     return new Setting(name, type, defaultValue, options)
+  }
+
+  static fromConfig(config: SettingConfig): Setting {
+    // $FlowFixMe[incompatible-call]
+    const options: ?SettingOptions = config.options == null ? JSON.parse(config.options) : undefined
+    // $FlowFixMe[incompatible-call]
+    return Setting.build(config.name, config.type, config.default, options)
+      .setValue(config.value)
+      .setCategory(config.category)
   }
 
   static boolean(name: string, defaultValue?: any): Setting {

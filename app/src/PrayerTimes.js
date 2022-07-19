@@ -2,6 +2,7 @@
 * @flow
 */
 import type { GeoCoordinates, PrayerTime, PrayerTimeConfig, SlideFilter } from "@src/types";
+import type { SettingsManager } from "./SettingsManager";
 
 import moment from "moment";
 import {
@@ -30,6 +31,8 @@ import {
   getHajirahStartTime,
   getHajirahEndTime,
 } from "@src/Prayer";
+import { capitalize } from "@src/utils"
+
 
 type PTConfig = $ReadOnly<{
   // $FlowFixMe[value-as-type]
@@ -44,6 +47,30 @@ type PTConfig = $ReadOnly<{
   modifier?: string,
   slide?: SlideFilter,
 }>
+
+const getPrayerTimeConfig = (sm: SettingsManager, prayer: Prayer): PrayerTimeConfig => {
+  return {
+    iqamahAfterInMinutes: sm.getPrayerSettingValue("IqamahAfterInMinutes", prayer),
+    iqamahTime: sm.getPrayerSettingValue("IqamahTime", prayer),
+    iqamahDurationInMinutes: sm.getPrayerSettingValue("IqamahDurationInMinutes", prayer),
+    prayerDurationInMinutes: sm.getPrayerSettingValue("PrayerDurationInMinutes", prayer),
+    adhkarDurationInMinutes: sm.getPrayerSettingValue("AdhkarDurationInMinutes", prayer),
+    afterPrayerSunnahDurationInMinutes: sm.getPrayerSettingValue("AfterPrayerSunnahDurationInMinutes", prayer),
+    adhkarSabahMasaaDurationInMinutes: sm.getPrayerSettingValue("AdhkarSabahMasaaDurationInMinutes", prayer),
+  }
+}
+
+const getPrayerTimeConfigs = (sm: SettingsManager): $ReadOnlyMap<Prayer, PrayerTimeConfig> => {
+  const res = new Map<Prayer, PrayerTimeConfig>()
+  const prayers = [Prayer.Fajr, Prayer.Dhuhr, Prayer.Asr, Prayer.Maghrib, Prayer.Isha]
+  prayers.map(
+    p => {
+      res.set(p, getPrayerTimeConfig(sm, p))
+    }
+  )
+
+  return res
+}
 
 const generatePT = (options: {
   prayer: Prayer,
@@ -329,9 +356,13 @@ const PrayerTimeConfigs: Array<PTConfig> = [
 export const getPrayerTimes = (
   position: GeoCoordinates,
   date: Date,
-  cfg?: $ReadOnlyMap<Prayer, PrayerTimeConfig>,
+  sm: SettingsManager,
 ): Array<PrayerTime> => {
   try {
+    console.log(`[getPrayerTimes] enter`)
+    const cfg: $ReadOnlyMap<Prayer, PrayerTimeConfig> = getPrayerTimeConfigs(sm)
+
+    console.log(`[getPrayerTimes] getPrayerTimeConfigs done`)
     // For configuration, see https://github.com/batoulapps/adhan-js/blob/master/METHODS.md
     const {latitude, longitude} = position;
     const coordinates = new Coordinates(latitude, longitude);
@@ -373,6 +404,7 @@ export const getPrayerTimes = (
       })
       .filter(pt => pt);
   } catch (err) {
+    console.error(`[getPrayerTimes] cannot compute prayer times: ${err}`)
     return [];
   }
 }

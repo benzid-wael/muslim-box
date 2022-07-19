@@ -8,6 +8,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import moment from "moment";
 
 import { getPrayerTimes } from "@src/PrayerTimes";
+import type { SettingsManager } from "../../SettingsManager";
 
 type State = $ReadOnly<{
   timestamp: number,
@@ -94,9 +95,11 @@ const { actions, reducer } = slice;
 // Extract and export each action creator by name
 export const { tick, setPrayerTimes, updateCurrentPrayer } = actions;
 
-export const computePrayerTimes = (position: GeoCoordinates): any => (dispatch: any) => {
+export const computePrayerTimes = (position: GeoCoordinates, sm: SettingsManager): any => (dispatch: any) => {
   const date = new Date(Date.now());
-  const prayerTimes = getPrayerTimes(position, date);
+  console.log(`[computePrayerTimes] call getPrayerTimes`)
+  const prayerTimes = getPrayerTimes(position, date, sm);
+  console.log(`[computePrayerTimes] call getPrayerTimes done`)
   dispatch(setPrayerTimes(prayerTimes));
 }
 
