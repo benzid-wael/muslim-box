@@ -43,8 +43,8 @@ CREATE TABLE IF NOT EXISTS "slide_tags" (
 	"tag"	INTEGER NOT NULL,
 	"slide"	INTEGER NOT NULL,
 	CONSTRAINT "unique_slide_tags" UNIQUE("slide","tag"),
-	FOREIGN KEY("slide") REFERENCES "slide"("id") ON DELETE SET NULL,
-	FOREIGN KEY("tag") REFERENCES "tags"("id") ON DELETE SET NULL
+	FOREIGN KEY("tag") REFERENCES "tags"("id") ON DELETE SET NULL,
+	FOREIGN KEY("slide") REFERENCES "slide"("id") ON DELETE SET NULL
 );
 CREATE TABLE IF NOT EXISTS "slide" (
 	"id"	INTEGER,
