@@ -14,8 +14,8 @@ export class SettingsManager {
       this.loadConfigs(configs)
     }
 
-    static fromConfigs(configs: Array<SettingConfig>): SettingsManager {
-      return new SettingsManager(configs)
+    static fromConfigs(configs: Array<SettingConfig>): this {
+      return new this(configs)
     }
 
     loadConfigs(configs: Array<SettingConfig>) {
@@ -26,15 +26,17 @@ export class SettingsManager {
       return this.#settings.find(s => s.name === name)
     }
 
-    getValue(name: string, fallback: string): any {
+    getValue(name: string, fallback: string, defaultValue?: any): any {
       const primary = this.#getFirst(name)
       const secondary = this.#getFirst(fallback)
       if (primary && primary.value) return primary.value
       else if (secondary) return secondary.value
+      else return defaultValue
     }
 
-    getPrayerSettingValue(name: string, prayer: Prayer): any {
+    getPrayerSettingValue(name: string, prayer: Prayer, defaultValue?: any): any {
       const pSetting = `${capitalize(prayer)}${name}`
-      return this.getValue(pSetting, name)
+      const result = this.getValue(pSetting, name, defaultValue)
+      return result
     }
 }

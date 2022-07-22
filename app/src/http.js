@@ -16,7 +16,7 @@ const isRetryableError = (error): boolean => {
   )
 }
 
-export const create = (): axios => {
+export const createHttpClient = (): axios => {
   const result = axios.create()
   // Exponential back-off retry delay between requests
   axiosRetry(result, {
@@ -30,6 +30,3 @@ export const create = (): axios => {
 
   return result
 }
-
-const http: axios = create()
-export default http

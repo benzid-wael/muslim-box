@@ -2,6 +2,7 @@
 * @flow
 */
 import type { GeoCoordinates, Slide } from "@src/types";
+import type { SettingConfig } from "@src/Setting";
 
 import React, { useEffect } from "react";
 import { ConnectedRouter } from "connected-react-router";
@@ -14,11 +15,11 @@ import { changeLanguage, loadSettings } from "@redux/slices/configSlice";
 import { setBackendURLs, setCoordinates } from "@redux/slices/userSlice";
 import { computePrayerTimes, updatePrayerTimes } from "@redux/slices/prayerTimesSlice";
 
+import { SettingsManager } from "@src/SettingsManager";
 import Nav from "./nav";
 import Routes from "./routes";
 import "./root.css";
-import type { SettingConfig } from "../Setting";
-import { SettingsManager } from "../SettingsManager";
+
 
 const loadI18nResources = (language) => {
   console.info(`[Renderer] language changed event received`);
@@ -83,12 +84,11 @@ const Root = (props: Props) => {
   }, [props.backendURL])
 
   useEffect(() => {
-    console.log(`[Root] SettingsManager`)
+    if(!props.settings || !props.coordinates) return
+
     const sm = SettingsManager.fromConfigs(props.settings);
-    console.log(`[Root] SettingsManager: ${sm.toString()}`)
     props.dispatch(computePrayerTimes(props.coordinates, sm));
-    console.log(`[Root] computePrayerTimes`)
-  }, [props.day, props.coordinates])
+  }, [props.day, props.coordinates, props.settings])
 
   useEffect(() => {
     const timer = setTimeout(

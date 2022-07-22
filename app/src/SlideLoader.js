@@ -5,7 +5,7 @@ import type { Language, Slide, SlideFilter } from "@src/types";
 
 import _ from "lodash";
 
-import http from "@src/http";
+import { createHttpClient } from "@src/http";
 import SLIDER from "@constants/slider";
 import Slides from "@resources/slides.json";
 
@@ -84,6 +84,7 @@ export class LocalBackendSlideLoader extends SlideLoader {
         "Accept": "application/json",
       }
     }
+    const http = createHttpClient()
     const response = await http.post(this.backendUrl, data, config)
     return response
   }

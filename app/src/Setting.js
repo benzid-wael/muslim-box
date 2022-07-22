@@ -24,7 +24,7 @@ export type SettingConfig = $ReadOnly<{
 }>
 
 const validateEnum = (v: string, f: Setting): any => {
-  if(!f.options) throw new Error(`Enum should defines options`);
+  if(!f.options) throw new Error(`Enum ${f.name} doesn't define options`);
   const option = f?.options?.options.filter(opt => opt === v);
   if(!option.length) throw new Error(`invalid option '${v} for ${f.toString()} setting`);
   return option[0];
@@ -123,32 +123,31 @@ export class Setting {
   }
 
   /* Factory methods */
-  static build(name: string, type: SettingType, defaultValue?: any, options?: SettingOptions) {
-    return new Setting(name, type, defaultValue, options)
+  static build(name: string, type: SettingType, defaultValue?: any, options?: SettingOptions): this {
+    return new this(name, type, defaultValue, options)
   }
 
-  static fromConfig(config: SettingConfig): Setting {
+  static fromConfig(config: SettingConfig): this {
     // $FlowFixMe[incompatible-call]
-    const options: ?SettingOptions = config.options == null ? JSON.parse(config.options) : undefined
-    // $FlowFixMe[incompatible-call]
-    return Setting.build(config.name, config.type, config.default, options)
+    // $FlowFixMe[incompatible-return]
+    return this.build(config.name, config.type, config.default, config.options)
       .setValue(config.value)
       .setCategory(config.category)
   }
 
-  static boolean(name: string, defaultValue?: any): Setting {
-    return Setting.build(name, "boolean", defaultValue)
+  static boolean(name: string, defaultValue?: any): this {
+    return this.build(name, "boolean", defaultValue)
   }
 
-  static int(name: string, defaultValue?: any): Setting {
-    return Setting.build(name, "int", defaultValue)
+  static int(name: string, defaultValue?: any): this {
+    return this.build(name, "int", defaultValue)
   }
 
-  static string(name: string, defaultValue?: any): Setting {
-    return Setting.build(name, "string", defaultValue)
+  static string(name: string, defaultValue?: any): this {
+    return this.build(name, "string", defaultValue)
   }
 
-  static enum(name: string, options: SettingOptions, defaultValue?: any): Setting {
-    return Setting.build(name, "enum", defaultValue, options)
+  static enum(name: string, options: SettingOptions, defaultValue?: any): this {
+    return this.build(name, "enum", defaultValue, options)
   }
 }

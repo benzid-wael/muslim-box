@@ -2,17 +2,19 @@
 * @flow
 */
 import type { PrayerTime as PrayerTimeType } from "@src/types";
+import type { SettingConfig } from "@src/Setting";
 
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux"
 import styled from "styled-components"
 
+import PRAYER from "@constants/prayer";
 import Clock from "@components/Clock.react"
 import Slider from "@components/Slider.react"
 import AdhanSlide from "@components/AdhanSlide.react";
 import ImageSlide from "@components/ImageSlide.react";
 import PrayerTime from "@components/PrayerTime.react";
-
+import { SettingsManager } from "@src/SettingsManager";
 import bg from "@resources/bg.jpg"
 
 const Main = styled.div`
@@ -59,12 +61,14 @@ type StateProps = $ReadOnly<{
   prayers: $ReadOnlyArray<PrayerTimeType>,
   currentPrayer?: PrayerTimeType,
   currentTime?: PrayerTimeType,
+  settings: Array<SettingConfig>,
 }>
 
 const mapStateToProps = state => ({
   prayers: state.prayerTimes.prayers,
   currentPrayer: state.prayerTimes.current,
   currentTime: state.prayerTimes.currentTime,
+  settings: state.config.present.settings,
 })
 
 const getView = (key?: string) => {
@@ -78,6 +82,7 @@ const getView = (key?: string) => {
 
 const Home = (props: StateProps): React$Node => {
   const [view, showView] = useState("slider");
+  const sm = SettingsManager.fromConfigs(props.settings);
 
   useEffect(() => {
     showView(props.currentTime?.modifier)
@@ -96,7 +101,15 @@ const Home = (props: StateProps): React$Node => {
             const isLastItem = i == props.prayers.length - 1
             const isCurrent = props.currentPrayer?.name === prayer.name
             return <>
-              <PrayerTime prayer={prayer} isCurrent={isCurrent} />
+              <PrayerTime
+                prayer={prayer}
+                isCurrent={isCurrent}
+                endTimeReminderInMinutes={sm.getPrayerSettingValue(
+                  "EndTimeReminderInMinutes",
+                  prayer.name,
+                  PRAYER.EndTimeReminderInMinutes,
+                )}
+              />
             </>
           })
         }

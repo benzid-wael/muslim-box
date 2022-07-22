@@ -4,7 +4,7 @@
 
 import type { SettingConfig } from "@src/Setting"
 
-import http from "@src/http";
+import { createHttpClient } from "@src/http";
 
 
 export const loadConfigs = async (backendUrl: string): Promise<Array<SettingConfig>> => {
@@ -27,6 +27,7 @@ export const loadConfigs = async (backendUrl: string): Promise<Array<SettingConf
       "Accept": "application/json",
     }
   }
+  const http = createHttpClient()
   const response = await http.post(backendUrl, data, config)
   return response.data["data"]["settings"].map(
     cfg => {

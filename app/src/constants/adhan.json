@@ -1,5 +1,3 @@
 {
-  "AutoPlayAdhan": true,
-  "DefaultAdhanSound": "adhan-madinah",
-  "DefaultFajrAdhanSound": "adhan-fajr"
+  "DefaultAdhanSound": "adhan-madinah"
 }
