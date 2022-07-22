@@ -2,26 +2,34 @@
 * @flow
 */
 import type { Language, Slide, SlideFilter } from "@src/types";
+import type { SliderSettings } from "@src/SliderSettings";
 
 import _ from "lodash";
 
 import { createHttpClient } from "@src/http";
-import SLIDER from "@constants/slider";
 import Slides from "@resources/slides.json";
 
+export type SlideLoaderType =
+  | "static"
+  | "database"
 
 export class SlideLoader {
+  settings: SliderSettings
+
+  constructor(settings: SliderSettings) {
+    this.settings = settings;
+  }
 
   injectDefaultSlides(slides: Array<Slide>): Array<Slide> {
     let result = []
-    const double = 2 * SLIDER.PrayerReminderEveryNSlides
+    const double = 2 * this.settings.prayerReminderEveryNSlides
 
     _.flatten(
-      _.times(SLIDER.PageRepeatRatioNOutOfOne, _.constant(slides))
+      _.times(this.settings.pageRepeatRatioNOutOfOne, _.constant(slides))
     ).map((s, i) => {
       if (i > 0 && i % double === 0) {
         result.push({type: "current-prayer"})
-      } else if (i > 0 && i % SLIDER.PrayerReminderEveryNSlides === 0) {
+      } else if (i > 0 && i % this.settings.prayerReminderEveryNSlides === 0) {
         result.push({type: "next-prayer"})
       }
       result.push(s)
@@ -65,8 +73,8 @@ export class StaticSlideLoader extends SlideLoader {
 export class LocalBackendSlideLoader extends SlideLoader {
   backendUrl: string
 
-  constructor(backendUrl: string) {
-    super()
+  constructor(settings: SliderSettings, backendUrl: string) {
+    super(settings)
     this.backendUrl = backendUrl
   }
 
@@ -95,7 +103,7 @@ export class LocalBackendSlideLoader extends SlideLoader {
     const quranPageSize = count - (3 * pageSize)
 
     const randomVersesQuery = (
-      SLIDER.EnableVerseOfTheDayAPI
+      this.settings?.verseOftheDayAPI
       ?
       `versesOfTheDay(count: $verses, language: $language) {
         ${fields.join(', ')}
@@ -142,19 +150,25 @@ export class LocalBackendSlideLoader extends SlideLoader {
 }
 
 type SlideLoaderFactoryOptions = $ReadOnly<{
-  provider: "static" | "database",
-  backendURL?: string
+  settings: SliderSettings,
+  backendURL?: string,
 }>;
 
 export class SlideLoaderFactory {
   static getLoader(options: SlideLoaderFactoryOptions): ?SlideLoader {
-    switch(options.provider) {
-      case "static":
-        return new StaticSlideLoader()
+    const provider = options.settings.defaultProvider
+
+    switch(provider) {
       case "database":
         if (options.backendURL != null) {
-          return new LocalBackendSlideLoader(options.backendURL)
+          return new LocalBackendSlideLoader(
+            options.settings,
+            options.backendURL,
+          )
         }
+      case "static":
+        // this is should be used only for testing
+        return new StaticSlideLoader(options.settings)
     }
   }
 }

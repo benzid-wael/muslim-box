@@ -14,8 +14,8 @@ import Slider from "@components/Slider.react"
 import AdhanSlide from "@components/AdhanSlide.react";
 import ImageSlide from "@components/ImageSlide.react";
 import PrayerTime from "@components/PrayerTime.react";
-import { SettingsManager } from "@src/SettingsManager";
-import bg from "@resources/bg.jpg"
+import { SliderSettings } from "@src/SliderSettings";
+import bg from "@resources/bg.jpg";
 
 const Main = styled.div`
   height: 100%;
@@ -71,18 +71,18 @@ const mapStateToProps = state => ({
   settings: state.config.present.settings,
 })
 
-const getView = (key?: string) => {
+const getView = (key?: string, settings: SliderSettings) => {
   switch(key) {
     case "adhan":
       return <AdhanSlide />
   }
 
-  return <Slider />
+  return <Slider settings={settings} />
 }
 
 const Home = (props: StateProps): React$Node => {
   const [view, showView] = useState("slider");
-  const sm = SettingsManager.fromConfigs(props.settings);
+  const sm = SliderSettings.fromConfigs(props.settings);
 
   useEffect(() => {
     showView(props.currentTime?.modifier)
@@ -90,7 +90,7 @@ const Home = (props: StateProps): React$Node => {
 
   return <Main backgroundImage={bg}>
     <Content>
-      { getView(view) }
+      { getView(view, sm) }
     </Content>
     <Footer>
       <Clock />
