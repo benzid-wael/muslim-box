@@ -5,12 +5,12 @@ import type { PrayerTime as PrayerTimeType } from "@src/types";
 import type { SettingConfig } from "@src/Setting";
 
 import React, { useEffect, useState } from "react";
-import { connect } from "react-redux"
-import styled from "styled-components"
+import { connect } from "react-redux";
+import styled from "styled-components";
 
 import PRAYER from "@constants/prayer";
-import Clock from "@components/Clock.react"
-import Slider from "@components/Slider.react"
+import Clock from "@components/Clock.react";
+import Slider from "@components/Slider.react";
 import AdhanSlide from "@components/AdhanSlide.react";
 import ImageSlide from "@components/ImageSlide.react";
 import PrayerTime from "@components/PrayerTime.react";

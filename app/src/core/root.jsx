@@ -4,7 +4,7 @@
 import type { GeoCoordinates, Slide } from "@src/types";
 import type { SettingConfig } from "@src/Setting";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { ConnectedRouter } from "connected-react-router";
 import { connect } from "react-redux";
 import store, { history } from "@redux/store";
@@ -16,7 +16,7 @@ import { setBackendURLs, setCoordinates } from "@redux/slices/userSlice";
 import { computePrayerTimes, updatePrayerTimes } from "@redux/slices/prayerTimesSlice";
 
 import { SettingsManager } from "@src/SettingsManager";
-import Nav from "./nav";
+import Navbar from "./Navbar.react";
 import Routes from "./routes";
 import "./root.css";
 
@@ -78,6 +78,7 @@ type Props = $ReadOnly<{
 
 const Root = (props: Props) => {
   const { history } = props;
+  const [navbar, setNavbar] = useState(false);
 
   useEffect(() => {
     props.dispatch(loadSettings(props.backendURL));
@@ -101,10 +102,18 @@ const Root = (props: Props) => {
   }, [props.timestamp])
 
   return (
-    <Main>
+    <Main
+      onMouseMove={(event) => {
+        if(!navbar && event.clientY < 50) {
+          setNavbar(true);
+        } else if(navbar && event.clientY >= 50) {
+          setNavbar(false);
+        }
+      }}
+    >
       <ConnectedRouter history={history}>
-        {/* <Nav history={history}></Nav> */}
-        <Routes></Routes>
+        <Navbar open={navbar} />
+        <Routes />
       </ConnectedRouter>
     </Main>
   );
