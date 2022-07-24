@@ -16,7 +16,7 @@ import { setBackendURLs, setCoordinates } from "@redux/slices/userSlice";
 import { computePrayerTimes, updatePrayerTimes } from "@redux/slices/prayerTimesSlice";
 
 import { SettingsManager } from "@src/SettingsManager";
-import Navbar from "./Navbar.react";
+import Navbar from "./Navbar";
 import Routes from "./routes";
 import "./root.css";
 
