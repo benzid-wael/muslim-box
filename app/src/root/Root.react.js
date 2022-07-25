@@ -16,9 +16,9 @@ import { setBackendURLs, setCoordinates } from "@redux/slices/userSlice";
 import { computePrayerTimes, updatePrayerTimes } from "@redux/slices/prayerTimesSlice";
 import { SettingsManager } from "@src/SettingsManager";
 
-import Navbar from "./Navbar";
-import Routes from "./routes";
-import "./root.css";
+import Navbar from "@root/Navbar.react";
+import Routes from "@root/Routes.react";
+import "@root/Root.css";
 
 
 const loadI18nResources = (language) => {
@@ -51,7 +51,6 @@ window.api.onBackendUrlChanged((message) => {
 
 const Main = styled.div`
   height: 100%;
-  width: 100%;
   position: absolute;
   top: 0px;
   right: 0px;
@@ -109,7 +108,7 @@ const Root = (props: Props) => {
       onMouseMove={(event) => {
         if(!navbar && event.clientY < 50) {
           setNavbar(true);
-        } else if(navbar && event.clientY >= 50) {
+        } else if(navbar && event.clientY >= 100) {
           setNavbar(false);
         }
       }}

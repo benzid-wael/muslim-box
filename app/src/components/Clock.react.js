@@ -31,13 +31,11 @@ const DateWrapper = styled.div`
   font-size: 18px;
   font-weight: 400;
   text-align: center;
-  direction: ${props => props.direction};
 `
 
 const mapStateToProps = state => ({
   timestamp: state.prayerTimes.timestamp,
   locale: state.config.present.general.locale,
-  direction: state.config.present.general.direction,
   dateFormat: state.config.present.general.dateFormat,
   timeFormat: state.config.present.general.timeFormat,
   hijriDateFormat: state.config.present.general.hijriDateFormat,
@@ -63,8 +61,8 @@ const Clock = (props): React$Node => {
 
   return <Main>
     <Time>{state.time}</Time>
-    <DateWrapper direction={props.direction}>{state.date}</DateWrapper>
-    <DateWrapper direction={props.direction}>{state.hijriDate}</DateWrapper>
+    <DateWrapper>{state.date}</DateWrapper>
+    <DateWrapper>{state.hijriDate}</DateWrapper>
   </Main>
 }
 

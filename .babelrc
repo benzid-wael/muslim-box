@@ -1,26 +1,26 @@
 {
-    "plugins": [
-        [
-            "module-resolver",
-            {
-                "cwd": "babelrc",
-                "alias": {
-                    "@src": "./app/src",
-                    "@components": "./app/src/components",
-                    "@constants": "./app/src/constants",
-                    "@pages": "./app/src/pages",
-                    "@core": "./app/src/core",
-                    "@redux": "./app/src/redux",
-                    "@localization": "./app/localization",
-                    "@resources": "./resources"
-                }
-            },
-            "@babel/plugin-syntax-dynamic-import"
-        ]
-    ],
-    "presets": [
-        "@babel/preset-flow",
-        "@babel/preset-env",
-        "@babel/preset-react"
+  "plugins": [
+    [
+      "module-resolver",
+      {
+        "cwd": "babelrc",
+        "alias": {
+          "@src": "./app/src",
+          "@components": "./app/src/components",
+          "@constants": "./app/src/constants",
+          "@pages": "./app/src/pages",
+          "@root": "./app/src/root",
+          "@redux": "./app/src/redux",
+          "@localization": "./app/localization",
+          "@resources": "./resources"
+        }
+      },
+      "@babel/plugin-syntax-dynamic-import"
     ]
+  ],
+  "presets": [
+    "@babel/preset-flow",
+    "@babel/preset-env",
+    "@babel/preset-react"
+  ]
 }

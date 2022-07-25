@@ -1,16 +1,16 @@
 /*
 * @flow
 */
-import type { PrayerTime } from "@src/types"
-import type { SettingConfig } from "@src/Setting"
+import type { PrayerTime } from "@src/types";
+import type { SettingConfig } from "@src/Setting";
 
 import React, { useState, useEffect } from "react";
-import { connect } from "react-redux"
-import { useTranslation } from "react-i18next"
-import styled from "styled-components"
+import { connect } from "react-redux";
+import { useTranslation } from "react-i18next";
+import styled from "styled-components";
 
-import AdhanSettings from "@src/AdhanSettings"
-import Slide from "@components/Slide.react"
+import AdhanSettings from "@src/AdhanSettings";
+import Slide from "@components/Slide.react";
 
 const Matn = styled.h3`
   font-weight: 600;

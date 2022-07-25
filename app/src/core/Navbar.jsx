@@ -11,9 +11,10 @@ import {
 import ROUTES from "@constants/routes";
 import homeIcon from "@resources/icons/home.svg";
 import settingsIcon from "@resources/icons/settings.svg";
+import "bulma/css/bulma.css";
 
 const Nav = styled.nav`
-  overflow-x: hidden; /* Disable horizontal scroll */
+  // overflow-x: hidden; /* Disable horizontal scroll */
 
   @keyframes opening {
     from {
@@ -186,8 +187,8 @@ const Navbar = (props): React$Node => {
   }
 
   const closeNavbar = () => {
-    setState({...state, event: "closing"})
-    setTimeout(() => { setState({...state, open: false, event: "closed"}) }, 1000)
+    // setState({...state, event: "closing"})
+    // setTimeout(() => { setState({...state, open: false, event: "closed"}) }, 1000)
   }
 
   useEffect(() => {
@@ -229,7 +230,7 @@ const Navbar = (props): React$Node => {
   const desktopMenuActive = state.open && !state.mobileMenuActive
 
   return (
-    <Nav className={`navbar`} role="navigation" aria-label="main navigation" event={state.event}>
+    <Nav className="navbar" role="navigation" aria-label="main navigation" event={state.event}>
       <div className="navbar-brand">
         <a role="button"
           className={`navbar-burger ${mobileMenuActive ? "is-active" : ""}`}

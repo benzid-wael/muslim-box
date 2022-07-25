@@ -4,7 +4,6 @@
 import type { LayoutDirection } from "@src/types";
 
 import React from "react";
-import { connect } from "react-redux";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 
@@ -14,7 +13,6 @@ const Main = styled.div`
   width: calc(100% - 80px);
   height: 100%;
   margin: 0 40px;
-  direction: ${props => props.direction}
 `
 
 const Title = styled.h1`
@@ -32,11 +30,7 @@ const Inner = styled.div`
   font-size: 3vw;
 `
 
-type StateProps = $ReadOnly<{
-  direction: LayoutDirection,
-}>
-
-type ComponentProps = $ReadOnly<{
+type Props = $ReadOnly<{
     title?: string,
     titleKey?: string,
     text?: string,
@@ -44,12 +38,6 @@ type ComponentProps = $ReadOnly<{
     className?: string,
     onClick?: () => void,
 }>
-
-type Props = StateProps & ComponentProps;
-
-const mapStateToProps = (state): StateProps => ({
-    direction: state.config.present.general.direction,
-})
 
 const Slide = (props: Props): React$Node => {
   const { i18n } = useTranslation();
@@ -64,7 +52,6 @@ const Slide = (props: Props): React$Node => {
 
   return <Main
     className={props.className ? props.className : ""}
-    direction={props.direction}
     onClick={props.onClick}
   >
     <Inner>
@@ -74,4 +61,4 @@ const Slide = (props: Props): React$Node => {
   </Main>
 }
 
-export default (connect(mapStateToProps)(Slide): any)
+export default Slide

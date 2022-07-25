@@ -1,65 +1,144 @@
 /*
 * @flow
 */
-import type { SettingConfig } from "@src/Setting";
+import React, { useEffect, useState, useMemo } from "react";
 
-import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { connect } from "react-redux";
+import { Switch, Route, useRouteMatch, useHistory, useLocation } from "react-router";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 
-import "./Settings.css"
 
-const Settings = (props): React$Node => {
-  return <div id="tabs-section" class="tabs">
-    <ul>
-      <li>
-        <a href="#tab-1" class="tab-link active"> <span class="material-icons tab-icon">face</span> <span class="tab-label">Face Primer</span></a>
-      </li>
-      <li>
-        <a href="#tab-2" class="tab-link"> <span class="material-icons tab-icon">visibility</span> <span class="tab-label">Foundation</span></a>
-      </li>
-      <li>
-        <a href="#tab-3" class="tab-link"> <span class="material-icons tab-icon">settings_input_hdmi</span> <span class="tab-label">BB Cream</span></a>
-      </li>
-      <li>
-        <a href="#tab-4" class="tab-link"> <span class="material-icons tab-icon">build</span> <span class="tab-label">Concealer</span></a>
-      </li>
-      <li>
-        <a href="#tab-5" class="tab-link"> <span class="material-icons tab-icon">toll</span> <span class="tab-label">Blush</span></a>
-      </li>
-    </ul>
+const Main = styled.section`
+  display: grid;
+  grid-template-columns: 25% auto;
+  grid-gap: 1rem;
+  margin: 2rem;
+`
 
-    <section id="tab-1" class="tab-body entry-content active active-content">
-      <h2>Face Primer</h2>
-      <p>While some people don’t think that <a href="#">face primer</a> is necessary, I personally view it as a vital step in my makeup routine.</p>
-      <p>Face primers’ exact effects on your skin and makeup can vary, but overall, their main purpose is to keep your skin looking smooth and your makeup looking fresh all day long.</p>
-    </section>
+const Content = styled.section`
+  /* take twice as much width as the other two sidebars */
+  margin: 0;
+`
 
-    <section id="tab-2" class="tab-body entry-content">
-      <h2>Foundation</h2>
-      <p>Foundation is probably the hardest part of your makeup routine to get right, as you not only have to consider the type of coverage you want (i.e. sheer/natural, medium, or full), but also your skin type and undertones.</p>
-      <p>If you are new to wearing foundation or aren’t sure what type/shade is right for you, I’d highly recommend going to your nearest Sephora, MAC, or department store and have a makeup artist help you pick out one that matches your complexion and fits your coverage needs. It’s also a good idea to request a sample if you want to see how a formula feels on your skin before buying.</p>
-    </section>
+const Menu = styled.section`
+  display: inline-grid;
+  grid-gap: .5rem;
+  // grid-auto-rows: min-content;
+  align-items: start;
+  font-weight: 400;
+  font-size: 1.3rem;
+`
 
-    <section id="tab-3" class="tab-body entry-content">
-      <h2>BB Cream</h2>
-      <p>Personally, I prefer BB cream to regular foundation, as I find it to be much more natural-looking. It is a great option if you’re looking for something that has skincare benefits such as moisturizing or priming (some BB creams have primer built in).</p>
-      <p>In addition, if you are new to the makeup world, a good BB cream is an even better place to start than foundation, as it feels lighter on the skin, is hard to overdo, and can be applied with your fingers.</p>
-    </section>
+const MenuItem = styled.div`
+  box-sizing: border-box;
+  padding: 2rem;
 
-    <section id="tab-4" class="tab-body entry-content">
-      <h2>Concealer</h2>
-      <p>If you have acne, dark circles, or any kind of discoloration, concealer is a must-have.</p>
-      <p>Concealers come in full-coverage and sheerer-coverage formulations, and which one you should choose depends on how much you’re trying to cover up.</p>
-      <p>When choosing a concealer for acne and/or discoloration, find a shade that is as close as possible to your foundation/BB cream shade for the most natural look.</p>
-    </section>
+  & > a,
+  & > a:hover,
+  & > a:visited {
+    all: unset;
+  }
 
-    <section id="tab-5" class="tab-body entry-content">
-      <h2>Blush</h2>
-      <p>Putting on blush can have a huge effect on your overall look, and I personally never leave it out of my makeup routine. Blush is especially necessary if you’re wearing a foundation with more opaque coverage, which can sometimes leave your complexion looking a little bit flat.</p>
-      <p>Blush comes in powder, gel, and cream formulations, with powder being the most popular. Recently, though, cream and gel blush have become very popular as well.</p>
-    </section>
-  </div>
+  &.active {
+    background-color: white;
+    color: teal;
+    border-left: olive solid ${props => props.direction === "rtl" ? 0 : "6px"};
+    border-right: olive solid ${props => props.direction === "rtl" ? "6px" : 0};
+  }
+
+  &.active,
+  &:focus,
+  &:hover {
+    font-weight: 800;
+    font-size: 1.8rem;
+    background-color: #fefefe;
+    color: teal;
+  }
+`
+
+const SETTINGS = [{
+  name: "",  /* we need to use it as index page */
+  label: "General"
+}, {
+  name: "display",
+  label: "Display"
+}, {
+  name: "prayer",
+  label: "Prayer Times"
+}, {
+  name: "alerts",
+  label: "Alerts"
+}, {
+  name: "sounds",
+  label: "Sounds"
+}]
+
+
+const page = (props): React$Node => {
+  return <div style={{ color: "teal", backgroundColor: "white", width: "100%", height: "100%"}}>{props}</div>
 }
 
-export default Settings;
+const Settings = (props): React$Node => {
+  const history = useHistory();
+  const { i18n } = useTranslation();
+  const match = useRouteMatch();
+  const [selected, setSelected] = useState("");
+
+  const navigate = (name) => {
+    setSelected(name)
+    history.push(`${match.path}/${name}`)
+  }
+
+  return <Main>
+    <Menu>
+      {
+        SETTINGS.map( s => {
+          return <MenuItem
+            name={s.name}
+            className={`${ selected === s.name ? "active" : "" }`}
+            direction={props.direction}
+            onClick={() => navigate(s.name)}
+          >
+            { i18n.t(s.label) }
+          </MenuItem>
+        })
+      }
+    </Menu>
+    <Content>
+      <Switch>
+        {SETTINGS.map(s => {
+          return <Route exact path={`${match.path}/${s.name}`}
+            component={() => page(s.name)}
+          />
+        })}
+        <Route path={match.path}>
+          <h3>{ i18n.t("PageNotFound") }</h3>
+        </Route>
+      </Switch>
+    </Content>
+  </Main>
+}
+
+
+const MemoizedSettings = (props): React$Node => {
+
+  const result = useMemo(
+    () => {
+    return <Settings
+      direction={props.direction}
+      settings={props.settings}
+    />
+  }, [props.direction, props.settings]);
+
+  return result;
+}
+
+
+const mapStateToProps = state => ({
+  direction: state.config.present.general.direction,
+  settings: state.config.present.settings,
+})
+
+export default (connect(mapStateToProps)(MemoizedSettings): any)

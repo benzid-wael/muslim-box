@@ -62,5 +62,18 @@
   "DUAA_AFTER_ADHAN_5": "The supplication is not rejected between the call to prayer and the iqaamah. call me",
   "DUAA_AFTER_ADHAN_6": "Two things that are not rejected, or they are rarely rejected: supplication at the time of the call, and in the case of strength when one another is welded.",
   "Sahih Al-Bukhari {{hadith}}": "Sahih Al-Bukhari {{hadith}}",
-  "Process Manager": "Process Manager"
+  "Process Manager": "Process Manager",
+  "Midnight": "Midnight",
+	"Last Third of Night": "Last Third of Night",
+	"Last Third": "Last Third",
+	"Sahar": "Sahar",
+	"Dhuha": "Dhuha",
+	"Hajirah": "Hajirah",
+	"Zawal": "Zawal",
+	"PageNotFound": "Sorry, this page is lost in the sands",
+	"General": "General",
+	"Display": "Display",
+	"Prayer Times": "Prayer Times",
+	"Alerts": "Alerts",
+	"Sounds": "Sounds"
 }
