@@ -75,8 +75,12 @@ const MenuItem = styled.div`
   display: inline;
   padding: 8px;
   margin: 0;
-  z-index: 1000;
-  cursor: not-allowed;
+  z-index: 999;
+
+  & > a {
+    z-index: 1000;
+    cursor: alias;
+  }
 `
 
 type ComponentProps = $ReadOnly<{
@@ -104,8 +108,8 @@ const Navbar = (props: Props): React$Node => {
   }
 
   const closeNavbar = () => {
-    setState({...state, event: "closing"})
-    setTimeout(() => { setState({...state, open: false, event: "closed"}) }, 1000)
+    // setState({...state, event: "closing"})
+    // setTimeout(() => { setState({...state, open: false, event: "closed"}) }, 1000)
   }
 
   useEffect(() => {
@@ -143,15 +147,13 @@ const Navbar = (props: Props): React$Node => {
 
   return <Main event={state.event}>
     <Menu>
-      <MenuItem onClick={() => console.error(`navigation brokenn`)}>
-        <Link to={ROUTES.SETTINGS}>
+      <MenuItem onClick={() => navigate(ROUTES.SETTINGS)}>
         <img src={settingsIcon} style={{ height: "100%" }}/>
-        </Link>
       </MenuItem>
 
-      <MenuItem onClick={() => navigate(ROUTES.HOME)}>
-        <Link to={ROUTES.SETTINGS}>
-        <img src={homeIcon} style={{ height: "100%" }}/>
+      <MenuItem>
+        <Link to={ROUTES.HOME}>
+          <img src={homeIcon} style={{ height: "100%" }}/>
         </Link>
       </MenuItem>
     </Menu>

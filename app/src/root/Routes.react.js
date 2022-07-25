@@ -2,6 +2,7 @@ import React from "react";
 
 import { useTranslation } from "react-i18next";
 import { Switch, Route, useLocation } from "react-router";
+import { Redirect } from "react-router-dom";
 import loadable from "@loadable/component";
 
 import ROUTES from "@constants/routes";

@@ -22,13 +22,13 @@ export class SettingsManager {
       this.#settings = configs.map(cfg => Setting.fromConfig(cfg))
     }
 
-    #getFirst(name: string): ?Setting {
+    getSettingByName(name: string): ?Setting {
       return this.#settings.find(s => s.name === name)
     }
 
     getValue(name: string, fallback: string, defaultValue?: any): any {
-      const primary = this.#getFirst(name)
-      const secondary = this.#getFirst(fallback)
+      const primary = this.getSettingByName(name)
+      const secondary = this.getSettingByName(fallback)
       if (primary && primary.value) return primary.value
       else if (secondary) return secondary.value
       else return defaultValue
