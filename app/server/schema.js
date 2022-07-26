@@ -80,6 +80,19 @@ var queryType = new graphql.GraphQLObjectType({
         return result
       }
     },
+    getSettingByName: {
+      type: Setting,
+      args: {
+        name: {
+          type: new graphql.GraphQLNonNull(graphql.GraphQLString)
+        }
+      },
+      resolve: async (root, { name }, context, info) => {
+        const db = new Database(dbPath)
+        const result = await Repository.getSettingByName(db, name)
+        return result
+      }
+    },
     versesOfTheDay: {
       type: graphql.GraphQLList(Slide),
       args: {
@@ -182,8 +195,33 @@ var queryType = new graphql.GraphQLObjectType({
   }
 });
 
+var mutationType = new graphql.GraphQLObjectType({
+  name: "Mutation",
+  fields: {
+    updateSetting: {
+      type: Setting,
+      args: {
+        name: {
+          type: new graphql.GraphQLNonNull(graphql.GraphQLString)
+        },
+        value: {
+          type: new graphql.GraphQLNonNull(graphql.GraphQLString)
+        },
+      },
+      resolve: async (root, {name, value}, context, info) => {
+        const db = new Database(dbPath)
+        const result = await Repository.updateSetting(db, name, value)
+        return result
+      }
+    }
+  }
+})
+
 // define schema with post object, queries, and mustation
-const schema = new graphql.GraphQLSchema({ query: queryType });
+const schema = new graphql.GraphQLSchema({
+  query: queryType,
+  mutation: mutationType,
+});
 
 // export schema to use on index.js
 module.exports = { schema }

@@ -41,7 +41,7 @@ type Props = StateProps & ComponentProps;
 
 const mapStateToProps = (state): StateProps => ({
   currentPrayer: state.prayerTimes.current,
-  settings: state.config.present.settings,
+  settings: state.config.settings,
 })
 
 const DuaaDuringAdhan = (props) => {

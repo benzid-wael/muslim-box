@@ -79,7 +79,7 @@ const Container = styled.div`
 `
 
 const mapStateToProps = state => ({
-  language: state.config.present.general.language,
+  language: state.config.general.language,
   slides: state.slide.slides,
   position: state.slide.position,
   backendURL: state.user.backendURL,

@@ -1,6 +1,6 @@
 import { combineReducers } from "redux";
 import { connectRouter } from "connected-react-router";
-import undoable from "easy-redux-undo";
+// import undoable from "easy-redux-undo";
 
 import configReducer from "./slices/configSlice";
 import prayerTimesReducer from "./slices/prayerTimesSlice";
@@ -10,7 +10,7 @@ import userReducer from "./slices/userSlice";
 const rootReducer = (history) => (
   combineReducers({
     router: connectRouter(history),
-    config: undoable(configReducer),
+    config: configReducer,
     prayerTimes: prayerTimesReducer,
     slide: slideReducer,
     user: userReducer,

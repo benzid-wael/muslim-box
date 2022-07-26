@@ -1,7 +1,7 @@
 /*
 * @flow
 */
-import type { SettingConfig } from "./Setting";
+import type { SettingConfig } from "@src/Setting";
 import type { Prayer } from "adhan";
 
 import { Setting } from "@src/Setting"

@@ -128,8 +128,8 @@ const mapStateToProps = state => ({
   day: state.prayerTimes.day,
   slides: state.slide.slides,
   backendURL: state.user.backendURL,
-  settings: state.config.present.settings,
-  direction: state.config.present.general.direction,
+  settings: state.config.settings,
+  direction: state.config.general.direction,
 })
 
 export default (connect(mapStateToProps)(Root): any)

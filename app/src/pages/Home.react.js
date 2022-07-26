@@ -68,7 +68,7 @@ const mapStateToProps = state => ({
   prayers: state.prayerTimes.prayers,
   currentPrayer: state.prayerTimes.current,
   currentTime: state.prayerTimes.currentTime,
-  settings: state.config.present.settings,
+  settings: state.config.settings,
 })
 
 const getView = (key?: string, settings: SliderSettings) => {

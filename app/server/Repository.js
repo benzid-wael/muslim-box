@@ -1,3 +1,5 @@
+const { validate } = require("./Settings");
+
 const serializeSlide = (row) => {
   const note = (
     row.type === "quran"
@@ -20,18 +22,47 @@ const serializeSlide = (row) => {
   }
 }
 
+const serializeSetting = (row) => {
+  return {
+    name: row.name,
+    category: row.category,
+    type: row.type,
+    value: row.value,
+    default: row.default,
+    options: row.options,
+  }
+}
+
 const settings = async (db) => {
   const rows  = await db.settings()
-  return rows.map(row => {
-    return {
-      name: row.name,
-      category: row.category,
-      type: row.type,
-      value: row.value,
-      default: row.default,
-      options: row.options,
-    }
-  })
+  return rows.map(row => serializeSetting(row))
+}
+
+const getSettingByName = async(db, name) => {
+  const row = await db.getSettingByName(name)
+  return !!row ? serializeSetting(row) : null;
+}
+
+const updateSetting = async (db, name, value) => {
+  console.log('updateSetting ..... ')
+  const row = await db.getSettingByName(name)
+  const config = {
+    name: row.name,
+    category: row.category,
+    type: row.type,
+    value: row.value,
+    default: row.default,
+    options: !!row.options ? JSON.parse(row.options) : null,
+  }
+
+  // validate input
+  validate(config, value)
+  await db.updateSetting(name, value);
+  return {
+    ...config,
+    options: row.options,  // we need to return string JSON, not the related object
+    value: value,
+  }
 }
 
 const versesOfTheDay = async (db, count, language) => {
@@ -100,6 +131,8 @@ const search = async (db, operator, include, exclude, orderBy, language) => {
 
 module.exports = {
   settings,
+  getSettingByName,
+  updateSetting,
   versesOfTheDay,
   random,
   getSlideById,

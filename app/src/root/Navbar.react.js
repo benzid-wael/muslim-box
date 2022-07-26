@@ -108,8 +108,8 @@ const Navbar = (props: Props): React$Node => {
   }
 
   const closeNavbar = () => {
-    // setState({...state, event: "closing"})
-    // setTimeout(() => { setState({...state, open: false, event: "closed"}) }, 1000)
+    setState({...state, event: "closing"})
+    setTimeout(() => { setState({...state, open: false, event: "closed"}) }, 1000)
   }
 
   useEffect(() => {
@@ -161,7 +161,7 @@ const Navbar = (props: Props): React$Node => {
 }
 
 const mapStateToProps = state => ({
-  direction: state.config.present.general.direction,
+  direction: state.config.general.direction,
 })
 
 export default (connect(mapStateToProps)(Navbar): any)

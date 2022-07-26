@@ -4,7 +4,7 @@ import type { SettingConfig } from "@src/Setting"
 import { createSlice } from "@reduxjs/toolkit";
 
 import { locale } from "@src/l10n";
-import { loadConfigs } from "@src/SettingRepository";
+import { loadConfigs, updateSettingValue } from "@src/SettingRepository";
 
 
 type Config = $ReadOnly<{
@@ -27,16 +27,30 @@ const slice = createSlice({
       ...state,
       general: locale({language: payload})
     }),
-    initSettings: (state, {payload}: {payload: Array<SettingConfig>}) => ({...state, settings: payload})
+    initSettings: (state, {payload}: {payload: Array<SettingConfig>}) => ({...state, settings: payload}),
+    updateSetting: (state, {payload}: {payload: SettingConfig}) => {
+      return {
+        ...state,
+        settings: [
+          ...state.settings.filter(s => s.name != payload.name),
+          payload,
+        ]
+      }
+    }
   }
 });
 
 // Export actions
-export const { changeLanguage, initSettings } = slice.actions;
+export const { changeLanguage, initSettings, updateSetting } = slice.actions;
 
 export const loadSettings = (backendUrl: string): any => async (dispatch: any) => {
   const configs = await loadConfigs(backendUrl);
   dispatch(initSettings(configs));
+}
+
+export const patchSetting = (backendUrl: string, setting: Setting): any => async (dispatch: any) => {
+  const config = await updateSettingValue(backendUrl, setting);
+  dispatch(updateSetting(config));
 }
 
 // Export reducer

@@ -243,6 +243,34 @@ class Database {
       });
     });
   }
+
+  getSettingByName(name) {
+    return new Promise((resolve, reject) => {
+      const query = "SELECT * from settings where name = (?) AND active = 1"
+      // raw SQLite query to select from table
+      this.database.all(query, [name], function(err, rows) {
+        if(err){
+          reject(err);
+        }
+        const setting = !!rows && rows.length > 0 ? rows[0] : null;
+        if (!setting) {
+          reject(new Error(`Unrecognized setting: ${name}`))
+        }
+        resolve(setting);
+      });
+    });
+  }
+
+  updateSetting(name, value) {
+    return new Promise((resolve, reject) => {
+      this.database.all("UPDATE settings SET value = (?) WHERE name = (?)", [value, name], function(err, rows) {
+        if(err){
+          reject(err);
+        }
+        resolve(true);
+      })
+    });
+  }
 }
 
 module.exports = { Database }

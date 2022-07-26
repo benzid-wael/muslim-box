@@ -1,7 +1,7 @@
 /*
 * @flow
 */
-import { capitalize } from "@src/utils"
+import { capitalize } from "@src/utils";
 
 export type SettingType =
   | "boolean"
@@ -96,6 +96,10 @@ export class Setting {
       return SETTING_OPERATORS[this.#type].deserialize(value, this);
     }
     throw new Error(`unsupported type: ${this.#type}`);
+  }
+
+  get serializedValue(): ?string {
+    return this.#value
   }
 
   set value(val?: any): void {

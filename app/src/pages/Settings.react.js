@@ -158,8 +158,8 @@ const Settings = (props): React$Node => {
 }
 
 const mapStateToProps = state => ({
-  direction: state.config.present.general.direction,
-  settings: state.config.present.settings,
+  direction: state.config.general.direction,
+  settings: state.config.settings,
 })
 
 export default (connect(mapStateToProps)(Settings): any)
