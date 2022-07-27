@@ -152,7 +152,7 @@
     "lodash": "4.17.21",
     "lodash.merge": "^4.6.2",
     "mocha-each": "^2.0.1",
-    "moment": "^2.29.3",
+    "moment": "^2.29.4",
     "moment-duration-format": "^2.3.2",
     "moment-timezone": "^0.5.34",
     "process": "^0.11.10",
