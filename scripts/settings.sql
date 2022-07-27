@@ -69,4 +69,8 @@ INSERT INTO `settings` (`name`, `category`, `active`, `type`, `value`, `default`
 ("DefaultSlidingDurationInSeconds", "slider", 1, "int", null, "3", null),
 ("OnReachEndStrategy", "slider", 1, "enum", null, "reset", "{""name"":""OnReachEndStrategy"",""options"":[""reset"",""load""]}"),
 ("EnableVerseOfTheDayAPI", "slider", 1, "boolean", null, "true", null),
-("EnableAnimation", "slider", 1, "boolean", null, "true", null);
+("EnableAnimation", "slider", 1, "boolean", null, "true", null),
+
+/* Misc */
+("DateFormat", "locale", 1, "enum", null, "dddd D MMMM YYYY", "{""name"": ""DateFormat"", ""options"":[""dddd D MMMM YYYY"", ""D MMMM YYYY"", ""dddd DD/MM/YY"", ""dddd MM/DD/YY"", ""DD/MM/YY"", ""MM/DD/YY""]}"),
+("TimeFormat", "locale", 1, "enum", null, "HH:mm:ss", "{""name"": ""TimeFormat"", ""options"":[""HH:mm:ss"", ""HH:mm"", ""hh:mm:ss a"", ""hh:mm a"", ""a hh:mm:ss"", ""a hh:mm""]}");

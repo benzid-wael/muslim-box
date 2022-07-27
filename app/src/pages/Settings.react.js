@@ -1,8 +1,11 @@
 /*
 * @flow
 */
+import type { SettingConfig } from "@src/Setting";
+
 import React, { useEffect, useState } from "react";
 
+import moment from "moment";
 import { useTranslation } from "react-i18next";
 import { connect } from "react-redux";
 import { Switch, Route, useRouteMatch, useHistory } from "react-router";
@@ -10,7 +13,7 @@ import { Redirect } from "react-router-dom";
 import styled from "styled-components";
 
 import SettingsPage from "@components/SettingsPage.react";
-import { SettingsManager } from "../SettingsManager";
+
 
 const Main = styled.section`
   display: grid;
@@ -63,35 +66,99 @@ const MenuItem = styled.div`
 
 const SETTINGS = [{
   name: "general",
-  label: "General"
+  label: "General",
+  forms: (i18n) => {
+    const example = 1658930560
+    const now = moment.unix(example)
+    return [{
+      title: i18n.t("Localization"),
+      settings: [{
+        title: i18n.t("Date Format"),
+        setting: "DateFormat",
+        renderOption: (option, locale) => {
+          moment.locale(locale);
+          return now.format(option);
+        }
+      }, {
+        title: i18n.t("Time Format"),
+        setting: "TimeFormat",
+        renderOption: (option, locale) => {
+          moment.locale(locale);
+          return now.format(option);
+        }
+      }]
+    }]
+  }
 }, {
   name: "display",
-  label: "Display"
+  label: "Display",
+  forms: (i18n) => {
+    return [{
+      title: i18n.t("Slider"),
+      settings: [{
+        title: i18n.t("Reading Speed (words per minute)"),
+        setting: "WordsPerMinute",
+      }, {
+        title: i18n.t("Page Size"),
+        setting: "PageSize",
+      }, {
+        title: i18n.t("Animation"),
+        setting: "EnableAnimation",
+      }, {
+        title: i18n.t("Random Quran Verses"),
+        setting: "EnableVerseOfTheDayAPI",
+      }]
+    }, {
+      title: i18n.t("Prayer"),
+      settings: [{
+        title: i18n.t("Prayer Reminder"),
+        setting: "PrayerReminderEveryNSlides",
+      }, {
+        title: i18n.t("Prayer Reminder Duration"),
+        setting: "PrayerReminderDurationInSeconds",
+      }]
+    }, {
+      title: i18n.t("Other"),
+      settings: [{
+        title: i18n.t("After last slide"),
+        setting: "OnReachEndStrategy",
+      }, {
+        title: i18n.t("Repeat Ratio"),
+        setting: "PageRepeatRatioNOutOfOne",
+      }, {
+        title: i18n.t("Default Slide Duration"),
+        setting: "DefaultSlidingDurationInSeconds",
+      }, {
+        title: i18n.t("Minimum Slide Duration"),
+        setting: "MinimumSlideDurationInSeconds",
+      }]
+    }]
+  }
 }, {
   name: "prayer",
   label: "Prayer Times",
-  forms: (sm: SettingsManager, i18n) => {
+  forms: (i18n) => {
     return [{
       title: i18n.t("Calculation Method"),
       settings: [{
         title: i18n.t("Method"),
-        setting: sm.getSettingByName("Method")
+        setting: "Method"
       }, {
         title: i18n.t("Asr"),
-        setting: sm.getSettingByName("Madhab")
+        setting: "Madhab"
       }, {
         title: i18n.t("Isha"),
-        setting: sm.getSettingByName("Shafaq")
+        setting: "Shafaq"
       }]
     }, {
       title: i18n.t("Other Settings"),
       settings: [{
         title: i18n.t("High Latitude Rule"),
-        setting: sm.getSettingByName("HighLatitudeRule"),
+        setting: "HighLatitudeRule",
         help: i18n.t("Used to set a minimum time for Fajr and a max time for Isha when Fajr and Isha dissapears")
       }, {
         title: i18n.t("Polar Circle"),
-        setting: sm.getSettingByName("PolarCircleResolution"),
+        setting: "PolarCircleResolution",
         help: i18n.t("Strategy used to resolve undefined prayer times for areas located in polar circles")
       },
       ]
@@ -102,7 +169,54 @@ const SETTINGS = [{
   label: "Alerts"
 }, {
   name: "sounds",
-  label: "Sounds"
+  label: "Sounds",
+  forms: (i18n) => {
+    return [{
+      title: i18n.t("Adhan"),
+      settings: [{
+        title: i18n.t("Play adhan at prayer times"),
+        setting: "AutoplayAdhan",
+      }, {
+        title: i18n.t("Fajr"),
+        setting: "FajrAutoplayAdhan",
+        hidden: (sm) => sm.getValue("AutoplayAdhan"),
+      }, {
+        title: i18n.t("Dhuhr"),
+        setting: "DhuhrAutoplayAdhan",
+        hidden: (sm) => sm.getValue("AutoplayAdhan"),
+      }, {
+        title: i18n.t("Asr"),
+        setting: "AsrAutoplayAdhan",
+        hidden: (sm) => sm.getValue("AutoplayAdhan"),
+      }, {
+        title: i18n.t("Maghrib"),
+        setting: "MaghribAutoplayAdhan",
+        hidden: (sm) => sm.getValue("AutoplayAdhan"),
+      }, {
+        title: i18n.t("Isha"),
+        setting: "IshaAutoplayAdhan",
+        hidden: (sm) => sm.getValue("AutoplayAdhan"),
+      }]
+    }, {
+      title: i18n.t("Muezzin"),
+      settings: [{
+        title: i18n.t("Fajr"),
+        setting: "FajrAdhanSound"
+      }, {
+        title: i18n.t("Dhuhr"),
+        setting: "DhuhrAdhanSound"
+      }, {
+        title: i18n.t("Asr"),
+        setting: "AsrAdhanSound"
+      }, {
+        title: i18n.t("Maghrib"),
+        setting: "MaghribAdhanSound"
+      }, {
+        title: i18n.t("Isha"),
+        setting: "IshaAdhanSound"
+      }]
+    }]
+  },
 }]
 
 const page = (props): React$Node => {
@@ -114,7 +228,6 @@ const Settings = (props): React$Node => {
   const { i18n } = useTranslation();
   const match = useRouteMatch();
   const [selected, setSelected] = useState("");
-  const sm = SettingsManager.fromConfigs(props.settings)
 
   const navigate = (name) => {
     setSelected(name)
@@ -139,11 +252,12 @@ const Settings = (props): React$Node => {
     <Content>
       <Switch key={match.path}>
         {SETTINGS.map(s => {
+          const forms = s.forms ? s.forms(i18n) : []
           return <Route key={`route-${s.name}`} path={`${match.path}/${s.name}`}
             render={
               () => <SettingsPage
                 title={i18n.t(s.label)}
-                forms={s.forms ? s.forms(sm, i18n) : []}
+                forms={forms}
               />
             }
           />
@@ -159,7 +273,6 @@ const Settings = (props): React$Node => {
 
 const mapStateToProps = state => ({
   direction: state.config.general.direction,
-  settings: state.config.settings,
 })
 
 export default (connect(mapStateToProps)(Settings): any)

@@ -108,5 +108,12 @@
 	"TwilightAngle": "Twilight Angle",
 	"Unresolved": "Unresolved",
 	"AqrabBalad": "Closest Country",
-	"AqrabYaum": "Closest Day"
+	"AqrabYaum": "Closest Day",
+  "adhan-madinah": "Madinah",
+  "adhan-makkah": "Makkah",
+  "adhan-makkah-dua": "Makkah with Duaa",
+  "adhan-makkah2": "Makkah (2)",
+  "adhan-makkah2-dua": "Makkah with Duaa (2)",
+  "adhan-mishary-rashad": "Mishary Rashad Affashy",
+  "adhan-turkish": "Turkish"
 }

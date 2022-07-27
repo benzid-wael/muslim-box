@@ -97,9 +97,7 @@ export const { tick, setPrayerTimes, updateCurrentPrayer } = actions;
 
 export const computePrayerTimes = (position: GeoCoordinates, sm: SettingsManager): any => (dispatch: any) => {
   const date = new Date(Date.now());
-  console.log(`[computePrayerTimes] call getPrayerTimes`)
   const prayerTimes = getPrayerTimes(position, date, sm);
-  console.log(`[computePrayerTimes] call getPrayerTimes done`)
   dispatch(setPrayerTimes(prayerTimes));
 }
 

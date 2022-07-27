@@ -85,6 +85,10 @@ export class Setting {
     return this.#name;
   }
 
+  get type(): SettingType {
+    return this.#type
+  }
+
   get options(): ?SettingOptions {
     return this.#options;
   }

@@ -10,7 +10,7 @@ const getDefaults = (lang: Language): Localization => {
     hijriDateFormat: "en-GB-u-ca-islamic",
     direction: "ltr",
     dateFormat: "dddd D MMMM YYYY",
-    timeFormat: "HH:mm:ss",
+    timeFormat: "hh:mm:ss",
   };
 
   const custom = {

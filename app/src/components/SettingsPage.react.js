@@ -11,6 +11,7 @@ import { connect } from "react-redux";
 
 import { patchSetting } from "@redux/slices/configSlice"
 import infoIcon from "@resources/icons/info.svg";
+import { SettingsManager } from "@src/SettingsManager";
 
 
 const Main = styled.section`
@@ -42,16 +43,16 @@ const Form = styled.div`
 `
 
 const Icon = styled.img`
-  width: 16px;
-  height: 16px;
-  padding: 8px;
+  width: 12px;
+  height: 12px;
+  padding: 4px 8px;
   color: white;
 
   /* change the color of the icon
   * Filter options generated using this codepen: https://codepen.io/sosuke/pen/Pjoqqp
   * See: https://stackoverflow.com/questions/22252472/how-to-change-the-color-of-an-svg-element
   */
-  filter: invert(88%) sepia(4%) saturate(22%) hue-rotate(353deg) brightness(94%) contrast(92%);
+  filter: invert(91%) sepia(100%) saturate(2%) hue-rotate(88deg) brightness(109%) contrast(100%);
 `
 
 export type SettingInput = $ReadOnly<{
@@ -66,32 +67,62 @@ export type SettingForm = $ReadOnly<{
 }>
 
 
+const CheckBox = (props) => {
+  console.log(`[CheckBox] checked: ${props.checked} disabled: ${props.disabled}`)
+
+  const onChange = (checked) => {
+    console.log(`[CheckBox] changed: ${checked}`)
+    props.onChange(checked)
+  }
+
+  return (
+    <input type="checkbox"
+      defaultChecked={props.checked}
+      onChange={(event) => onChange(event.target.checked)}
+      disabled={props.disabled}
+    />
+  );
+}
+
+
 const SettingWidget = (props): React$Node => {
   const { i18n } = useTranslation();
-  const { setting, widget, onChange } = props;
+  const { name, type, options, value, disabled, renderOption, onChange } = props;
 
   const save = (value) => {
-    console.debug(`[Setting] setting '${setting.name}' changed to: ${value}`)
+    // console.debug(`[Setting] setting '${name}' changed to: ${value}`)
     onChange(value)
   }
 
-  const key = `setting-widget__${setting?.title}`
-  if (setting?.options) {
-    return <select key={key} name={setting.options.name}
+  const key = `setting-widget__${name}`
+  if (options) {
+    return <select key={key} name={options.name}
       onChange={(e) => save(e.target.value)}
     >
-      {setting.options.options.map(opt => {
+      {options.options.map(opt => {
         return <option key={`option-${opt}`}
           value={opt}
-          selected={setting.value === opt ? "selected" : ""}
+          selected={value === opt ? "selected" : ""}
+          disabled={disabled}
         >
-          { i18n.t(opt) }
+          { !!renderOption ? renderOption(opt, props.locale) : i18n.t(opt) }
         </option>
       })}
     </select>
+  } else if (type === "boolean") {
+    return <CheckBox
+      checked={value}
+      disabled={disabled}
+      onChange={save}
+    />
+  } else if (type === "int") {
+    return <input type="number"
+      disabled={disabled}
+      value={value}
+    />
   }
 
-  return <input key={key} type="text" />
+  return <input name={name} key={key} type="text" />
 }
 
 export type ComponentProps = $ReadOnly<{
@@ -109,10 +140,13 @@ export type Props = ComponentProps & StateProps;
 const mapStateToProps = state => ({
   backendURL: state.user.backendURL,
   settings: state.config.settings,
+  locale: state.config.general.locale,
 })
 
 const SettingsPage = (props: Props): React$Node => {
   const forms = props.forms || [];
+  if (!props.settings || !props.settings.length) return null
+  const sm = SettingsManager.fromConfigs(props.settings)
 
   const onSettingChanged = (setting, newValue) => {
     setting.value = newValue
@@ -123,20 +157,34 @@ const SettingsPage = (props: Props): React$Node => {
     <h1>{props.title}</h1>
 
     {forms.map((sf, idx) => {
+      // console.log(`>>> ${sf.title}`)
       return <Section key={`setting-formset-${idx}`}>
         <h2>{ sf.title }</h2>
         {sf.settings.map((si, i) => {
+          const setting = sm.getSettingByName(si.setting);
+          // console.log(`  [${sf.title}] > ${si.setting} -> ${setting?.name}`)
+
+          if (!!si.hidden && si.hidden(sm)) {
+            return null
+          }
+
           return <Form key={`setting-${i}`}>
             <span>
               <label>{si.title}</label>
               {si.help ? <Icon src={infoIcon} title={si.help} /> : null}
             </span>
+
             <SettingWidget
               key={`widget-${i}`}
-              title={si.title}
-              setting={si.setting}
+              value={setting.value}
+              name={setting.name}
+              type={setting.type}
+              options={setting.options}
+              renderOption={si.renderOption}
               widget={si.widget}
-              onChange={(value) => onSettingChanged(si.setting, value)}
+              disabled={!!si.disabled ? si.disabled(sm) : false}
+              onChange={(value) => onSettingChanged(setting, value)}
+              locale={props.locale}
             />
           </Form>
         })}
