@@ -6,8 +6,6 @@ import type { PrayerTime, PrayerTimeConfig } from "./types";
 import { PrayerTimes, SunnahTimes } from "adhan";
 import moment from "moment";
 
-import PRAYER_TIMES from "@constants/prayer";
-
 export const getAdhanEndTime = (
   // $FlowFixMe[value-as-type]
   startFunc: (pt: PrayerTimes, cfg: PrayerTimeConfig) => moment,
@@ -16,7 +14,7 @@ export const getAdhanEndTime = (
   pt: PrayerTimes,
   cfg: PrayerTimeConfig,
 ): moment => {
-  return startFunc(pt, cfg).add(PRAYER_TIMES.AdhanDurationInMinutes, "minutes")
+  return startFunc(pt, cfg).add(cfg.adhanDurationInMinutes, "minutes")
 }
 
 export const getAfterAdhanEndTime = (
@@ -28,7 +26,7 @@ export const getAfterAdhanEndTime = (
   cfg: PrayerTimeConfig,
 ): moment => {
   const start = getAdhanEndTime(startFunc, endFunc, pt, cfg)
-  return start.add(PRAYER_TIMES.AfterAdhanDurationInMinutes, "minutes")
+  return start.add(cfg.afterAdhanDurationInMinutes, "minutes")
 }
 
 export const getIqamahStartTime = (
@@ -46,8 +44,7 @@ export const getIqamahStartTime = (
     })
   }
   const start = startFunc(pt, cfg)
-  const iqamahAfterInMinutes = cfg.iqamahAfterInMinutes || PRAYER_TIMES.IqamahAfterInMinutes
-  return start.add(iqamahAfterInMinutes, "minutes")
+  return start.add(cfg.iqamahAfterInMinutes, "minutes")
 }
 
 export const getIqamahEndTime = (
@@ -59,8 +56,7 @@ export const getIqamahEndTime = (
   cfg: PrayerTimeConfig,
 ): moment => {
   const start = getIqamahStartTime(startFunc, endFunc, pt, cfg)
-  const duration = cfg.iqamahDurationInMinutes || PRAYER_TIMES.IqamahDurationInMinutes
-  return start.add(duration, "minutes")
+  return start.add(cfg.iqamahDurationInMinutes, "minutes")
 }
 
 export const getAdhkarStartTime = (
@@ -72,8 +68,7 @@ export const getAdhkarStartTime = (
   cfg: PrayerTimeConfig,
 ): moment => {
   const start = getIqamahEndTime(startFunc, endFunc, pt, cfg)
-  const duartion = cfg.prayerDurationInMinutes || PRAYER_TIMES.PrayerDurationInMinutes
-  return start.add(duartion, "minutes")
+  return start.add(cfg.prayerDurationInMinutes, "minutes")
 }
 
 export const getAdhkarEndTime = (
@@ -85,8 +80,7 @@ export const getAdhkarEndTime = (
   cfg: PrayerTimeConfig,
 ): moment => {
   const start = getAdhkarStartTime(startFunc, endFunc, pt, cfg)
-  const duartion = cfg.adhkarDurationInMinutes || PRAYER_TIMES.AdhkarDurationInMinutes
-  return start.add(duartion, "minutes")
+  return start.add(cfg.adhkarDurationInMinutes, "minutes")
 }
 
 export const getAfterPrayerSunnahEndTime = (
@@ -98,8 +92,7 @@ export const getAfterPrayerSunnahEndTime = (
   cfg: PrayerTimeConfig,
 ): moment => {
   const start = getAdhkarEndTime(startFunc, endFunc, pt, cfg)
-  const duartion = cfg.afterPrayerSunnahDurationInMinutes || PRAYER_TIMES.AfterPrayerSunnahDurationInMinutes
-  return start.add(duartion, "minutes")
+  return start.add(cfg.afterPrayerSunnahDurationInMinutes, "minutes")
 }
 
 /*
@@ -117,11 +110,10 @@ export const getAdhkarSabahMasaaEndTime = (
   cfg: PrayerTimeConfig,
 ): moment => {
   const start = startFunc(pt, cfg)
-  const duartion = cfg.adhkarSabahMasaaDurationInMinutes || PRAYER_TIMES.AdhkarSabahMasaaDurationInMinutes
-  return start.add(duartion, "minutes")
+  return start.add(cfg.adhkarSabahMasaaDurationInMinutes, "minutes")
 }
 
-export const getLastNightPrayerInfo = (pt: PrayerTimes): moment => {
+export const getLastNightPrayerInfo = (pt: PrayerTimes, cfg: PrayerTimeConfig): moment => {
   const yesterday = moment(pt.date).add(-1, "day")
   const ydPT = new PrayerTimes(
     pt.coordinates,
@@ -132,18 +124,19 @@ export const getLastNightPrayerInfo = (pt: PrayerTimes): moment => {
   return {
     middleOfTheNight: moment(ydST.middleOfTheNight),
     lastThirdOfTheNight: moment(ydST.lastThirdOfTheNight),
-    sahar: moment(pt.fajr).add(-PRAYER_TIMES.SaharTimeDurationInMinutes, "minutes"),
+    sahar: moment(pt.fajr).add(-cfg.saharTimeDurationInMinutes, "minutes"),
     fajr: moment(pt.fajr),
   }
 }
 
-export const getHajirahStartTime = (pt: PrayerTimes): moment => {
+export const getHajirahStartTime = (pt: PrayerTimes, cfg: PrayerTimeConfig): moment => {
   const sunrise = moment(pt.sunrise)
   const duration = moment.duration(moment(pt.dhuhr).diff(sunrise))
-  return sunrise.add(duration.asMinutes(), "minutes")
+  const durationToLastSeventh = (duration.asMinutes() / 7) * 6
+  return sunrise.add(durationToLastSeventh, "minutes")
 }
 
-export const getHajirahEndTime = (pt: PrayerTimes): moment => {
+export const getHajirahEndTime = (pt: PrayerTimes, cfg: PrayerTimeConfig): moment => {
   const dhuhr = moment(pt.dhuhr)
-  return dhuhr.add(-PRAYER_TIMES.ZawalDurationInMinutes, "minutes")
+  return dhuhr.add(-cfg.zawalDurationInMinutes, "minutes")
 }

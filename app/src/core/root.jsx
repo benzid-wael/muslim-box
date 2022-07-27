@@ -1,22 +1,25 @@
 /*
 * @flow
 */
-import type { GeoCoordinates, Slide } from "@src/types";
+import type { GeoCoordinates, LayoutDirection, Slide } from "@src/types";
+import type { SettingConfig } from "@src/Setting";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { ConnectedRouter } from "connected-react-router";
 import { connect } from "react-redux";
 import store, { history } from "@redux/store";
 import styled from "styled-components";
 
 import i18n from "@localization/i18n.config";
-import { changeLanguage } from "@redux/slices/configSlice";
+import { changeLanguage, loadSettings } from "@redux/slices/configSlice";
 import { setBackendURLs, setCoordinates } from "@redux/slices/userSlice";
 import { computePrayerTimes, updatePrayerTimes } from "@redux/slices/prayerTimesSlice";
+import { SettingsManager } from "@src/SettingsManager";
 
-import Nav from "./nav";
+import Navbar from "./Navbar";
 import Routes from "./routes";
 import "./root.css";
+
 
 const loadI18nResources = (language) => {
   console.info(`[Renderer] language changed event received`);
@@ -56,6 +59,7 @@ const Main = styled.div`
   left: 0px;
   background: teal;
   color: white;
+  direction: ${props => props.direction}
 `;
 
 type StateProps = $ReadOnly<{
@@ -64,6 +68,9 @@ type StateProps = $ReadOnly<{
   day: string,
   dispatch: (any) => void,
   slides: $ReadOnlyArray<Slide>,
+  backendURL: string,
+  settings: Array<SettingConfig>,
+  direction: LayoutDirection,
 }>
 
 type Props = $ReadOnly<{
@@ -73,10 +80,18 @@ type Props = $ReadOnly<{
 
 const Root = (props: Props) => {
   const { history } = props;
+  const [navbar, setNavbar] = useState(false);
 
   useEffect(() => {
-    props.dispatch(computePrayerTimes(props.coordinates));
-  }, [props.day, props.coordinates])
+    props.dispatch(loadSettings(props.backendURL));
+  }, [props.backendURL])
+
+  useEffect(() => {
+    if(!props.settings || !props.coordinates) return
+
+    const sm = SettingsManager.fromConfigs(props.settings);
+    props.dispatch(computePrayerTimes(props.coordinates, sm));
+  }, [props.day, props.coordinates, props.settings])
 
   useEffect(() => {
     const timer = setTimeout(
@@ -89,10 +104,19 @@ const Root = (props: Props) => {
   }, [props.timestamp])
 
   return (
-    <Main>
+    <Main
+      direction={props.direction}
+      onMouseMove={(event) => {
+        if(!navbar && event.clientY < 50) {
+          setNavbar(true);
+        } else if(navbar && event.clientY >= 50) {
+          setNavbar(false);
+        }
+      }}
+    >
       <ConnectedRouter history={history}>
-        {/* <Nav history={history}></Nav> */}
-        <Routes></Routes>
+        <Navbar open={navbar} />
+        <Routes />
       </ConnectedRouter>
     </Main>
   );
@@ -103,6 +127,9 @@ const mapStateToProps = state => ({
   timestamp: state.prayerTimes.timestamp,
   day: state.prayerTimes.day,
   slides: state.slide.slides,
+  backendURL: state.user.backendURL,
+  settings: state.config.settings,
+  direction: state.config.general.direction,
 })
 
 export default (connect(mapStateToProps)(Root): any)

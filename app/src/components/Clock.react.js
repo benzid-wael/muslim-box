@@ -4,8 +4,8 @@
 
 import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
-import moment from "moment"
-import styled from "styled-components"
+import moment from "moment";
+import styled from "styled-components";
 
 import i18n from "@localization/i18n.config";
 
@@ -31,20 +31,24 @@ const DateWrapper = styled.div`
   font-size: 18px;
   font-weight: 400;
   text-align: center;
-  direction: ${props => props.direction};
 `
 
 const mapStateToProps = state => ({
   timestamp: state.prayerTimes.timestamp,
-  locale: state.config.present.general.locale,
-  direction: state.config.present.general.direction,
-  dateFormat: state.config.present.general.dateFormat,
-  timeFormat: state.config.present.general.timeFormat,
-  hijriDateFormat: state.config.present.general.hijriDateFormat,
+  locale: state.config.general.locale,
+  dateFormat: state.config.general.dateFormat,
+  timeFormat: state.config.general.timeFormat,
+  settings: state.config.settings,
+  hijriDateFormat: state.config.general.hijriDateFormat,
 })
 
 const Clock = (props): React$Node => {
   const [state, setState] = useState({time: "", date: "", hijri: ""});
+
+  const dateFormatSetting = props.settings?.filter(s => s.name == "DateFormat")
+  const timeFormatSetting = props.settings?.filter(s => s.name == "TimeFormat")
+  const dateFormat = dateFormatSetting.length ? dateFormatSetting[0].value : props.dateFormat
+  const timeFormat = timeFormatSetting.length ? timeFormatSetting[0].value : props.timeFormat
 
   useEffect(() => {
     moment.locale(props.locale)
@@ -55,16 +59,16 @@ const Clock = (props): React$Node => {
       {day: "numeric", month: "long", year : "numeric"},
     ).format(date);
     setState({
-      time: date.format(props.timeFormat),
-      date: date.format(props.dateFormat),
+      time: date.format(timeFormat),
+      date: date.format(dateFormat),
       hijriDate: hijriDate,
     });
   }, [props.timestamp, props.locale]);
 
   return <Main>
     <Time>{state.time}</Time>
-    <DateWrapper direction={props.direction}>{state.date}</DateWrapper>
-    <DateWrapper direction={props.direction}>{state.hijriDate}</DateWrapper>
+    <DateWrapper>{state.date}</DateWrapper>
+    <DateWrapper>{state.hijriDate}</DateWrapper>
   </Main>
 }
 

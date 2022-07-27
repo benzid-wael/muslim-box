@@ -25,7 +25,9 @@
     "dist-all": "npm run prod-build && electron-builder -mwl",
     "arm": "npm run prod-build && electron-builder -l --arm64 --armv7l",
     "publish": "npm run prod-build && electron-builder --mwl -p always",
-    "test": "mocha"
+    "test": "npm run tests:unit",
+    "tests:unit": "mocha app/**/*.spec.js --require @babel/register --reporter spec",
+    "tests:e2e": "mocha"
   },
   "build": {
     "productName": "MuslimBox",
@@ -88,6 +90,7 @@
     "@babel/preset-env": "^7.16.8",
     "@babel/preset-flow": "^7.17.12",
     "@babel/preset-react": "^7.16.7",
+    "@babel/register": "^7.18.6",
     "@doyensec/electronegativity": "^1.9.1",
     "@google-cloud/translate": "^6.3.1",
     "@sentry/cli": "^2.2.0",
@@ -148,6 +151,7 @@
     "i18next-fs-backend": "^1.1.4",
     "lodash": "4.17.21",
     "lodash.merge": "^4.6.2",
+    "mocha-each": "^2.0.1",
     "moment": "^2.29.3",
     "moment-duration-format": "^2.3.2",
     "moment-timezone": "^0.5.34",

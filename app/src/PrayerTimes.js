@@ -2,21 +2,16 @@
 * @flow
 */
 import type { GeoCoordinates, PrayerTime, PrayerTimeConfig, SlideFilter } from "@src/types";
+import type { SettingsManager } from "./SettingsManager";
 
 import moment from "moment";
 import {
-  Coordinates,
-  CalculationMethod,
   PrayerTimes,
   Prayer,
   SunnahTimes,
-  Shafaq,
-  HighLatitudeRule,
-  Rounding,
-  PolarCircleResolution,
 } from "adhan";
 
-import PRAYER_TIMES from "@constants/prayer";
+import PRAYER from "@constants/prayer";
 import {
   getAdhanEndTime,
   getAfterAdhanEndTime,
@@ -30,6 +25,9 @@ import {
   getHajirahStartTime,
   getHajirahEndTime,
 } from "@src/Prayer";
+import { PrayerTimesCalculator } from "@src/PrayerTimesCalculator";
+import { capitalize } from "@src/utils";
+
 
 type PTConfig = $ReadOnly<{
   // $FlowFixMe[value-as-type]
@@ -44,6 +42,34 @@ type PTConfig = $ReadOnly<{
   modifier?: string,
   slide?: SlideFilter,
 }>
+
+const getPrayerTimeConfig = (sm: SettingsManager, prayer: Prayer): PrayerTimeConfig => {
+  return {
+    adhanDurationInMinutes: sm.getPrayerSettingValue("AdhanDurationInMinutes", prayer, PRAYER.AdhanDurationInMinutes),
+    afterAdhanDurationInMinutes: sm.getPrayerSettingValue("AfterAdhanDurationInMinutes", prayer, PRAYER.AfterAdhanDurationInMinutes),
+    iqamahAfterInMinutes: sm.getPrayerSettingValue("IqamahAfterInMinutes", prayer, PRAYER.IqamahAfterInMinutes),
+    iqamahTime: sm.getPrayerSettingValue("IqamahTime", prayer),
+    iqamahDurationInMinutes: sm.getPrayerSettingValue("IqamahDurationInMinutes", prayer, PRAYER.IqamahDurationInMinutes),
+    prayerDurationInMinutes: sm.getPrayerSettingValue("PrayerDurationInMinutes", prayer, PRAYER.PrayerDurationInMinutes),
+    adhkarDurationInMinutes: sm.getPrayerSettingValue("AdhkarDurationInMinutes", prayer, PRAYER.AdhkarDurationInMinutes),
+    afterPrayerSunnahDurationInMinutes: sm.getPrayerSettingValue("AfterPrayerSunnahDurationInMinutes", prayer, PRAYER.AfterPrayerSunnahDurationInMinutes),
+    adhkarSabahMasaaDurationInMinutes: sm.getPrayerSettingValue("AdhkarSabahMasaaDurationInMinutes", prayer, PRAYER.AdhkarSabahMasaaDurationInMinutes),
+    saharTimeDurationInMinutes: sm.getPrayerSettingValue("SaharTimeDurationInMinutes", prayer, PRAYER.SaharTimeDurationInMinutes),
+    zawalDurationInMinutes: sm.getPrayerSettingValue("ZawalDurationInMinutes", prayer, PRAYER.ZawalDurationInMinutes),
+  }
+}
+
+const getPrayerTimeConfigs = (sm: SettingsManager): $ReadOnlyMap<Prayer, PrayerTimeConfig> => {
+  const res = new Map<Prayer, PrayerTimeConfig>()
+  const prayers = ["", Prayer.Fajr, Prayer.Dhuhr, Prayer.Asr, Prayer.Maghrib, Prayer.Isha]
+  prayers.map(
+    p => {
+      res.set(p, getPrayerTimeConfig(sm, p))
+    }
+  )
+
+  return res
+}
 
 const generatePT = (options: {
   prayer: Prayer,
@@ -229,21 +255,21 @@ const generatePT = (options: {
 const PrayerTimeConfigs: Array<PTConfig> = [
   {
     prayer: "Midnight",
-    start: (pt, cfg) => getLastNightPrayerInfo(pt).middleOfTheNight,
-    end: (pt, cfg) => getLastNightPrayerInfo(pt).lastThirdOfTheNight,
+    start: (pt, cfg) => getLastNightPrayerInfo(pt, cfg).middleOfTheNight,
+    end: (pt, cfg) => getLastNightPrayerInfo(pt, cfg).lastThirdOfTheNight,
     isPrayer: false,
     internal: true,
   },
   {
     prayer: "Last Third",
-    start: (pt, cfg) => getLastNightPrayerInfo(pt).lastThirdOfTheNight,
-    end: (pt, cfg) => getLastNightPrayerInfo(pt).sahar,
+    start: (pt, cfg) => getLastNightPrayerInfo(pt, cfg).lastThirdOfTheNight,
+    end: (pt, cfg) => getLastNightPrayerInfo(pt, cfg).sahar,
     isPrayer: false,
     internal: true,
   },
   {
     prayer: "Sahar",
-    start: (pt, cfg) => getLastNightPrayerInfo(pt).sahar,
+    start: (pt, cfg) => getLastNightPrayerInfo(pt, cfg).sahar,
     end: (pt, cfg) => moment(pt.fajr),
     isPrayer: false,
     internal: true,
@@ -264,20 +290,20 @@ const PrayerTimeConfigs: Array<PTConfig> = [
   {
     prayer: "Dhuha",
     start: (pt, cfg) => moment(pt.sunrise).add(20, "minutes"),
-    end: (pt, cfg) => getHajirahStartTime(pt),
+    end: (pt, cfg) => getHajirahStartTime(pt, cfg),
     isPrayer: true,
     internal: true,
   },
   {
     prayer: "Hajirah",
-    start: (pt, cfg) => getHajirahStartTime(pt),
-    end: (pt, cfg) => getHajirahEndTime(pt),
+    start: (pt, cfg) => getHajirahStartTime(pt, cfg),
+    end: (pt, cfg) => getHajirahEndTime(pt, cfg),
     isPrayer: true,
     internal: true,
   },
   {
     prayer: "Zawal",
-    start: (pt, cfg) => getHajirahEndTime(pt),
+    start: (pt, cfg) => getHajirahEndTime(pt, cfg),
     end: (pt, cfg) => moment(pt.dhuhr),
     isPrayer: false,
     internal: true,
@@ -329,32 +355,24 @@ const PrayerTimeConfigs: Array<PTConfig> = [
 export const getPrayerTimes = (
   position: GeoCoordinates,
   date: Date,
-  cfg?: $ReadOnlyMap<Prayer, PrayerTimeConfig>,
+  sm: SettingsManager,
 ): Array<PrayerTime> => {
   try {
-    // For configuration, see https://github.com/batoulapps/adhan-js/blob/master/METHODS.md
-    const {latitude, longitude} = position;
-    const coordinates = new Coordinates(latitude, longitude);
-    // CalculationMethods: MuslimWorldLeague, MoonsightingCommittee, ...
-    const params = CalculationMethod.MoonsightingCommittee();
-    // Shafaq: Ahmer, Abyad
-    params.shafaq = Shafaq.Ahmer;
-    // HighLatitudeRule: MiddleOfTheNight, SeventhOfTheNight, TwilightAngle or .recommended(coordinates)
-    params.highLatitudeRule = HighLatitudeRule.recommended(coordinates);
-    // Rounding: Nearest, Up, None
-    params.rounding = Rounding.Up;
-    // PolarCircleResolution: AqrabBalad, AqrabYaum, Unresolved
-    params.polarCircleResolution = PolarCircleResolution.AqrabBalad;
-    console.log(`Calcuating prayer times on ${date.toLocaleDateString()} for location: [${longitude}, ${latitude}]`)
-    const prayerTimes = new PrayerTimes(coordinates, date, params);
+    const configs: $ReadOnlyMap<Prayer, PrayerTimeConfig> = getPrayerTimeConfigs(sm)
+
+    const prayerTimesCalculator = new PrayerTimesCalculator(sm)
+    console.log(`[getPrayerTimes] Calcuating prayer times on ${date.toLocaleDateString()}`)
+    const prayerTimes = prayerTimesCalculator.prayerTimes(position, date);
     return PrayerTimeConfigs
       .map(config => {
         try {
-          const ptConfig = cfg?.get(config.prayer) || {}
+          // We are computing only config for mandatory prayer times, for other
+          //  times (e.g. Sahar), we will fallback to the default config (key is empty string)
+          const ptConfig = configs?.get(config.prayer) || configs?.get("")
           const start = config.start(prayerTimes, ptConfig)
           const end = config.end(prayerTimes, ptConfig)
           const suffix = config.modifier ? `[${config.modifier}]` : ""
-          console.log(`${config.prayer}${suffix} ${start.format("HH:mm")} -> ${end.format("HH:mm")}`)
+          console.debug(`[getPrayerTimes] ${config.prayer}${suffix} ${start.format("HH:mm")} -> ${end.format("HH:mm")}`)
 
           return {
             name: config.prayer,
@@ -368,11 +386,12 @@ export const getPrayerTimes = (
             // isCurrent: prayerTimes.currentPrayer() === config.prayer,
           }
         } catch(err) {
-          console.error(`cannot compute prayer time: ${err}`)
+          console.error(`[getPrayerTimes] cannot compute prayer time: ${err}`)
         }
       })
       .filter(pt => pt);
   } catch (err) {
+    console.error(`[getPrayerTimes] cannot compute prayer times: ${err}`)
     return [];
   }
 }

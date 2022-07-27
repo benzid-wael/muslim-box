@@ -10,7 +10,6 @@ import momentDurationFormatSetup from "moment-duration-format"
 import styled from "styled-components"
 import { useTranslation } from "react-i18next"
 
-import PRAYER_TIMES from "@constants/prayer";
 
 const Main = styled.div`
   width: 50%;
@@ -72,6 +71,7 @@ const EndTime = styled(StartTime)`
 type Props = $ReadOnly<{
   prayer: PrayerTimeType,
   isCurrent?: boolean,
+  endTimeReminderInMinutes: number,
 }>
 
 const PrayerTime = (props: Props): React$Node => {
@@ -80,7 +80,7 @@ const PrayerTime = (props: Props): React$Node => {
   const start = moment.unix(prayer.start);
   const end = moment.unix(prayer.end);
   const remaining = moment.duration(end.diff(moment()))
-  const showRemaining = isCurrent && remaining.asMinutes() < PRAYER_TIMES.EndTimeReminderInMinutes
+  const showRemaining = isCurrent && remaining.asMinutes() < props.endTimeReminderInMinutes
   return <Main primary={isCurrent}>
     <Wrapper>
       <Name>{i18n.t(prayer.name)}</Name>

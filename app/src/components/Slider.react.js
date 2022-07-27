@@ -2,16 +2,15 @@
 * @flow
 */
 import type { Slide } from "@src/types";
+import type { SliderSettings } from "@src/SliderSettings";
 
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 
-import AdhanSlide from "./AdhanSlide.react";
-import SLIDER from "@constants/slider";
+import AdhanSlide from "@components/AdhanSlide.react";
 import SlideBuilder from "@components/SlideBuilder.react";
 import { addSlides, moveNext, setPosition, resetSlides } from "@redux/slices/slideSlice";
-import { getDurationInSeconds } from "@src/Slide";
 import { SlideLoaderFactory } from "@src/SlideLoader";
 
 const Main = styled.div`
@@ -80,7 +79,7 @@ const Container = styled.div`
 `
 
 const mapStateToProps = state => ({
-  language: state.config.present.general.language,
+  language: state.config.general.language,
   slides: state.slide.slides,
   position: state.slide.position,
   backendURL: state.user.backendURL,
@@ -88,7 +87,7 @@ const mapStateToProps = state => ({
 })
 
 const Slider = (props): React$Node => {
-  const { language, position, slides, timestamp } = props;
+  const { language, position, slides, timestamp, settings } = props;
   const [timer, setTimer] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [animation, setAnimation] = useState("enter")
@@ -136,7 +135,7 @@ const Slider = (props): React$Node => {
   useEffect(() => {
     const duration = slides.length > 0
       ?
-      getDurationInSeconds(slides[position])
+      settings.slideDurationInSeconds(slides[position])
       :
       .3  // by default 3ms
     ;
@@ -152,11 +151,11 @@ const Slider = (props): React$Node => {
     console.log(`[Slider] transition: ${position}/${slides.length - 1}`)
     if (position < slides.length - 1) {
       props.dispatch(moveNext())
-    } else if (SLIDER.OnReachEndStrategy === "load") {
+    } else if (settings.onReachEndStrategy === "load") {
       console.warn(`[Slider] loading more slides...`)
       // load more slides
       const slides = await loadSlides()
-      if(slides.length > SLIDER.MaxSlidesBeforeReset) {
+      if(slides.length > settings.maxSlidesBeforeReset) {
         props.dispatch(resetSlides(slides));
       } else {
         props.dispatch(addSlides(slides));
@@ -172,13 +171,14 @@ const Slider = (props): React$Node => {
 
   const loadSlides = async (): Promise<Array<Slide>> => {
     console.log(`[Slider] loadSlides...`)
+    if(!props.backendURL || !settings) return []
+
     const loader = SlideLoaderFactory.getLoader({
-      provider: SLIDER.DefaultProvider,
+      settings,
       backendURL: props.backendURL,
     })
-    if(!loader) return []
     const lang = language.split("-")[0]
-    const slides = await loader.random(SLIDER.PageSize, lang);
+    const slides = await loader.random(settings.pageSize, lang);
     return slides;
   }
 
@@ -189,7 +189,7 @@ const Slider = (props): React$Node => {
   return props.slides.length === 0 ? <></> : (
     <Main>
       <Container
-        animation={SLIDER.EnableAnimation ? cssKeyframe : ""}
+        animation={settings.animation ? cssKeyframe : ""}
         onClick={transition}
       >
         <SlideBuilder slide={slide} />

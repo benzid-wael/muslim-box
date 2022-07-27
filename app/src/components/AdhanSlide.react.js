@@ -1,15 +1,15 @@
 /*
 * @flow
 */
-import type { PrayerTime } from "@src/types"
+import type { PrayerTime } from "@src/types";
+import type { SettingConfig } from "@src/Setting";
 
 import React, { useState, useEffect } from "react";
-import { connect } from "react-redux"
-import { useTranslation } from "react-i18next"
-import styled from "styled-components"
+import { connect } from "react-redux";
+import { useTranslation } from "react-i18next";
+import styled from "styled-components";
 
-import ADHAN from "@constants/adhan"
-import { autoPlayAdhan, getAdhanMetadataForPrayer } from "@src/Adhan"
+import AdhanSettings from "@src/AdhanSettings";
 import Slide from "@components/Slide.react";
 
 const Matn = styled.h3`
@@ -31,6 +31,7 @@ const Reference = styled.span`
 
 type StateProps = $ReadOnly<{
   currentPrayer: PrayerTime,
+  settings: Array<SettingConfig>,
 }>
 
 type ComponentProps = $ReadOnly<{
@@ -40,6 +41,7 @@ type Props = StateProps & ComponentProps;
 
 const mapStateToProps = (state): StateProps => ({
   currentPrayer: state.prayerTimes.current,
+  settings: state.config.settings,
 })
 
 const DuaaDuringAdhan = (props) => {
@@ -62,19 +64,23 @@ const DuaaAfterAdhan = (props) => {
 }
 
 const AdhanSlideComponent = (props: Props): React$Node => {
+
+  if(!props.settings || !props.currentPrayer) {
+    return null
+  }
+
   const { i18n } = useTranslation();
-  const adhan = getAdhanMetadataForPrayer(props.currentPrayer?.name)
-  const [audio, setAudio] = useState<?Audio>(new Audio(adhan.sound))
+  const adhanSettings = AdhanSettings.fromConfigs(props.settings)
+  const adhan = adhanSettings.getAdhanSoundMetadata(props.currentPrayer?.name)
+  const [audio] = useState<?Audio>(
+    new Audio(adhan.sound)
+  )
   const [state, setState] = useState({
     ended: false,
     play: false,
   });
 
   const prayer = i18n.t(props.currentPrayer?.name, {context: "name"})
-
-  if(!prayer) {
-    return null
-  }
 
   const togglePlay = () => {
     if (!state.ended && audio) {
@@ -86,7 +92,7 @@ const AdhanSlideComponent = (props: Props): React$Node => {
   useEffect(() => {
     const timer = setTimeout(
       () => {
-        const autoplay = autoPlayAdhan(props.currentPrayer?.name)
+        const autoplay = adhanSettings.shoudlAutoPlay(props.currentPrayer?.name)
         console.log(`[Adhan] Adhan for ${props.currentPrayer?.name} prayer: enabled: ${autoplay}`)
         if (autoplay) {
           console.debug(`[Adhan] auto playing adhan`)

@@ -72,13 +72,17 @@ export type SlideFilter = $ReadOnly<{
 }>
 
 export type PrayerTimeConfig = $ReadOnly<{
+  adhanDurationInMinutes: number,
+  afterAdhanDurationInMinutes: number,
   iqamahAfterInMinutes?: number,
   iqamahTime?: Time,
-  iqamahDurationInMinutes?: number,
-  prayerDurationInMinutes?: number,
-  adhkarDurationInMinutes?: number,
-  afterPrayerSunnahDurationInMinutes?: number,
-  adhkarSabahMasaaDurationInMinutes?: number,
+  iqamahDurationInMinutes: number,
+  prayerDurationInMinutes: number,
+  adhkarDurationInMinutes: number,
+  afterPrayerSunnahDurationInMinutes: number,
+  adhkarSabahMasaaDurationInMinutes: number,
+  saharTimeDurationInMinutes: number,
+  zawalDurationInMinutes: number,
 }>
 
 export type AdhanConfig = $ReadOnly<{

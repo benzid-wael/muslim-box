@@ -42,18 +42,17 @@ describe("Application launch", function () {
     return this.app.start()
   })
 
-  afterEach(function () {
+  afterEach(async function () {
     if (this.app && this.app.isRunning()) {
-      return this.app.stop()
+      await this.app.stop();
     }
   });
 
-  it("shows an initial window", function () {
-    return this.app.client.getWindowCount().then(function (count) {
+  it("shows an initial window", function (done) {
+    this.app.client.getWindowCount().then(function (count) {
       assert.strictEqual(count, 1);
       // Please note that getWindowCount() will return 2 if `dev tools` are opened.
       // assert.equal(count, 2)
-      done()
-    });
+    }).then(done);
   });
 });
