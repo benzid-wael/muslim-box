@@ -9,8 +9,13 @@ import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { connect } from "react-redux";
 
+<<<<<<< HEAD
 import { patchSetting } from "@redux/slices/configSlice";
 import infoIcon from "@resources/icons/info.svg";
+=======
+import { patchSetting } from "@redux/slices/configSlice"
+import infoIcon from "@resources/images/icons/info.svg";
+>>>>>>> 4122b0e (This commit fixes two issues:)
 import { SettingsManager } from "@src/SettingsManager";
 
 const Main = styled.section`

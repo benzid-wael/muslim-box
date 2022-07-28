@@ -68,10 +68,15 @@ const installExtensions = () => {
 const createBackgroundProcess = (port) => {
   const args = ["--port", port];
 
+<<<<<<< HEAD
   const options = {
     cwd: path.join(__dirname, "../server"),
   };
   serverProcess = fork(path.join(__dirname, "../server"), args, options);
+=======
+  const options = {}
+  serverProcess = fork(path.join(__dirname, "../server"), args, options)
+>>>>>>> 4122b0e (This commit fixes two issues:)
 
   serverProcess.on("message", (msg) => {
     logger.info(`[ipcMain] server sent this message: ${msg}`);
