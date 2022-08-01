@@ -1,7 +1,7 @@
 /*
 * @flow
 */
-import type { GeoCoordinates, LayoutDirection, Slide } from "@src/types";
+import type { GeoCoordinates, LayoutDirection, PrayerTime, Slide } from "@src/types";
 import type { SettingConfig } from "@src/Setting";
 
 import React, { useEffect, useState } from "react";
@@ -15,7 +15,7 @@ import { changeLanguage, loadSettings } from "@redux/slices/configSlice";
 import { setBackendURLs, setCoordinates } from "@redux/slices/userSlice";
 import { computePrayerTimes, updatePrayerTimes } from "@redux/slices/prayerTimesSlice";
 import { SettingsManager } from "@src/SettingsManager";
-
+import ROUTES from "@constants/routes";
 import Navbar from "@root/Navbar.react";
 import Routes from "@root/Routes.react";
 import "@root/Root.css";
@@ -70,6 +70,7 @@ type StateProps = $ReadOnly<{
   backendURL: string,
   settings: Array<SettingConfig>,
   direction: LayoutDirection,
+  currentTime?: PrayerTime,
 }>
 
 type Props = $ReadOnly<{
@@ -80,6 +81,10 @@ type Props = $ReadOnly<{
 const Root = (props: Props) => {
   const { history } = props;
   const [navbar, setNavbar] = useState(false);
+
+  if(props.currentTime?.modifier === "adhan") {
+    history.push(ROUTES.ADHAN)
+  }
 
   useEffect(() => {
     props.dispatch(loadSettings(props.backendURL));
@@ -106,7 +111,7 @@ const Root = (props: Props) => {
     <Main
       direction={props.direction}
       onMouseMove={(event) => {
-        console.debug(`[Root] mouse position: ${event.clientY}`)
+        // console.debug(`[Root] mouse position: ${event.clientY}`)
         if(!navbar && event.clientY < 50) {
           setNavbar(true);
         } else if(navbar && event.clientY >= 100) {
@@ -130,6 +135,7 @@ const mapStateToProps = state => ({
   backendURL: state.user.backendURL,
   settings: state.config.settings,
   direction: state.config.general.direction,
+  currentTime: state.prayerTimes.currentTime,
 })
 
 export default (connect(mapStateToProps)(Root): any)

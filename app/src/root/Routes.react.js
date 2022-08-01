@@ -17,6 +17,11 @@ const Settings = loadable(() =>
   import(/* webpackChunkName: "SettingsChunk" */ "@pages/Settings.react")
 );
 
+// Load bundles asynchronously so that the initial render happens faster
+const Adhan = loadable(() =>
+  import(/* webpackChunkName: "AdhanChunk" */ "@pages/Adhan.react")
+);
+
 const NoMatch = () => {
   const location = useLocation();
   const { i18n } = useTranslation();
@@ -37,6 +42,7 @@ class MyRoutes extends React.Component {
       <Switch>
         <Route exact path={ROUTES.HOME} component={Home}></Route>
         <Route path={ROUTES.SETTINGS} component={Settings}></Route>
+        <Route path={ROUTES.ADHAN} component={Adhan}></Route>
         <Route path="*" component={NoMatch} />
       </Switch>
     );

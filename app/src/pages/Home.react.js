@@ -11,7 +11,6 @@ import styled from "styled-components";
 import PRAYER from "@constants/prayer";
 import Clock from "@components/Clock.react";
 import Slider from "@components/Slider.react";
-import AdhanSlide from "@components/AdhanSlide.react";
 import ImageSlide from "@components/ImageSlide.react";
 import PrayerTime from "@components/PrayerTime.react";
 import { SliderSettings } from "@src/SliderSettings";
@@ -60,37 +59,21 @@ const PrayerTimeWrapper = styled.div`
 type StateProps = $ReadOnly<{
   prayers: $ReadOnlyArray<PrayerTimeType>,
   currentPrayer?: PrayerTimeType,
-  currentTime?: PrayerTimeType,
   settings: Array<SettingConfig>,
 }>
 
 const mapStateToProps = state => ({
   prayers: state.prayerTimes.prayers,
   currentPrayer: state.prayerTimes.current,
-  currentTime: state.prayerTimes.currentTime,
   settings: state.config.settings,
 })
 
-const getView = (key?: string, settings: SliderSettings) => {
-  switch(key) {
-    case "adhan":
-      return <AdhanSlide />
-  }
-
-  return <Slider settings={settings} />
-}
-
 const Home = (props: StateProps): React$Node => {
-  const [view, showView] = useState("slider");
   const sm = SliderSettings.fromConfigs(props.settings);
-
-  useEffect(() => {
-    showView(props.currentTime?.modifier)
-  }, [props.currentTime])
 
   return <Main backgroundImage={bg}>
     <Content>
-      { getView(view, sm) }
+      <Slider settings={sm} />
     </Content>
     <Footer>
       <Clock />

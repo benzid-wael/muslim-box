@@ -8,7 +8,6 @@ import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 
-import AdhanSlide from "@components/AdhanSlide.react";
 import SlideBuilder from "@components/SlideBuilder.react";
 import { addSlides, moveNext, setPosition, resetSlides } from "@redux/slices/slideSlice";
 import { SlideLoaderFactory } from "@src/SlideLoader";
