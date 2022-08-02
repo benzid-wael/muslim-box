@@ -1,6 +1,7 @@
 # About this repository
 
 ## Features
+
 Taken from the [best-practices](https://electronjs.org/docs/tutorial/security) official page, here is what this repository offers!
 
 1. [Only load secure content](https://electronjs.org/docs/tutorial/security#1-only-load-secure-content) - ✅ (But the developer is responsible for loading secure assets only 🙂)
@@ -22,6 +23,7 @@ Taken from the [best-practices](https://electronjs.org/docs/tutorial/security) o
 17. [Use a current version of electron](https://electronjs.org/docs/tutorial/security#17-use-a-current-version-of-electron) - ✅
 
 ## Included frameworks
+
 Built-in to this template are a number of popular frameworks already wired up to get you on the road running.
 
 - [Electron](https://electronjs.org/)
@@ -34,6 +36,7 @@ Built-in to this template are a number of popular frameworks already wired up to
 - [Mocha](https://mochajs.org/)
 
 ## Bonus modules
+
 What would a template be without some helpful additions?
 
 - [i18next](https://www.i18next.com/) (with [this plugin](https://github.com/reZach/i18next-electron-fs-backend) for localization).

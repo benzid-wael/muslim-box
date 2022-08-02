@@ -1,6 +1,6 @@
 /*
-* @flow
-*/
+ * @flow
+ */
 import type { Prayer } from "adhan";
 
 export type Language = "ar" | "en" | "fr";
@@ -8,17 +8,17 @@ export type Language = "ar" | "en" | "fr";
 export type LayoutDirection = "rtl" | "ltr";
 
 export type Localization = $ReadOnly<{
-  language: Language;
-  locale: string;
-  dateFormat?: string;
-  timeFormat?: string;
-  hijriDateFormat?: string;
-  direction?: LayoutDirection;
+  language: Language,
+  locale: string,
+  dateFormat?: string,
+  timeFormat?: string,
+  hijriDateFormat?: string,
+  direction?: LayoutDirection,
 }>;
 
 export type GeoCoordinates = $ReadOnly<{
-  longitude: number;
-  latitude: number;
+  longitude: number,
+  latitude: number,
 }>;
 
 export type Time = $ReadOnly<{
@@ -34,26 +34,24 @@ export type AdhanSound =
   | "adhan-makkah2-dua"
   | "adhan-makkah2"
   | "adhan-mishary-rashad"
-  | "adhan-turkish"
+  | "adhan-turkish";
 
 export type AdhanSoundMetadata = $ReadOnly<{
   sound: Audio,
   durationInSeconds: number,
   dua: boolean,
   fajr?: boolean,
-}>
+}>;
 
-export type SlideFilterOperator =
-  | "all"
-  | "any"
+export type SlideFilterOperator = "all" | "any";
 
 export type SlideFilterOrderType =
-  | "random"  // random order
-  | "id"      // sort by id (default)
+  | "random" // random order
+  | "id"; // sort by id (default)
 
 export type SlideFilterOnReachEndStrategy =
-  | "reset"   // reset slider: go to 1st slide (default)
-  | "load"    // load more slides
+  | "reset" // reset slider: go to 1st slide (default)
+  | "load"; // load more slides
 
 export type SlideFilterQuery = $ReadOnly<{
   name: string,
@@ -64,12 +62,12 @@ export type SlideFilterQuery = $ReadOnly<{
   count?: number,
   // by default result will not be merged with others.
   allowMerge?: boolean,
-}>
+}>;
 
 export type SlideFilter = $ReadOnly<{
   queries: Array<SlideFilterQuery>,
   onReachEnd?: SlideFilterOnReachEndStrategy,
-}>
+}>;
 
 export type PrayerTimeConfig = $ReadOnly<{
   adhanDurationInMinutes: number,
@@ -83,7 +81,7 @@ export type PrayerTimeConfig = $ReadOnly<{
   adhkarSabahMasaaDurationInMinutes: number,
   saharTimeDurationInMinutes: number,
   zawalDurationInMinutes: number,
-}>
+}>;
 
 export type AdhanConfig = $ReadOnly<{
   autoPlayAdhan?: boolean,
@@ -97,7 +95,7 @@ export type AdhanConfig = $ReadOnly<{
   asrAdhanSound?: AdhanSound,
   maghribAdhanSound?: AdhanSound,
   ishaAdhanSound?: AdhanSound,
-}>
+}>;
 
 export type PrayerTime = $ReadOnly<{
   name: Prayer,
@@ -137,11 +135,7 @@ export type Day =
   | "weekday:saturday"
   | "weekday:sunday";
 
-export type Season =
-  | "season:summer"
-  | "season:autumn"
-  | "season:winter"
-  | "season:spring";
+export type Season = "season:summer" | "season:autumn" | "season:winter" | "season:spring";
 
 export type TimePeriod =
   | "adhan:before"
@@ -180,7 +174,7 @@ export type TimePeriod =
   | "time:before:sunset"
   | "time:night:midnight"
   | "time:night:last_third"
-  | "time:night:sahar"      // last 15m: reading 50 verses
+  | "time:night:sahar"; // last 15m: reading 50 verses
 
 export type GenericEvent =
   | "event:ashura"
@@ -200,12 +194,7 @@ export type GenericEvent =
   | "event:wind"
   | "event:ayam_bydh";
 
-export type Event =
-  | HijriMonth
-  | Day
-  | Season
-  | TimePeriod
-  | GenericEvent;
+export type Event = HijriMonth | Day | Season | TimePeriod | GenericEvent;
 
 export type MultilingualString = $ReadOnlyMap<Language, string>;
 
@@ -220,19 +209,16 @@ export type BaseReference = $ReadOnly<{
 }>;
 
 export type QuranReference = $ReadOnly<{
-  ...$Diff<BaseReference, {page?: number, index?: number}>,
+  ...$Diff<BaseReference, { page?: number, index?: number }>,
   type: "quran",
 }>;
 
 export type HadithReference = $ReadOnly<{
-  ...$Diff<BaseReference, {page?: number, indexes?: number}>,
+  ...$Diff<BaseReference, { page?: number, indexes?: number }>,
   type: "hadith",
 }>;
 
-export type Reference =
-  | QuranReference
-  | HadithReference;
-
+export type Reference = QuranReference | HadithReference;
 
 type BaseSlide = $ReadOnly<{
   type: string,
@@ -243,42 +229,42 @@ type BaseSlide = $ReadOnly<{
 }>;
 
 export type CurrentPrayerSlide = $ReadOnly<{
-  ...$Diff<BaseSlide, {type: string, category: string, content: $ReadOnlyArray<string>}>,
-  type: "current-prayer"
+  ...$Diff<BaseSlide, { type: string, category: string, content: $ReadOnlyArray<string> }>,
+  type: "current-prayer",
 }>;
 
 export type NextPrayerSlide = $ReadOnly<{
-  ...$Diff<CurrentPrayerSlide, {type: string}>,
+  ...$Diff<CurrentPrayerSlide, { type: string }>,
   type: "next-prayer",
 }>;
 
 export type ClockSlide = $ReadOnly<{
-  ...$Diff<BaseSlide, {type: string, category: string, content: $ReadOnlyArray<string>}>,
+  ...$Diff<BaseSlide, { type: string, category: string, content: $ReadOnlyArray<string> }>,
   type: "clock",
 }>;
 
 export type QuranVerseSlide = $ReadOnly<{
-  ...$Diff<BaseSlide, {type: string}>,
+  ...$Diff<BaseSlide, { type: string }>,
   type: "quran",
   reference?: QuranReference,
 }>;
 
 export type HadithSlide = $ReadOnly<{
-  ...$Diff<BaseSlide, {type: string}>,
+  ...$Diff<BaseSlide, { type: string }>,
   type: "hadith",
   references?: $ReadOnlyArray<HadithReference>,
 }>;
 
 export type DhikrSlide = $ReadOnly<{
-  ...$Diff<BaseSlide, {type: string}>,
+  ...$Diff<BaseSlide, { type: string }>,
   type: "dhikr",
-  count: number;
+  count: number,
 }>;
 
 export type AtharSlide = $ReadOnly<{
-  ...$Diff<BaseSlide, {type: string}>,
+  ...$Diff<BaseSlide, { type: string }>,
   type: "athar",
-  count: number;
+  count: number,
 }>;
 
 export type Slide =

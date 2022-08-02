@@ -1,14 +1,7 @@
 const fs = require("fs");
-const {
-  readdirSync,
-  statSync
-} = require("fs");
-const {
-  join
-} = require("path")
-const {
-  Translate
-} = require("@google-cloud/translate").v2;
+const { readdirSync, statSync } = require("fs");
+const { join } = require("path");
+const { Translate } = require("@google-cloud/translate").v2;
 
 // READ THIS NOTICE
 /*
@@ -43,31 +36,29 @@ const projectId = "YOUR_PROJECT_ID";
 
 // Instantiates a client
 const translate = new Translate({
-  projectId
+  projectId,
 });
 
 async function updateTranslations() {
-
   try {
     const root = "./app/localization/locales";
     const fromLanguage = "en";
 
     // Get valid languages from Google Translate API
     let [googleLanguages] = await translate.getLanguages(); // ie. { code: "en", name: "English" }
-    googleLanguages = googleLanguages.map(gl => gl.code.replace("-", "_"))
+    googleLanguages = googleLanguages.map((gl) => gl.code.replace("-", "_"));
 
     // Uncomment me to view the various languages Google can translate to/from
     //console.log(googleLanguages);
 
     // Get all language directories;
     // https://stackoverflow.com/a/35759360/1837080
-    const getDirectories = p => readdirSync(p).filter(f => statSync(join(p, f)).isDirectory());
-    const languageDirectories = getDirectories(root).filter(d => googleLanguages.includes(d));
+    const getDirectories = (p) => readdirSync(p).filter((f) => statSync(join(p, f)).isDirectory());
+    const languageDirectories = getDirectories(root).filter((d) => googleLanguages.includes(d));
 
     // For each language, read in any missing translations
     // and translate
     for (const languageDirectory of languageDirectories) {
-
       // Check to make sure each language has the proper files
       try {
         const languageRoot = `${root}/${languageDirectory}`;
@@ -78,28 +69,30 @@ async function updateTranslations() {
         const translationMissingExists = fs.existsSync(missingTranslationFile);
 
         if (translationExists && translationMissingExists) {
-
           // Read in contents of files
-          const translations = JSON.parse(fs.readFileSync(translationFile, {
-            encoding: "utf8"
-          }));
-          const missing = JSON.parse(fs.readFileSync(missingTranslationFile, {
-            encoding: "utf8"
-          }));
+          const translations = JSON.parse(
+            fs.readFileSync(translationFile, {
+              encoding: "utf8",
+            })
+          );
+          const missing = JSON.parse(
+            fs.readFileSync(missingTranslationFile, {
+              encoding: "utf8",
+            })
+          );
 
           // Only translate files with actual values
           const missingKeys = Object.keys(missing);
-          if (missingKeys.length > 0){
-
+          if (missingKeys.length > 0) {
             // Translate each of the missing keys to the target language
-            for (const missingKey of missingKeys){
+            for (const missingKey of missingKeys) {
               const googleTranslation = await translate.translate(missingKey, {
                 from: fromLanguage,
-                to: languageDirectory
+                to: languageDirectory,
               });
 
               // Only set if a value is returned
-              if (googleTranslation.length > 0){
+              if (googleTranslation.length > 0) {
                 translations[missingKey] = googleTranslation[0];
               }
             }
@@ -113,12 +106,15 @@ async function updateTranslations() {
             console.log(`Skipped creating translations for ${languageDirectory}; none found!`);
           }
         } else {
-
           // Log if we failed
           if (!translationExists) {
-            console.error(`Could not generate translations for language '${languageDirectory}' because ${translationFile} does not exist, skipping!`);
+            console.error(
+              `Could not generate translations for language '${languageDirectory}' because ${translationFile} does not exist, skipping!`
+            );
           } else if (!translationMissingExists) {
-            console.error(`Could not generate translations for language '${languageDirectory}' because ${missingTranslationFile} does not exist, skipping!`);
+            console.error(
+              `Could not generate translations for language '${languageDirectory}' because ${missingTranslationFile} does not exist, skipping!`
+            );
           }
         }
       } catch (error) {

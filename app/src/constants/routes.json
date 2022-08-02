@@ -1,5 +1,6 @@
 {
-  "HOME": "/",
   "ABOUT": "/about",
+  "ADHAN": "/adhan",
+  "HOME": "/",
   "SETTINGS": "/settings"
 }

@@ -29,13 +29,11 @@ const mimeTypes = {
   ".ico": "image/vnd.microsoft.icon",
   ".png": "image/png",
   ".jpg": "image/jpeg",
-  ".map": "text/plain"
+  ".map": "text/plain",
 };
 
 function charset(mimeExt) {
-  return [".html", ".htm", ".js", ".mjs"].some((m) => m === mimeExt) ?
-    "utf-8" :
-    null;
+  return [".html", ".htm", ".js", ".mjs"].some((m) => m === mimeExt) ? "utf-8" : null;
 }
 
 function mime(filename) {
@@ -51,7 +49,7 @@ function requestHandler(req, next) {
     reqPath = "/index.html";
   }
 
-  console.log(`[static] requesting ${reqPath}`)
+  console.log(`[static] requesting ${reqPath}`);
   const reqFilename = path.basename(reqPath);
   fs.readFile(path.join(DIST_PATH, reqPath), (err, data) => {
     const { mimeExt, mimeType } = mime(reqFilename);
@@ -59,7 +57,7 @@ function requestHandler(req, next) {
       next({
         mimeType,
         charset: charset(mimeExt),
-        data
+        data,
       });
     } else {
       console.error(err);
@@ -69,5 +67,5 @@ function requestHandler(req, next) {
 
 module.exports = {
   scheme,
-  requestHandler
+  requestHandler,
 };

@@ -8,6 +8,8 @@ INSERT INTO `settings` (`name`, `category`, `active`, `type`, `value`, `default`
 ("MaghribAutoplayAdhan", "adhan", 1, "boolean", null, "false", null),
 ("IshaAutoplayAdhan", "adhan", 1, "boolean", null, "false", null),
 
+/* AdhanSound setting is used mainly for development purpose, and hopefully defining it here should not lead to any unexpected behaviour */
+("AdhanSound", "adhan", 1, "enum", null, "adhan-madinah", "{""name"":""AdhanSound"",""options"":[""adhan-fajr"",""adhan-madinah"",""adhan-makkah"",""adhan-makkah-dua"",""adhan-makkah2"",""adhan-makkah2-dua"",""adhan-mishary-rashad"",""adhan-turkish""]}"),
 ("FajrAdhanSound", "adhan", 1, "enum", null, "adhan-fajr", "{""name"":""AdhanSound"",""options"":[""adhan-fajr"",""adhan-madinah"",""adhan-makkah"",""adhan-makkah-dua"",""adhan-makkah2"",""adhan-makkah2-dua"",""adhan-mishary-rashad"",""adhan-turkish""]}"),
 ("DhuhrAdhanSound", "adhan", 1, "enum", null, "adhan-madinah", "{""name"":""AdhanSound"",""options"":[""adhan-fajr"",""adhan-madinah"",""adhan-makkah"",""adhan-makkah-dua"",""adhan-makkah2"",""adhan-makkah2-dua"",""adhan-mishary-rashad"",""adhan-turkish""]}"),
 ("AsrAdhanSound", "adhan", 1, "enum", null, "adhan-madinah", "{""name"":""AdhanSound"",""options"":[""adhan-fajr"",""adhan-madinah"",""adhan-makkah"",""adhan-makkah-dua"",""adhan-makkah2"",""adhan-makkah2-dua"",""adhan-mishary-rashad"",""adhan-turkish""]}"),

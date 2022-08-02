@@ -1,8 +1,8 @@
 /*
-* @flow
-*/
-import React from "react"
-import styled from "styled-components"
+ * @flow
+ */
+import React from "react";
+import styled from "styled-components";
 
 const Main = styled.div`
   disply: inline;
@@ -13,7 +13,7 @@ const VerseNumber = styled.span`
   display: inline-block;
   position: relative;
   font-size: 1vw;
-  top: -.5rem;
+  top: -0.5rem;
 
   &::after {
     content: "\u06dd";
@@ -24,20 +24,22 @@ const VerseNumber = styled.span`
     left: 50%;
     transform: translate(-50%, -50%);
   }
-`
+`;
 
 type Props = $ReadOnly<{
-    verse: string,
-    surah?: string,
-    verseNumber?: number,
-    isSajda: boolean,
-}>
+  verse: string,
+  surah?: string,
+  verseNumber?: number,
+  isSajda: boolean,
+}>;
 
 const Ayah = (props: Props): React$MixedElement => {
-    return <Main className="Quran">
+  return (
+    <Main className="Quran">
       {props.verse}
       {props.verseNumber ? <VerseNumber>{props.verseNumber}</VerseNumber> : null}
     </Main>
-}
+  );
+};
 
-export default Ayah
+export default Ayah;

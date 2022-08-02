@@ -1,13 +1,9 @@
 /*
-* @flow
-*/
+ * @flow
+ */
 import { capitalize } from "@src/utils";
 
-export type SettingType =
-  | "boolean"
-  | "int"
-  | "string"
-  | "enum";
+export type SettingType = "boolean" | "int" | "string" | "enum";
 
 export type SettingOptions = $ReadOnly<{
   name: string,
@@ -21,38 +17,38 @@ export type SettingConfig = $ReadOnly<{
   value: ?string,
   default: ?string,
   options: ?SettingOptions,
-}>
+}>;
 
 const validateEnum = (v: string, f: Setting): any => {
-  if(!f.options) throw new Error(`Enum ${f.name} doesn't define options`);
-  const option = f?.options?.options.filter(opt => opt === v);
-  if(!option.length) throw new Error(`invalid option '${v} for ${f.toString()} setting`);
+  if (!f.options) throw new Error(`Enum ${f.name} doesn't define options`);
+  const option = f?.options?.options.filter((opt) => opt === v);
+  if (!option.length) throw new Error(`invalid option '${v} for ${f.toString()} setting`);
   return option[0];
-}
+};
 
 const SETTING_OPERATORS = {
-  "boolean": {
+  boolean: {
     serialize: (v: any, f: Setting): string => {
       if (v === true || v === false) {
         return v ? "true" : "false";
       }
       return ["true", "t", "1"].includes(v.toString().toLowerCase()) ? "true" : "false";
     },
-    deserialize: (v: any, f: Setting): any => v === "true" ? true : false,
+    deserialize: (v: any, f: Setting): any => (v === "true" ? true : false),
   },
-  "int": {
+  int: {
     serialize: (v: any, f: Setting): string => v.toString(),
     deserialize: (v: any, f: Setting): any => parseInt(v),
   },
-  "string": {
+  string: {
     serialize: (v: any, f: Setting): string => v,
     deserialize: (v: any, f: Setting): any => v,
   },
-  "enum": {
+  enum: {
     serialize: validateEnum,
     deserialize: validateEnum,
-  }
-}
+  },
+};
 
 export class Setting {
   #name: string;
@@ -62,12 +58,7 @@ export class Setting {
   #category: ?string;
   #options: ?SettingOptions;
 
-  constructor(
-    name: string,
-    type: SettingType,
-    defaultValue?: any,
-    options?: SettingOptions,
-  ) {
+  constructor(name: string, type: SettingType, defaultValue?: any, options?: SettingOptions) {
     this.#name = name;
     this.#type = type;
     this.#default = defaultValue;
@@ -77,7 +68,7 @@ export class Setting {
   }
 
   toString(): string {
-    return `<${capitalize(this.#type)}Setting default: ${this.#default}>`
+    return `<${capitalize(this.#type)}Setting default: ${this.#default}>`;
   }
 
   /* Getters & Setters */
@@ -86,7 +77,7 @@ export class Setting {
   }
 
   get type(): SettingType {
-    return this.#type
+    return this.#type;
   }
 
   get options(): ?SettingOptions {
@@ -94,7 +85,7 @@ export class Setting {
   }
 
   get value(): any {
-    const value = this.#value != null ? this.#value : this.#default
+    const value = this.#value != null ? this.#value : this.#default;
 
     if (this.#type in SETTING_OPERATORS) {
       return SETTING_OPERATORS[this.#type].deserialize(value, this);
@@ -103,11 +94,11 @@ export class Setting {
   }
 
   get serializedValue(): ?string {
-    return this.#value
+    return this.#value;
   }
 
   set value(val?: any): void {
-    if(val == null) {
+    if (val == null) {
       this.#value = val;
     } else if (this.#type in SETTING_OPERATORS) {
       this.#value = SETTING_OPERATORS[this.#type].serialize(val, this);
@@ -117,22 +108,22 @@ export class Setting {
   }
 
   setValue(val: any): Setting {
-    this.value = val
-    return this
+    this.value = val;
+    return this;
   }
 
   get category(): ?string {
-    return this.#category
+    return this.#category;
   }
 
   setCategory(val: any): Setting {
-    this.#category = val
-    return this
+    this.#category = val;
+    return this;
   }
 
   /* Factory methods */
   static build(name: string, type: SettingType, defaultValue?: any, options?: SettingOptions): this {
-    return new this(name, type, defaultValue, options)
+    return new this(name, type, defaultValue, options);
   }
 
   static fromConfig(config: SettingConfig): this {
@@ -140,22 +131,22 @@ export class Setting {
     // $FlowFixMe[incompatible-return]
     return this.build(config.name, config.type, config.default, config.options)
       .setValue(config.value)
-      .setCategory(config.category)
+      .setCategory(config.category);
   }
 
   static boolean(name: string, defaultValue?: any): this {
-    return this.build(name, "boolean", defaultValue)
+    return this.build(name, "boolean", defaultValue);
   }
 
   static int(name: string, defaultValue?: any): this {
-    return this.build(name, "int", defaultValue)
+    return this.build(name, "int", defaultValue);
   }
 
   static string(name: string, defaultValue?: any): this {
-    return this.build(name, "string", defaultValue)
+    return this.build(name, "string", defaultValue);
   }
 
   static enum(name: string, options: SettingOptions, defaultValue?: any): this {
-    return this.build(name, "enum", defaultValue, options)
+    return this.build(name, "enum", defaultValue, options);
   }
 }

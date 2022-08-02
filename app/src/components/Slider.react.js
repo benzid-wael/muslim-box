@@ -1,6 +1,6 @@
 /*
-* @flow
-*/
+ * @flow
+ */
 import type { Slide } from "@src/types";
 import type { SliderSettings } from "@src/SliderSettings";
 
@@ -8,7 +8,6 @@ import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 
-import AdhanSlide from "@components/AdhanSlide.react";
 import SlideBuilder from "@components/SlideBuilder.react";
 import { addSlides, moveNext, setPosition, resetSlides } from "@redux/slices/slideSlice";
 import { SlideLoaderFactory } from "@src/SlideLoader";
@@ -18,18 +17,18 @@ const Main = styled.div`
   position: relative;
   width: 100%;
   height: 100%;
-`
+`;
 
 /* NOTE: will-change forces the browser to place the element
-*   in a new layer. Placing elements in a new layer ensure that
-*   they will be repainted without requiring the rest of the page
-*   to be repainted as well.
-*
-* Layer creation can result in other performance issues. Thus,
-*   this property should not be used as a premature optimization.
-*   Instead, you should only use it when you are seeing jank
-*   and think that promoting the element to a new layer may help.
-*/
+ *   in a new layer. Placing elements in a new layer ensure that
+ *   they will be repainted without requiring the rest of the page
+ *   to be repainted as well.
+ *
+ * Layer creation can result in other performance issues. Thus,
+ *   this property should not be used as a premature optimization.
+ *   Instead, you should only use it when you are seeing jank
+ *   and think that promoting the element to a new layer may help.
+ */
 const Container = styled.div`
   position: relative;
   width: 100%;
@@ -71,44 +70,43 @@ const Container = styled.div`
       }
     }
 
-    -webkit-animation: ${props => props.animation} 3s ease;
-    animation: ${props => props.animation} 3s ease;
+    -webkit-animation: ${(props) => props.animation} 3s ease;
+    animation: ${(props) => props.animation} 3s ease;
     -webkit-animation-iteration-count: 1;
     animation-iteration-count: 1;
   }
-`
+`;
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   language: state.config.general.language,
   slides: state.slide.slides,
   position: state.slide.position,
   backendURL: state.user.backendURL,
   timestamp: state.prayerTimes.timestamp,
-})
+});
 
 const Slider = (props): React$Node => {
   const { language, position, slides, timestamp, settings } = props;
   const [timer, setTimer] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
-  const [animation, setAnimation] = useState("enter")
+  const [animation, setAnimation] = useState("enter");
 
   const slide = position >= 0 && position < slides.length ? slides[position] : null;
 
   useEffect(() => {
-    console.log(`[Slider] language changed: reloading slides`)
-    const t = setTimeout(
-      async () => {
-        const slides = await loadSlides()
-        props.dispatch(resetSlides(slides));
-    }, 100)
-    return () => clearTimeout(t)
-  }, [language])
+    console.log(`[Slider] language changed: reloading slides`);
+    const t = setTimeout(async () => {
+      const slides = await loadSlides();
+      props.dispatch(resetSlides(slides));
+    }, 100);
+    return () => clearTimeout(t);
+  }, [language]);
 
   useEffect(() => {
-    console.debug(`[Slider] timer: ${timer}`)
-    setTimer(timer => timer - 1);
-    if(timer > 0) {
-      if(timer < 2) {
+    console.debug(`[Slider] timer: ${timer}`);
+    setTimer((timer) => timer - 1);
+    if (timer > 0) {
+      if (timer < 2) {
         // enable onExit animation
         setAnimation("onExit");
       }
@@ -120,8 +118,8 @@ const Slider = (props): React$Node => {
       setLoading(true);
       const t = setTimeout(() => {
         transition();
-      }, 100)
-      return () => clearTimeout(t)
+      }, 100);
+      return () => clearTimeout(t);
     }
 
     // NOTE: we don't want to fall into a blackhole
@@ -129,33 +127,27 @@ const Slider = (props): React$Node => {
       setLoading(false);
       setTimer(0);
     }
-  }, [timestamp])
+  }, [timestamp]);
 
   /* Compute current slide duration and update the timer */
   useEffect(() => {
-    const duration = slides.length > 0
-      ?
-      settings.slideDurationInSeconds(slides[position])
-      :
-      .3  // by default 3ms
-    ;
-
-    console.log(`[Slider] sliding after ${duration}s`)
+    const duration = slides.length > 0 ? settings.slideDurationInSeconds(slides[position]) : 0.3; // by default 3ms
+    console.log(`[Slider] sliding after ${duration}s`);
     setTimer(duration);
     setLoading(false);
     // activate onEnter animation
     setAnimation("onEnter");
-  }, [position])
+  }, [position]);
 
   const transition = async () => {
-    console.log(`[Slider] transition: ${position}/${slides.length - 1}`)
+    console.log(`[Slider] transition: ${position}/${slides.length - 1}`);
     if (position < slides.length - 1) {
-      props.dispatch(moveNext())
+      props.dispatch(moveNext());
     } else if (settings.onReachEndStrategy === "load") {
-      console.warn(`[Slider] loading more slides...`)
+      console.warn(`[Slider] loading more slides...`);
       // load more slides
-      const slides = await loadSlides()
-      if(slides.length > settings.maxSlidesBeforeReset) {
+      const slides = await loadSlides();
+      if (slides.length > settings.maxSlidesBeforeReset) {
         props.dispatch(resetSlides(slides));
       } else {
         props.dispatch(addSlides(slides));
@@ -165,37 +157,34 @@ const Slider = (props): React$Node => {
       }
     } else {
       // by default
-      props.dispatch(moveNext())
+      props.dispatch(moveNext());
     }
-  }
+  };
 
   const loadSlides = async (): Promise<Array<Slide>> => {
-    console.log(`[Slider] loadSlides...`)
-    if(!props.backendURL || !settings) return []
+    console.log(`[Slider] loadSlides...`);
+    if (!props.backendURL || !settings) return [];
 
     const loader = SlideLoaderFactory.getLoader({
       settings,
       backendURL: props.backendURL,
-    })
-    const lang = language.split("-")[0]
+    });
+    const lang = language.split("-")[0];
     const slides = await loader.random(settings.pageSize, lang);
     return slides;
-  }
+  };
 
-  const cssKeyframe = animation === "onEnter" ? "SlideIn" : (
-    animation === "onExit" ? "SlideOut" : ""
-  )
+  const cssKeyframe = animation === "onEnter" ? "SlideIn" : animation === "onExit" ? "SlideOut" : "";
 
-  return props.slides.length === 0 ? <></> : (
+  return props.slides.length === 0 ? (
+    <></>
+  ) : (
     <Main>
-      <Container
-        animation={settings.animation ? cssKeyframe : ""}
-        onClick={transition}
-      >
+      <Container animation={settings.animation ? cssKeyframe : ""} onClick={transition}>
         <SlideBuilder slide={slide} />
       </Container>
     </Main>
-  )
-}
+  );
+};
 
-export default (connect(mapStateToProps)(Slider): any)
+export default (connect(mapStateToProps)(Slider): any);

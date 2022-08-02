@@ -1,12 +1,12 @@
 /*
-* @flow
-*/
+ * @flow
+ */
 
-export const capitalize = (word, lowerRest = false) => {
-  if(!word) {
-    return ""
+export const capitalize = (word: string, lowerRest: boolean = false) => {
+  if (!word) {
+    return "";
   }
 
-  const [first, ...rest] = word;
-  return first.toUpperCase() + (lowerRest ? rest.join('').toLowerCase() : rest.join(''));
-}
+  const [first, ...rest]: [string, string] = word;
+  return first.toUpperCase() + (lowerRest ? rest.join("").toLowerCase() : rest.join(""));
+};

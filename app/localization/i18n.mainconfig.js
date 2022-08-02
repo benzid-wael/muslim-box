@@ -10,20 +10,18 @@ const isMac = process.platform === "darwin";
 const isDev = process.env.NODE_ENV === "development";
 const prependPath = isMac && !isDev ? path.join(process.resourcesPath, "..") : ".";
 
-i18n
-  .use(backend)
-  .init({
-    backend: {
-      loadPath: prependPath + "/app/localization/locales/{{lng}}/{{ns}}.json",
-      addPath: prependPath + "/app/localization/locales/{{lng}}/{{ns}}.missing.json"
-    },
-    debug: false,
-    namespace: "translation",
-    saveMissing: true,
-    saveMissingTo: "current",
-    lng: "ar-TN",
-    fallbackLng: false, // set to false when generating translation files locally
-    supportedLngs: whitelist.langs
-  });
+i18n.use(backend).init({
+  backend: {
+    loadPath: prependPath + "/app/localization/locales/{{lng}}/{{ns}}.json",
+    addPath: prependPath + "/app/localization/locales/{{lng}}/{{ns}}.missing.json",
+  },
+  debug: false,
+  namespace: "translation",
+  saveMissing: true,
+  saveMissingTo: "current",
+  lng: "ar-TN",
+  fallbackLng: false, // set to false when generating translation files locally
+  supportedLngs: whitelist.langs,
+});
 
 module.exports = i18n;

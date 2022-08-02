@@ -1,4 +1,5 @@
 # Contributing guidelines
+
 Please do the following steps before submitting a PR, doing this will help progress your fix into the template.
 
 1. Have you ran `npm run test` to ensure the unit tests are working?

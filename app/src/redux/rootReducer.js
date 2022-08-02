@@ -7,14 +7,13 @@ import prayerTimesReducer from "./slices/prayerTimesSlice";
 import slideReducer from "./slices/slideSlice";
 import userReducer from "./slices/userSlice";
 
-const rootReducer = (history) => (
+const rootReducer = (history) =>
   combineReducers({
     router: connectRouter(history),
     config: configReducer,
     prayerTimes: prayerTimesReducer,
     slide: slideReducer,
     user: userReducer,
-  })
-);
+  });
 
 export default rootReducer;

@@ -1,8 +1,8 @@
 /*
-* @flow
-*/
+ * @flow
+ */
 
-import type { Language, Localization } from "@src/types"
+import type { Language, Localization } from "@src/types";
 
 const getDefaults = (lang: Language): Localization => {
   const defaults = {
@@ -31,25 +31,25 @@ const getDefaults = (lang: Language): Localization => {
     fr: {
       hijriDateFormat: "fr-FR-u-ca-islamic",
       locale: "fr-FR",
-    }
-  }
+    },
+  };
 
   return {
     ...defaults,
-    ...custom[lang]
-  }
-}
+    ...custom[lang],
+  };
+};
 
 export const locale = (config: Localization, exclude?: $ReadOnlyArray<$Keys<Localization>>): Localization => {
-  const defaults = getDefaults(config.language)
-  const result = Object.assign({}, defaults, config)
-  const excludeKeys = exclude || []
+  const defaults = getDefaults(config.language);
+  const result = Object.assign({}, defaults, config);
+  const excludeKeys = exclude || [];
   // remove excluded fields from the result
   return Object.keys(result).reduce((object, key) => {
     if (!excludeKeys.includes(key)) {
       // $FlowFixMe[incompatible-return]
-      object[key] = result[key]
+      object[key] = result[key];
     }
-    return object
-  }, {})
-}
+    return object;
+  }, {});
+};

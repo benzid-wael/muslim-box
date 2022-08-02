@@ -23,7 +23,7 @@ function isPortAvailable(port) {
       error.code = "ETIMEDOUT";
       reject(error);
     });
-    socket.on("error", error => {
+    socket.on("error", (error) => {
       if (error.code === "ECONNREFUSED") {
         return resolve(true);
       }
