@@ -5,14 +5,10 @@ import loadable from "@loadable/component";
 import ROUTES from "@constants/routes";
 
 // Load bundles asynchronously so that the initial render happens faster
-const Home = loadable(() =>
-  import(/* webpackChunkName: "HomeChunk" */ "@pages/Home.react")
-);
+const Home = loadable(() => import(/* webpackChunkName: "HomeChunk" */ "@pages/Home.react"));
 
 // Load bundles asynchronously so that the initial render happens faster
-const Settings = loadable(() =>
-  import(/* webpackChunkName: "SettingsChunk" */ "@pages/Settings.react")
-);
+const Settings = loadable(() => import(/* webpackChunkName: "SettingsChunk" */ "@pages/Settings.react"));
 
 const NoMatch = () => {
   let location = useLocation();
@@ -24,8 +20,7 @@ const NoMatch = () => {
       </h3>
     </div>
   );
-}
-
+};
 
 class MyRoutes extends React.Component {
   render() {

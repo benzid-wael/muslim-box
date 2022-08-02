@@ -17,19 +17,19 @@ contextBridge.exposeInMainWorld("api", {
   licenseKeys: SecureElectronLicenseKeys.preloadBindings(ipcRenderer),
   onBackendUrlChanged: (callback) => {
     ipcRenderer.on("backend-url-changed", function (evt, message) {
-      console.log(`backendUrlChanged: ${message.backendURL}`)
-      callback(message)
-    })
+      console.log(`backendUrlChanged: ${message.backendURL}`);
+      callback(message);
+    });
   },
   onLanguageInitialized: (callback) => {
     ipcRenderer.on("language-initialized", function (evt, message) {
-      callback(message)
-    })
+      callback(message);
+    });
   },
   onGeocoordinatesChanged: (callback) => {
     ipcRenderer.on("geocordinates-changed", function (evt, message) {
-      console.log(`[preload] onGeocoordinatesChanged: ${JSON.stringify(message)}`)
-      callback(message)
-    })
+      console.log(`[preload] onGeocoordinatesChanged: ${JSON.stringify(message)}`);
+      callback(message);
+    });
   },
 });

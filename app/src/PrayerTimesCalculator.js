@@ -1,6 +1,6 @@
 /*
-* @flow
-*/
+ * @flow
+ */
 import type { GeoCoordinates } from "@src/types";
 import type { SettingsManager } from "@src/SettingsManager";
 
@@ -16,7 +16,6 @@ import {
   Shafaq,
 } from "adhan";
 
-
 export class PrayerTimesCalculator {
   #sm: SettingsManager;
 
@@ -26,14 +25,14 @@ export class PrayerTimesCalculator {
 
   get calculationMethod(): CalculationMethod {
     // CalculationMethods: MuslimWorldLeague, MoonsightingCommittee, ...
-    const cfg = this.#sm.getValue("Method", "", "Other")
-    const method = cfg in CalculationMethod ? CalculationMethod[cfg] : CalculationMethod.Other
-    return method()
+    const cfg = this.#sm.getValue("Method", "", "Other");
+    const method = cfg in CalculationMethod ? CalculationMethod[cfg] : CalculationMethod.Other;
+    return method();
   }
 
   get madhab(): Madhab {
-    const cfg = this.#sm.getValue("Madhab")
-    switch(cfg) {
+    const cfg = this.#sm.getValue("Madhab");
+    switch (cfg) {
       case "Hanafi":
         return Madhab.Hanafi;
       case "Shafi":
@@ -43,17 +42,17 @@ export class PrayerTimesCalculator {
   }
 
   get shafaq(): Shafaq {
-    const cfg = this.#sm.getValue("Shafaq")
+    const cfg = this.#sm.getValue("Shafaq");
     return {
-      "General": Shafaq.General,
-      "Abyad": Shafaq.Abyad,
-      "Ahmer": Shafaq.Ahmer,
-    }[cfg]
+      General: Shafaq.General,
+      Abyad: Shafaq.Abyad,
+      Ahmer: Shafaq.Ahmer,
+    }[cfg];
   }
 
   highLatitudeRule(coordinates: Coordinates): HighLatitudeRule {
-    const cfg = this.#sm.getValue("HighLatitudeRule")
-    switch(cfg) {
+    const cfg = this.#sm.getValue("HighLatitudeRule");
+    switch (cfg) {
       case "Auto":
         return HighLatitudeRule.recommended(coordinates);
       case "MiddleOfTheNight":
@@ -68,8 +67,8 @@ export class PrayerTimesCalculator {
   }
 
   get rounding(): Rounding {
-    const cfg = this.#sm.getValue("Rounding")
-    switch(cfg) {
+    const cfg = this.#sm.getValue("Rounding");
+    switch (cfg) {
       case "Up":
         return Rounding.Up;
       case "Nearest":
@@ -82,8 +81,8 @@ export class PrayerTimesCalculator {
   }
 
   get polarCircleResolution(): PolarCircleResolution {
-    const cfg = this.#sm.getValue("PolarCircleResolution")
-    switch(cfg) {
+    const cfg = this.#sm.getValue("PolarCircleResolution");
+    switch (cfg) {
       case "Unresolved":
         return PolarCircleResolution.Unresolved;
       case "AqrabBalad":
@@ -107,7 +106,7 @@ export class PrayerTimesCalculator {
 
   prayerTimes(position: GeoCoordinates, date: Date): PrayerTimes {
     // For configuration, see https://github.com/batoulapps/adhan-js/blob/master/METHODS.md
-    const {latitude, longitude} = position;
+    const { latitude, longitude } = position;
     const coordinates = new Coordinates(latitude, longitude);
     return new PrayerTimes(coordinates, date, this.params(coordinates));
   }

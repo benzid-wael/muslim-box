@@ -1,6 +1,6 @@
 /*
-* @flow
-*/
+ * @flow
+ */
 
 import type { GeoCoordinates, PrayerTime } from "@src/types";
 
@@ -22,10 +22,10 @@ type State = $ReadOnly<{
 
 const initialState: State = {
   /*
-  * This is used to for e reasons so far:
-  * - highlight last time prayer time was updated: setPrayerTimes / updateCurrentPrayer
-  * - update time shown in the digital clock
-  */
+   * This is used to for e reasons so far:
+   * - highlight last time prayer time was updated: setPrayerTimes / updateCurrentPrayer
+   * - update time shown in the digital clock
+   */
   timestamp: 0,
   // used to ensure that we recompute prayer times every day
   day: "",
@@ -39,43 +39,43 @@ const slice: any = createSlice({
   name: "prayerTimes",
   initialState,
   reducers: {
-    setPrayerTimes: (state, {payload}) => {
+    setPrayerTimes: (state, { payload }) => {
       return {
         ...state,
         timestamp: moment().unix(),
         day: moment().format(DayFormat),
-        prayers: payload.filter(pt => !pt.internal),
+        prayers: payload.filter((pt) => !pt.internal),
         times: payload,
       };
     },
     updateCurrentPrayer: (state) => {
-      let currentIdx = -1
-      let current: PrayerTime
-      let next: PrayerTime
-      let currentTime: PrayerTime
+      const currentIdx = -1;
+      let current: PrayerTime;
+      let next: PrayerTime;
+      let currentTime: PrayerTime;
       const now = moment();
 
-      for(var i=0; i < state.prayers.length - 1; i++) {
-        const p = state.prayers[i]
-        const start = moment.unix(p.start)
-        const end = moment.unix(p.end)
-        if(!current && now > start && now < end) {
-          current = p
-          next = state.prayers[i + 1]
-          break
+      for (let i = 0; i < state.prayers.length - 1; i++) {
+        const p = state.prayers[i];
+        const start = moment.unix(p.start);
+        const end = moment.unix(p.end);
+        if (!current && now > start && now < end) {
+          current = p;
+          next = state.prayers[i + 1];
+          break;
         }
-        if(!next && now < start) {
+        if (!next && now < start) {
           next = p;
         }
       }
 
-      state.times.map(p => {
-        const start = moment.unix(p.start)
-        const end = moment.unix(p.end)
-        if(!currentTime && now > start && now < end) {
-          currentTime = p
+      state.times.map((p) => {
+        const start = moment.unix(p.start);
+        const end = moment.unix(p.end);
+        if (!currentTime && now > start && now < end) {
+          currentTime = p;
         }
-      })
+      });
 
       return {
         ...state,
@@ -84,26 +84,27 @@ const slice: any = createSlice({
         current,
         next,
         currentTime,
-      }
+      };
     },
-  }
+  },
 });
-
 
 // Extract the action creators object and the reducer
 const { actions, reducer } = slice;
 // Extract and export each action creator by name
 export const { tick, setPrayerTimes, updateCurrentPrayer } = actions;
 
-export const computePrayerTimes = (position: GeoCoordinates, sm: SettingsManager): any => (dispatch: any) => {
-  const date = new Date(Date.now());
-  const prayerTimes = getPrayerTimes(position, date, sm);
-  dispatch(setPrayerTimes(prayerTimes));
-}
+export const computePrayerTimes =
+  (position: GeoCoordinates, sm: SettingsManager): any =>
+  (dispatch: any) => {
+    const date = new Date(Date.now());
+    const prayerTimes = getPrayerTimes(position, date, sm);
+    dispatch(setPrayerTimes(prayerTimes));
+  };
 
 export const updatePrayerTimes = (): any => (dispatch: any) => {
   // console.log(`⏳ updatePrayerTimes`)
   dispatch(updateCurrentPrayer());
-}
+};
 
 export default reducer;

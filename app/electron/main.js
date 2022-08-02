@@ -10,17 +10,10 @@ const Sentry = require("@sentry/electron");
 
 const {
   MessageChannel, // remember to require it in main.js even if you don't use it
-  ProcessManager
+  ProcessManager,
 } = require("electron-re");
 
-const {
-  app,
-  protocol,
-  BrowserWindow,
-  session,
-  ipcMain,
-  Menu
-} = require("electron");
+const { app, protocol, BrowserWindow, session, ipcMain, Menu } = require("electron");
 const logger = require("electron-log");
 const SecureElectronLicenseKeys = require("secure-electron-license-keys");
 const i18nextBackend = require("i18next-electron-fs-backend");
@@ -42,55 +35,55 @@ let mainWindow = null;
 let menuBuilder = null;
 let serverProcess = null;
 let serverPort = null;
-let geoInfo = null;
+const geoInfo = null;
 
 Sentry.init({ dsn: "https://7be09d9523de40bc84b57affd0b45e22@o100308.ingest.sentry.io/6475421" });
 
 const getGeoCoordinates = async () => {
-  const ipResponse = await axios.get("http://api.ipify.org")
-  const ip = ipResponse.data
-  logger.info(`[ipcMain] IP address: ${ip}`)
+  const ipResponse = await axios.get("http://api.ipify.org");
+  const ip = ipResponse.data;
+  logger.info(`[ipcMain] IP address: ${ip}`);
   const geocordinates = await geoip.lookup(ip);
-  logger.info(`[ipcMain] geographical info: ${JSON.stringify(geocordinates)}`)
-  return geocordinates
-}
+  logger.info(`[ipcMain] geographical info: ${JSON.stringify(geocordinates)}`);
+  return geocordinates;
+};
 
 const installExtensions = () => {
-  logger.info("[🛠️ ] installing extensions...")
+  logger.info("[🛠️ ] installing extensions...");
   const installer = require("electron-devtools-installer");
   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
   const extensions = ["REACT_DEVELOPER_TOOLS", "REDUX_DEVTOOLS"];
 
-  extensions.forEach(name => {
-    const extension = installer[name]
+  extensions.forEach((name) => {
+    const extension = installer[name];
     try {
-      installer.default(extension, forceDownload)
-      logger.info("[🛠️ ] extension %s installed 👌🏻", name)
+      installer.default(extension, forceDownload);
+      logger.info("[🛠️ ] extension %s installed 👌🏻", name);
     } catch {
-      logger.info("[🛠️ ] failed to install extension: %s", error)
+      logger.info("[🛠️ ] failed to install extension: %s", error);
     }
-  })
+  });
 };
 
 const createBackgroundProcess = (port) => {
-  const args = ["--port", port]
+  const args = ["--port", port];
 
   const options = {
-    cwd: path.join(__dirname, "../server")
-  }
-  serverProcess = fork(path.join(__dirname, "../server"), args, options)
+    cwd: path.join(__dirname, "../server"),
+  };
+  serverProcess = fork(path.join(__dirname, "../server"), args, options);
 
-  serverProcess.on("message", msg => {
-    logger.info(`[ipcMain] server sent this message: ${msg}`)
-  })
+  serverProcess.on("message", (msg) => {
+    logger.info(`[ipcMain] server sent this message: ${msg}`);
+  });
   serverProcess.on("error", (err) => {
     // This will be called with err being an AbortError if the controller aborts
-    logger.error(`[ipcMain] server crashed: ${err}`)
+    logger.error(`[ipcMain] server crashed: ${err}`);
   });
   serverProcess.on("close", function (code) {
     logger.error("[ipcMain] server process exited with code " + code);
   });
-}
+};
 
 const createDevToolsWindow = (mw) => {
   devtools = new BrowserWindow();
@@ -100,14 +93,14 @@ const createDevToolsWindow = (mw) => {
   mw.webContents.once("did-finish-load", function () {
     const windowBounds = mw.getBounds();
     devtools.setPosition(windowBounds.x + windowBounds.width, windowBounds.y);
-    devtools.setSize(windowBounds.width/2, windowBounds.height);
+    devtools.setSize(windowBounds.width / 2, windowBounds.height);
   });
 
   mw.on("move", function () {
     const windowBounds = mw.getBounds();
     devtools.setPosition(windowBounds.x + windowBounds.width, windowBounds.y);
   });
-}
+};
 
 const createWindow = () => {
   // If you'd like to set up auto-updating for your app,
@@ -118,11 +111,14 @@ const createWindow = () => {
   if (!isDev) {
     // Needs to happen before creating/loading the browser window;
     // protocol is only used in prod
-    protocol.registerBufferProtocol(Protocol.scheme, Protocol.requestHandler); /* eng-disable PROTOCOL_HANDLER_JS_CHECK */
+    protocol.registerBufferProtocol(
+      Protocol.scheme,
+      Protocol.requestHandler
+    ); /* eng-disable PROTOCOL_HANDLER_JS_CHECK */
   }
 
   const store = new Store({
-    path: app.getPath("userData")
+    path: app.getPath("userData"),
   });
 
   // Use saved config values for configuring your
@@ -147,17 +143,17 @@ const createWindow = () => {
       additionalArguments: [`storePath:${app.getPath("userData")}`],
       preload: path.join(__dirname, "preload.js"),
       /* eng-disable PRELOAD_JS_CHECK */
-      disableBlinkFeatures: "Auxclick"
-    }
+      disableBlinkFeatures: "Auxclick",
+    },
   });
 
   if (isDev) {
     mainWindow.webContents.openDevTools({
-      mode: "bottom"
-    })
+      mode: "bottom",
+    });
   }
 
-  mainWindow.setFullScreen(true)
+  mainWindow.setFullScreen(true);
 
   // Sets up main.js bindings for our i18next backend
   i18nextBackend.mainBindings(ipcMain, mainWindow, fs);
@@ -173,20 +169,24 @@ const createWindow = () => {
 
   // Sets up bindings for our custom context menu
   ContextMenu.mainBindings(ipcMain, mainWindow, Menu, isDev, {
-    "loudAlertTemplate": [{
-      id: "loudAlert",
-      label: "AN ALERT!"
-    }],
-    "softAlertTemplate": [{
-      id: "softAlert",
-      label: "Soft alert"
-    }]
+    loudAlertTemplate: [
+      {
+        id: "loudAlert",
+        label: "AN ALERT!",
+      },
+    ],
+    softAlertTemplate: [
+      {
+        id: "softAlert",
+        label: "Soft alert",
+      },
+    ],
   });
 
   // Setup bindings for offline license verification
   SecureElectronLicenseKeys.mainBindings(ipcMain, mainWindow, fs, crypto, {
     root: process.cwd(),
-    version: app.getVersion()
+    version: app.getVersion(),
   });
 
   // Load app
@@ -206,28 +206,27 @@ const createWindow = () => {
     // update renderer
     mainWindow.webContents.send("backend-url-changed", {
       backendURL: `http://localhost:${serverPort}/gql`,
-      mediaURL: `http://localhost:${serverPort}/public`
-    })
-    mainWindow.webContents.send("language-initialized", {language: i18nextMainBackend.language})
+      mediaURL: `http://localhost:${serverPort}/public`,
+    });
+    mainWindow.webContents.send("language-initialized", { language: i18nextMainBackend.language });
     // mainWindow.webContents.send("geocordinates-changed", {
     //   coordinates: {longitude: geoInfo.ll[1], latitude: geoInfo.ll[0]},
     //   city: geoInfo.city,
     //   timezone: geoInfo.timezone,
     // })
 
-    axios.get("http://api.ipify.org").then(response => {
-      const ip = response.data
-      logger.log(`[ipcMain] IP address: ${ip}`)
-      geoip.lookup(ip).then(geo => {
-        logger.log(`[ipcMain] geographical info: ${geo}`)
+    axios.get("http://api.ipify.org").then((response) => {
+      const ip = response.data;
+      logger.log(`[ipcMain] IP address: ${ip}`);
+      geoip.lookup(ip).then((geo) => {
+        logger.log(`[ipcMain] geographical info: ${geo}`);
         mainWindow.webContents.send("geocordinates-changed", {
-          coordinates: {longitude: geo.ll[1], latitude: geo.ll[0]},
+          coordinates: { longitude: geo.ll[1], latitude: geo.ll[0] },
           city: geo.city,
           timezone: geo.timezone,
-        })
-      })
-
-    })
+        });
+      });
+    });
   });
 
   // Emitted when the window is closed.
@@ -241,7 +240,8 @@ const createWindow = () => {
   // https://electronjs.org/docs/tutorial/security#4-handle-session-permission-requests-from-remote-content
   const ses = session;
   const partition = "default";
-  ses.fromPartition(partition) /* eng-disable PERMISSION_REQUEST_HANDLER_JS_CHECK */
+  ses
+    .fromPartition(partition) /* eng-disable PERMISSION_REQUEST_HANDLER_JS_CHECK */
     .setPermissionRequestHandler((webContents, permission, permCallback) => {
       const allowedPermissions = []; // Full list here: https://developer.chrome.com/extensions/declare_permissions#manifest
 
@@ -249,8 +249,7 @@ const createWindow = () => {
         permCallback(true); // Approve permission request
       } else {
         logger.error(
-          `The application tried to request permission for "${permission}". `
-          `This permission was not whitelisted and has been blocked.`
+          `The application tried to request permission for "${permission}". ``This permission was not whitelisted and has been blocked.`
         );
 
         permCallback(false); // Deny
@@ -292,27 +291,28 @@ const createWindow = () => {
       menuBuilder.buildMenu(i18nextMainBackend);
     }
   });
-}
+};
 
 // Needs to be called before app is ready;
 // gives our scheme access to load relative files,
 // as well as local storage, cookies, etc.
 // https://electronjs.org/docs/api/protocol#protocolregisterschemesasprivilegedcustomschemes
-protocol.registerSchemesAsPrivileged([{
-  scheme: Protocol.scheme,
-  privileges: {
-    standard: true,
-    secure: true
-  }
-}]);
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: Protocol.scheme,
+    privileges: {
+      standard: true,
+      secure: true,
+    },
+  },
+]);
 
 const start = async () => {
-
-  if(serverProcess === null) {
+  if (serverProcess === null) {
     // openServerPort = await findPort();
     // serverPort = isPortAvailable(3001) ? 3001 : openServerPort
-    serverPort = isDev ? 3001 : 8888
-    logger.info(`[ipcMain] Running server on 0.0.0.0:${serverPort}`)
+    serverPort = isDev ? 3001 : 8888;
+    logger.info(`[ipcMain] Running server on 0.0.0.0:${serverPort}`);
     createBackgroundProcess(serverPort);
   }
 
@@ -321,10 +321,10 @@ const start = async () => {
     require("electron-debug")(); // https://github.com/sindresorhus/electron-isDev
   }
 
-  if(mainWindow === null) {
+  if (mainWindow === null) {
     createWindow();
   }
-}
+};
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -347,11 +347,11 @@ app.on("activate", async () => {
 
 app.on("before-quit", () => {
   if (serverProcess) {
-    serverProcess.kill()
-    serverPort = null
-    serverProcess = null
+    serverProcess.kill();
+    serverPort = null;
+    serverProcess = null;
   }
-})
+});
 
 // Quit when all windows are closed.
 app.on("window-all-closed", () => {
@@ -411,9 +411,7 @@ app.on("web-contents-created", (event, contents) => {
   // https://electronjs.org/docs/tutorial/security#13-disable-or-limit-creation-of-new-windows
   // This code replaces the old "new-window" event handling;
   // https://github.com/electron/electron/pull/24517#issue-447670981
-  contents.setWindowOpenHandler(({
-    url
-  }) => {
+  contents.setWindowOpenHandler(({ url }) => {
     const parsedUrl = new URL(url);
     const validOrigins = [];
 
@@ -424,12 +422,12 @@ app.on("web-contents-created", (event, contents) => {
       );
 
       return {
-        action: "deny"
+        action: "deny",
       };
     }
 
     return {
-      action: "allow"
+      action: "allow",
     };
   });
 });

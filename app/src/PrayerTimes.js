@@ -1,15 +1,11 @@
 /*
-* @flow
-*/
+ * @flow
+ */
 import type { GeoCoordinates, PrayerTime, PrayerTimeConfig, SlideFilter } from "@src/types";
 import type { SettingsManager } from "./SettingsManager";
 
 import moment from "moment";
-import {
-  PrayerTimes,
-  Prayer,
-  SunnahTimes,
-} from "adhan";
+import { PrayerTimes, Prayer, SunnahTimes } from "adhan";
 
 import PRAYER from "@constants/prayer";
 import {
@@ -28,7 +24,6 @@ import {
 import { PrayerTimesCalculator } from "@src/PrayerTimesCalculator";
 import { capitalize } from "@src/utils";
 
-
 type PTConfig = $ReadOnly<{
   // $FlowFixMe[value-as-type]
   prayer: Prayer,
@@ -41,35 +36,61 @@ type PTConfig = $ReadOnly<{
   visible?: boolean,
   modifier?: string,
   slide?: SlideFilter,
-}>
+}>;
 
 const getPrayerTimeConfig = (sm: SettingsManager, prayer: Prayer): PrayerTimeConfig => {
   return {
     adhanDurationInMinutes: sm.getPrayerSettingValue("AdhanDurationInMinutes", prayer, PRAYER.AdhanDurationInMinutes),
-    afterAdhanDurationInMinutes: sm.getPrayerSettingValue("AfterAdhanDurationInMinutes", prayer, PRAYER.AfterAdhanDurationInMinutes),
+    afterAdhanDurationInMinutes: sm.getPrayerSettingValue(
+      "AfterAdhanDurationInMinutes",
+      prayer,
+      PRAYER.AfterAdhanDurationInMinutes
+    ),
     iqamahAfterInMinutes: sm.getPrayerSettingValue("IqamahAfterInMinutes", prayer, PRAYER.IqamahAfterInMinutes),
     iqamahTime: sm.getPrayerSettingValue("IqamahTime", prayer),
-    iqamahDurationInMinutes: sm.getPrayerSettingValue("IqamahDurationInMinutes", prayer, PRAYER.IqamahDurationInMinutes),
-    prayerDurationInMinutes: sm.getPrayerSettingValue("PrayerDurationInMinutes", prayer, PRAYER.PrayerDurationInMinutes),
-    adhkarDurationInMinutes: sm.getPrayerSettingValue("AdhkarDurationInMinutes", prayer, PRAYER.AdhkarDurationInMinutes),
-    afterPrayerSunnahDurationInMinutes: sm.getPrayerSettingValue("AfterPrayerSunnahDurationInMinutes", prayer, PRAYER.AfterPrayerSunnahDurationInMinutes),
-    adhkarSabahMasaaDurationInMinutes: sm.getPrayerSettingValue("AdhkarSabahMasaaDurationInMinutes", prayer, PRAYER.AdhkarSabahMasaaDurationInMinutes),
-    saharTimeDurationInMinutes: sm.getPrayerSettingValue("SaharTimeDurationInMinutes", prayer, PRAYER.SaharTimeDurationInMinutes),
+    iqamahDurationInMinutes: sm.getPrayerSettingValue(
+      "IqamahDurationInMinutes",
+      prayer,
+      PRAYER.IqamahDurationInMinutes
+    ),
+    prayerDurationInMinutes: sm.getPrayerSettingValue(
+      "PrayerDurationInMinutes",
+      prayer,
+      PRAYER.PrayerDurationInMinutes
+    ),
+    adhkarDurationInMinutes: sm.getPrayerSettingValue(
+      "AdhkarDurationInMinutes",
+      prayer,
+      PRAYER.AdhkarDurationInMinutes
+    ),
+    afterPrayerSunnahDurationInMinutes: sm.getPrayerSettingValue(
+      "AfterPrayerSunnahDurationInMinutes",
+      prayer,
+      PRAYER.AfterPrayerSunnahDurationInMinutes
+    ),
+    adhkarSabahMasaaDurationInMinutes: sm.getPrayerSettingValue(
+      "AdhkarSabahMasaaDurationInMinutes",
+      prayer,
+      PRAYER.AdhkarSabahMasaaDurationInMinutes
+    ),
+    saharTimeDurationInMinutes: sm.getPrayerSettingValue(
+      "SaharTimeDurationInMinutes",
+      prayer,
+      PRAYER.SaharTimeDurationInMinutes
+    ),
     zawalDurationInMinutes: sm.getPrayerSettingValue("ZawalDurationInMinutes", prayer, PRAYER.ZawalDurationInMinutes),
-  }
-}
+  };
+};
 
 const getPrayerTimeConfigs = (sm: SettingsManager): $ReadOnlyMap<Prayer, PrayerTimeConfig> => {
-  const res = new Map<Prayer, PrayerTimeConfig>()
-  const prayers = ["", Prayer.Fajr, Prayer.Dhuhr, Prayer.Asr, Prayer.Maghrib, Prayer.Isha]
-  prayers.map(
-    p => {
-      res.set(p, getPrayerTimeConfig(sm, p))
-    }
-  )
+  const res = new Map<Prayer, PrayerTimeConfig>();
+  const prayers = ["", Prayer.Fajr, Prayer.Dhuhr, Prayer.Asr, Prayer.Maghrib, Prayer.Isha];
+  prayers.map((p) => {
+    res.set(p, getPrayerTimeConfig(sm, p));
+  });
 
-  return res
-}
+  return res;
+};
 
 const generatePT = (options: {
   prayer: Prayer,
@@ -78,9 +99,9 @@ const generatePT = (options: {
   // $FlowFixMe[value-as-type]
   endFunc: (pt: PrayerTimes, cfg: PrayerTimeConfig) => moment,
   adhkarSabahMasaa?: "sabah" | "masaa",
-  hasAfterPrayerSunnah?: boolean,  // by default false
+  hasAfterPrayerSunnah?: boolean, // by default false
 }): Array<PTConfig> => {
-  const {prayer, startFunc, endFunc} = options;
+  const { prayer, startFunc, endFunc } = options;
   // to be generated:
   // - adhan            adhan
   // - adhan:after      duaa after adhan
@@ -91,166 +112,181 @@ const generatePT = (options: {
   // - adhkar           adhkar after salat
   // - prayer:after     sunnah after salat
 
-  const prayerId = prayer.toLowerCase()
-  const afterPrayerSunnah = (
-    !!options.hasAfterPrayerSunnah
-    ?
-    {
-      prayer,
-      start: (pt, cfg) => getAdhkarEndTime(startFunc, endFunc, pt, cfg),
-      end: (pt, cfg) => getAfterPrayerSunnahEndTime(startFunc, endFunc, pt, cfg),
-      isPrayer: true,
-      internal: true,
-      modifier: "prayer:after",
-      slide: {
-        onReachEnd: "reset",
-        queries: [{
-          name: "general",
-          include: ["prayer:after"],
-        }, {
-          name: "time",
-          include: [`prayer:after:${prayerId}`],
-        }],
+  const prayerId = prayer.toLowerCase();
+  const afterPrayerSunnah = options.hasAfterPrayerSunnah
+    ? {
+        prayer,
+        start: (pt, cfg) => getAdhkarEndTime(startFunc, endFunc, pt, cfg),
+        end: (pt, cfg) => getAfterPrayerSunnahEndTime(startFunc, endFunc, pt, cfg),
+        isPrayer: true,
+        internal: true,
+        modifier: "prayer:after",
+        slide: {
+          onReachEnd: "reset",
+          queries: [
+            {
+              name: "general",
+              include: ["prayer:after"],
+            },
+            {
+              name: "time",
+              include: [`prayer:after:${prayerId}`],
+            },
+          ],
+        },
       }
-    }
-    :
-    null
-  )
+    : null;
   const adhkarSabahMasaaStartFunc = (pt, cfg) => {
-    return (
-      !!options.hasAfterPrayerSunnah
-      ?
-      getAfterPrayerSunnahEndTime(startFunc, endFunc, pt, cfg)
-      :
-      getAdhkarEndTime(startFunc, endFunc, pt, cfg)
-    )
-  }
-  const adhkarSabahMasaa = (
+    return options.hasAfterPrayerSunnah
+      ? getAfterPrayerSunnahEndTime(startFunc, endFunc, pt, cfg)
+      : getAdhkarEndTime(startFunc, endFunc, pt, cfg);
+  };
+  const adhkarSabahMasaa =
     options.adhkarSabahMasaa != null
-    ?
+      ? {
+          prayer,
+          start: (pt, cfg) => adhkarSabahMasaaStartFunc(pt, cfg),
+          end: (pt, cfg) => getAdhkarSabahMasaaEndTime(adhkarSabahMasaaStartFunc, endFunc, pt, cfg),
+          isPrayer: true,
+          internal: true,
+          modifier: `time:${options.adhkarSabahMasaa}`,
+          slide: {
+            onReachEnd: "reset",
+            queries: [
+              {
+                name: "general",
+                include: ["adhkar:sabah_masaa"],
+              },
+              {
+                name: "time",
+                include: [`time:${options.adhkarSabahMasaa}`],
+              },
+            ],
+          },
+        }
+      : null;
+
+  const result = [
     {
       prayer,
-      start: (pt, cfg) => adhkarSabahMasaaStartFunc(pt, cfg),
-      end: (pt, cfg) => getAdhkarSabahMasaaEndTime(adhkarSabahMasaaStartFunc, endFunc, pt, cfg),
+      start: (pt, cfg) => startFunc(pt, cfg),
+      end: (pt, cfg) => getAdhanEndTime(startFunc, endFunc, pt, cfg),
       isPrayer: true,
       internal: true,
-      modifier: `time:${options.adhkarSabahMasaa}`,
+      modifier: "adhan",
       slide: {
         onReachEnd: "reset",
-        queries: [{
-          name: "general",
-          include: ["adhkar:sabah_masaa"],
-        }, {
-          name: "time",
-          include: [`time:${options.adhkarSabahMasaa}`],
-        }],
+        queries: [
+          {
+            name: "general",
+            include: ["adhan"],
+          },
+          {
+            name: "time",
+            include: [`adhan:${prayerId}`],
+          },
+        ],
       },
-    }
-    :
-    null
-  )
-
-  const result = [{
-    prayer,
-    start: (pt, cfg) => startFunc(pt, cfg),
-    end: (pt, cfg) => getAdhanEndTime(startFunc, endFunc, pt, cfg),
-    isPrayer: true,
-    internal: true,
-    modifier: "adhan",
-    slide: {
-      onReachEnd: "reset",
-      queries: [{
-        name: "general",
-        include: ["adhan"],
-      }, {
-        name: "time",
-        include: [`adhan:${prayerId}`],
-      }],
     },
-  }, {
-    prayer,
-    start: (pt, cfg) => getAdhanEndTime(startFunc, endFunc, pt, cfg),
-    end: (pt, cfg) => getAfterAdhanEndTime(startFunc, endFunc, pt, cfg),
-    isPrayer: true,
-    internal: true,
-    modifier: "adhan:after",
-    slide: {
-      onReachEnd: "reset",
-      queries: [{
-        name: "general",
-        include: ["adhan:after"],
-      }],
+    {
+      prayer,
+      start: (pt, cfg) => getAdhanEndTime(startFunc, endFunc, pt, cfg),
+      end: (pt, cfg) => getAfterAdhanEndTime(startFunc, endFunc, pt, cfg),
+      isPrayer: true,
+      internal: true,
+      modifier: "adhan:after",
+      slide: {
+        onReachEnd: "reset",
+        queries: [
+          {
+            name: "general",
+            include: ["adhan:after"],
+          },
+        ],
+      },
     },
-  }, {
-    prayer,
-    start: (pt, cfg) => getAfterAdhanEndTime(startFunc, endFunc, pt, cfg),
-    end: (pt, cfg) => getIqamahStartTime(startFunc, endFunc, pt, cfg),
-    isPrayer: true,
-    internal: true,
-    modifier: "prayer:before",
-    slide: {
-      onReachEnd: "reset",
-      queries: [{
-        name: "general",
-        include: ["prayer:before"],
-      }, {
-        name: "time",
-        include: [`prayer:before:${prayerId}`],
-      }],
+    {
+      prayer,
+      start: (pt, cfg) => getAfterAdhanEndTime(startFunc, endFunc, pt, cfg),
+      end: (pt, cfg) => getIqamahStartTime(startFunc, endFunc, pt, cfg),
+      isPrayer: true,
+      internal: true,
+      modifier: "prayer:before",
+      slide: {
+        onReachEnd: "reset",
+        queries: [
+          {
+            name: "general",
+            include: ["prayer:before"],
+          },
+          {
+            name: "time",
+            include: [`prayer:before:${prayerId}`],
+          },
+        ],
+      },
     },
-  }, {
-    prayer,
-    start: (pt, cfg) => getIqamahStartTime(startFunc, endFunc, pt, cfg),
-    end: (pt, cfg) => getIqamahEndTime(startFunc, endFunc, pt, cfg),
-    isPrayer: true,
-    internal: true,
-    modifier: "iqamah",
-    slide: {
-      onReachEnd: "reset",
-      queries: [{
-        name: "general",
-        include: ["iqamah"],
-      }],
-    }
-  }, {
-    prayer,
-    start: (pt, cfg) => getIqamahEndTime(startFunc, endFunc, pt, cfg),
-    end: (pt, cfg) => getAdhkarStartTime(startFunc, endFunc, pt, cfg),
-    isPrayer: true,
-    internal: true,
-    modifier: "prayer",
-  }, {
-    prayer,
-    start: (pt, cfg) => getAdhkarStartTime(startFunc, endFunc, pt, cfg),
-    end: (pt, cfg) => getAdhkarEndTime(startFunc, endFunc, pt, cfg),
-    isPrayer: true,
-    internal: true,
-    modifier: "adhkar",
-    slide: {
-      onReachEnd: "reset",
-      queries: [{
-        name: "general",
-        include: ["adhkar:prayer"],
-      }, {
-        name: "time",
-        include: [`adhkar:prayer:${prayerId}`],
-      }],
-    }
-  },
-  afterPrayerSunnah,
-  adhkarSabahMasaa,
-  {
-    prayer,
-    start: (pt, cfg) => startFunc(pt, cfg),
-    end: (pt, cfg) => endFunc(pt, cfg),
-    isPrayer: true,
-    internal: false,
-    visible: true,
-  }]
+    {
+      prayer,
+      start: (pt, cfg) => getIqamahStartTime(startFunc, endFunc, pt, cfg),
+      end: (pt, cfg) => getIqamahEndTime(startFunc, endFunc, pt, cfg),
+      isPrayer: true,
+      internal: true,
+      modifier: "iqamah",
+      slide: {
+        onReachEnd: "reset",
+        queries: [
+          {
+            name: "general",
+            include: ["iqamah"],
+          },
+        ],
+      },
+    },
+    {
+      prayer,
+      start: (pt, cfg) => getIqamahEndTime(startFunc, endFunc, pt, cfg),
+      end: (pt, cfg) => getAdhkarStartTime(startFunc, endFunc, pt, cfg),
+      isPrayer: true,
+      internal: true,
+      modifier: "prayer",
+    },
+    {
+      prayer,
+      start: (pt, cfg) => getAdhkarStartTime(startFunc, endFunc, pt, cfg),
+      end: (pt, cfg) => getAdhkarEndTime(startFunc, endFunc, pt, cfg),
+      isPrayer: true,
+      internal: true,
+      modifier: "adhkar",
+      slide: {
+        onReachEnd: "reset",
+        queries: [
+          {
+            name: "general",
+            include: ["adhkar:prayer"],
+          },
+          {
+            name: "time",
+            include: [`adhkar:prayer:${prayerId}`],
+          },
+        ],
+      },
+    },
+    afterPrayerSunnah,
+    adhkarSabahMasaa,
+    {
+      prayer,
+      start: (pt, cfg) => startFunc(pt, cfg),
+      end: (pt, cfg) => endFunc(pt, cfg),
+      isPrayer: true,
+      internal: false,
+      visible: true,
+    },
+  ];
 
   // $FlowFixMe[incompatible-return]
-  return result.filter(item => item != null)
-}
+  return result.filter((item) => item != null);
+};
 
 const PrayerTimeConfigs: Array<PTConfig> = [
   {
@@ -338,62 +374,56 @@ const PrayerTimeConfigs: Array<PTConfig> = [
   {
     prayer: Prayer.Fajr,
     start: (pt, cfg) => {
-      const tomorrow = moment(pt.date).add(1, "day")
-      const tPT = new PrayerTimes(pt.coordinates, tomorrow.toDate(), pt.calculationParameters)
-      return moment(tPT.fajr)
+      const tomorrow = moment(pt.date).add(1, "day");
+      const tPT = new PrayerTimes(pt.coordinates, tomorrow.toDate(), pt.calculationParameters);
+      return moment(tPT.fajr);
     },
     end: (pt, cfg) => {
-      const tomorrow = moment(pt.date).add(1, "day")
-      const tPT = new PrayerTimes(pt.coordinates, tomorrow.toDate(), pt.calculationParameters)
-      return moment(tPT.sunrise)
+      const tomorrow = moment(pt.date).add(1, "day");
+      const tPT = new PrayerTimes(pt.coordinates, tomorrow.toDate(), pt.calculationParameters);
+      return moment(tPT.sunrise);
     },
     isPrayer: true,
     visible: false,
   },
 ];
 
-export const getPrayerTimes = (
-  position: GeoCoordinates,
-  date: Date,
-  sm: SettingsManager,
-): Array<PrayerTime> => {
+export const getPrayerTimes = (position: GeoCoordinates, date: Date, sm: SettingsManager): Array<PrayerTime> => {
   try {
-    const configs: $ReadOnlyMap<Prayer, PrayerTimeConfig> = getPrayerTimeConfigs(sm)
+    const configs: $ReadOnlyMap<Prayer, PrayerTimeConfig> = getPrayerTimeConfigs(sm);
 
-    const prayerTimesCalculator = new PrayerTimesCalculator(sm)
-    console.log(`[getPrayerTimes] Calcuating prayer times on ${date.toLocaleDateString()}`)
+    const prayerTimesCalculator = new PrayerTimesCalculator(sm);
+    console.log(`[getPrayerTimes] Calcuating prayer times on ${date.toLocaleDateString()}`);
     const prayerTimes = prayerTimesCalculator.prayerTimes(position, date);
-    return PrayerTimeConfigs
-      .map(config => {
-        try {
-          // We are computing only config for mandatory prayer times, for other
-          //  times (e.g. Sahar), we will fallback to the default config (key is empty string)
-          const ptConfig = configs?.get(config.prayer) || configs?.get("")
-          const start = config.start(prayerTimes, ptConfig)
-          const end = config.end(prayerTimes, ptConfig)
-          const suffix = config.modifier ? `[${config.modifier}]` : ""
-          console.debug(`[getPrayerTimes] ${config.prayer}${suffix} ${start.format("HH:mm")} -> ${end.format("HH:mm")}`)
+    return PrayerTimeConfigs.map((config) => {
+      try {
+        // We are computing only config for mandatory prayer times, for other
+        //  times (e.g. Sahar), we will fallback to the default config (key is empty string)
+        const ptConfig = configs?.get(config.prayer) || configs?.get("");
+        const start = config.start(prayerTimes, ptConfig);
+        const end = config.end(prayerTimes, ptConfig);
+        const suffix = config.modifier ? `[${config.modifier}]` : "";
+        console.debug(`[getPrayerTimes] ${config.prayer}${suffix} ${start.format("HH:mm")} -> ${end.format("HH:mm")}`);
 
-          return {
-            name: config.prayer,
-            start: start?.unix(),
-            end: end?.unix(),
-            isPrayer: config.isPrayer,
-            internal: config.internal,
-            visible: config.visible,
-            modifier: config.modifier,
-            slide: config.slide,
-            // isCurrent: prayerTimes.currentPrayer() === config.prayer,
-          }
-        } catch(err) {
-          console.error(`[getPrayerTimes] cannot compute prayer time: ${err}`)
-        }
-      })
-      .filter(pt => pt);
+        return {
+          name: config.prayer,
+          start: start?.unix(),
+          end: end?.unix(),
+          isPrayer: config.isPrayer,
+          internal: config.internal,
+          visible: config.visible,
+          modifier: config.modifier,
+          slide: config.slide,
+          // isCurrent: prayerTimes.currentPrayer() === config.prayer,
+        };
+      } catch (err) {
+        console.error(`[getPrayerTimes] cannot compute prayer time: ${err}`);
+      }
+    }).filter((pt) => pt);
   } catch (err) {
-    console.error(`[getPrayerTimes] cannot compute prayer times: ${err}`)
+    console.error(`[getPrayerTimes] cannot compute prayer times: ${err}`);
     return [];
   }
-}
+};
 
 export default getPrayerTimes;

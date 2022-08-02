@@ -1,6 +1,6 @@
 /*
-* @flow
-*/
+ * @flow
+ */
 import type { GeoCoordinates, LayoutDirection, PrayerTime, Slide } from "@src/types";
 import type { SettingConfig } from "@src/Setting";
 
@@ -20,7 +20,6 @@ import Navbar from "@root/Navbar.react";
 import Routes from "@root/Routes.react";
 import "@root/Root.css";
 
-
 const loadI18nResources = (language) => {
   console.info(`[Renderer] language changed event received`);
   i18n.changeLanguage(language, (error, t) => {
@@ -30,7 +29,7 @@ const loadI18nResources = (language) => {
       store.dispatch(changeLanguage(language));
     }
   });
-}
+};
 
 window.api.i18nextElectronBackend.onLanguageChange((args) => {
   loadI18nResources(args.lng);
@@ -58,7 +57,7 @@ const Main = styled.div`
   left: 0px;
   background: teal;
   color: white;
-  direction: ${props => props.direction}
+  direction: ${(props) => props.direction};
 `;
 
 type StateProps = $ReadOnly<{
@@ -71,7 +70,7 @@ type StateProps = $ReadOnly<{
   settings: Array<SettingConfig>,
   direction: LayoutDirection,
   currentTime?: PrayerTime,
-}>
+}>;
 
 type Props = $ReadOnly<{
   ...StateProps,
@@ -82,52 +81,48 @@ const Root = (props: Props) => {
   const { history } = props;
   const [navbar, setNavbar] = useState(false);
 
-  if(props.currentTime?.modifier === "adhan") {
-    history.push(ROUTES.ADHAN)
+  if (props.currentTime?.modifier === "adhan") {
+    history.push(ROUTES.ADHAN);
   }
 
   useEffect(() => {
     props.dispatch(loadSettings(props.backendURL));
-  }, [props.backendURL])
+  }, [props.backendURL]);
 
   useEffect(() => {
-    if(!props.settings || !props.coordinates) return
+    if (!props.settings || !props.coordinates) return;
 
     const sm = SettingsManager.fromConfigs(props.settings);
     props.dispatch(computePrayerTimes(props.coordinates, sm));
-  }, [props.day, props.coordinates, props.settings])
+  }, [props.day, props.coordinates, props.settings]);
 
   useEffect(() => {
-    const timer = setTimeout(
-      () => {
-        props.dispatch(updatePrayerTimes());
-      },
-      1000
-    )
-    return () => clearTimeout(timer)
-  }, [props.timestamp])
+    const timer = setTimeout(() => {
+      props.dispatch(updatePrayerTimes());
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [props.timestamp]);
 
   return (
     <Main
       direction={props.direction}
       onMouseMove={(event) => {
         // console.debug(`[Root] mouse position: ${event.clientY}`)
-        if(!navbar && event.clientY < 50) {
+        if (!navbar && event.clientY < 50) {
           setNavbar(true);
-        } else if(navbar && event.clientY >= 100) {
+        } else if (navbar && event.clientY >= 100) {
           setNavbar(false);
         }
-      }}
-    >
+      }}>
       <ConnectedRouter history={history}>
         <Navbar open={navbar} />
         <Routes />
       </ConnectedRouter>
     </Main>
   );
-}
+};
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   coordinates: state.user.coordinates,
   timestamp: state.prayerTimes.timestamp,
   day: state.prayerTimes.day,
@@ -136,6 +131,6 @@ const mapStateToProps = state => ({
   settings: state.config.settings,
   direction: state.config.general.direction,
   currentTime: state.prayerTimes.currentTime,
-})
+});
 
-export default (connect(mapStateToProps)(Root): any)
+export default (connect(mapStateToProps)(Root): any);

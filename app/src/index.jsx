@@ -2,7 +2,7 @@ import React, { Suspense } from "react";
 import ReactDOM from "react-dom";
 import { I18nextProvider } from "react-i18next";
 import { Provider } from "react-redux";
- import * as Sentry from "@sentry/electron";
+import * as Sentry from "@sentry/electron";
 
 import Root from "@root/Root.react";
 import i18n from "@localization/i18n.config";

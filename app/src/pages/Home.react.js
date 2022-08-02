@@ -1,6 +1,6 @@
 /*
-* @flow
-*/
+ * @flow
+ */
 import type { PrayerTime as PrayerTimeType } from "@src/types";
 import type { SettingConfig } from "@src/Setting";
 
@@ -23,8 +23,8 @@ const Main = styled.div`
 
   &::before {
     content: "";
-    background-image: url(${props => props.backgroundImage});
-    background-repeat: ${props => props.repeat};
+    background-image: url(${(props) => props.backgroundImage});
+    background-repeat: ${(props) => props.repeat};
     background-size: contain;
     position: absolute;
     top: 0px;
@@ -33,10 +33,9 @@ const Main = styled.div`
     left: 0px;
     opacity: 0.25;
   }
-`
+`;
 
-const Content = styled.section`
-`
+const Content = styled.section``;
 
 const Footer = styled.footer`
   position: relative;
@@ -46,7 +45,7 @@ const Footer = styled.footer`
 
   display: grid;
   grid-template-columns: 25% auto;
-`
+`;
 
 const PrayerTimeWrapper = styled.div`
   display: flex;
@@ -54,51 +53,54 @@ const PrayerTimeWrapper = styled.div`
 
   /* Then we define how is distributed the remaining space */
   justify-content: space-around;
-`
+`;
 
 type StateProps = $ReadOnly<{
   prayers: $ReadOnlyArray<PrayerTimeType>,
   currentPrayer?: PrayerTimeType,
   settings: Array<SettingConfig>,
-}>
+}>;
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   prayers: state.prayerTimes.prayers,
   currentPrayer: state.prayerTimes.current,
   settings: state.config.settings,
-})
+});
 
 const Home = (props: StateProps): React$Node => {
   const sm = SliderSettings.fromConfigs(props.settings);
 
-  return <Main backgroundImage={bg}>
-    <Content>
-      <Slider settings={sm} />
-    </Content>
-    <Footer>
-      <Clock />
-      <PrayerTimeWrapper>
-        {props.prayers
-          .filter(p => p.visible)
-          .map((prayer: PrayerTimeType, i: number) => {
-            const isLastItem = i == props.prayers.length - 1
-            const isCurrent = props.currentPrayer?.name === prayer.name
-            return <>
-              <PrayerTime
-                prayer={prayer}
-                isCurrent={isCurrent}
-                endTimeReminderInMinutes={sm.getPrayerSettingValue(
-                  "EndTimeReminderInMinutes",
-                  prayer.name,
-                  PRAYER.EndTimeReminderInMinutes,
-                )}
-              />
-            </>
-          })
-        }
-      </PrayerTimeWrapper>
-    </Footer>
-  </Main>
-}
+  return (
+    <Main backgroundImage={bg}>
+      <Content>
+        <Slider settings={sm} />
+      </Content>
+      <Footer>
+        <Clock />
+        <PrayerTimeWrapper>
+          {props.prayers
+            .filter((p) => p.visible)
+            .map((prayer: PrayerTimeType, i: number) => {
+              const isLastItem = i == props.prayers.length - 1;
+              const isCurrent = props.currentPrayer?.name === prayer.name;
+              return (
+                <>
+                  <PrayerTime
+                    prayer={prayer}
+                    isCurrent={isCurrent}
+                    endTimeReminderInMinutes={sm.getPrayerSettingValue(
+                      "EndTimeReminderInMinutes",
+                      prayer.name,
+                      PRAYER.EndTimeReminderInMinutes
+                    )}
+                  />
+                </>
+              );
+            })}
+        </PrayerTimeWrapper>
+      </Footer>
+    </Main>
+  );
+};
 
-export default (connect(mapStateToProps)(Home): any)
+export default (connect(mapStateToProps)(Home): any);
