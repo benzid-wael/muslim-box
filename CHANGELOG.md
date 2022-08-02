@@ -18,6 +18,7 @@
 ### Changed
 
 - use directly css3 properties for transition: remove react-spring dependency to decrease bundle size
+- move palying adhan responsability to the root component
 
 ## [0.0.1] - 10/07/2022
 
