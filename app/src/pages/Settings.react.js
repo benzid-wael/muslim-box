@@ -186,12 +186,12 @@ const SETTINGS = [
             {
               title: i18n.t("High Latitude Rule"),
               setting: "HighLatitudeRule",
-              help: i18n.t("Used to set a minimum time for Fajr and a max time for Isha when Fajr and Isha dissapears"),
+              help: i18n.t("HIGH_LATITUDE_RULE_HELP"),
             },
             {
               title: i18n.t("Polar Circle"),
               setting: "PolarCircleResolution",
-              help: i18n.t("Strategy used to resolve undefined prayer times for areas located in polar circles"),
+              help: i18n.t("POLAR_CIRCLE_RESOLUTION_HELP"),
             },
           ],
         },
