@@ -8,6 +8,8 @@
 - recover after failure to invoke transition and remove the lock
 - center slide horizontally
 - quick transition due to lag on setting timer
+- build failure as electron expects icons inside <RESOURCE_DIR>/icons
+- runtime error due the provided cwd flag when spawning server process
 
 ### Added
 
