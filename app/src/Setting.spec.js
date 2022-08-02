@@ -1,7 +1,7 @@
 import assert from "assert";
 import forEach from "mocha-each";
 
-import { Setting } from "./Setting";
+import { Setting } from "@src/Setting";
 
 describe("Settings", function () {
   forEach([

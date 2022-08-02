@@ -2,7 +2,7 @@
  * @flow
  */
 import type { GeoCoordinates, PrayerTime, PrayerTimeConfig, SlideFilter } from "@src/types";
-import type { SettingsManager } from "./SettingsManager";
+import type { SettingsManager } from "@src/SettingsManager";
 
 import moment from "moment";
 import { PrayerTimes, Prayer, SunnahTimes } from "adhan";

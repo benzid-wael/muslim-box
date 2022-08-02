@@ -2,7 +2,7 @@
  * @flow
  */
 import type { AdhanSound, AdhanSoundMetadata, AdhanConfig } from "@src/types";
-import type { SettingConfig } from "./Setting";
+import type { SettingConfig } from "@src/Setting";
 
 import { Prayer } from "adhan";
 

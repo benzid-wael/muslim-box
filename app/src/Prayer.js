@@ -1,7 +1,7 @@
 /*
  * @flow
  */
-import type { PrayerTime, PrayerTimeConfig } from "./types";
+import type { PrayerTime, PrayerTimeConfig } from "@src/types";
 
 import { PrayerTimes, SunnahTimes } from "adhan";
 import moment from "moment";
