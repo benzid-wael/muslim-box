@@ -10,7 +10,7 @@ import styled from "styled-components";
 import { connect } from "react-redux";
 
 import { patchSetting } from "@redux/slices/configSlice";
-import infoIcon from "@resources/icons/info.svg";
+import infoIcon from "@resources/images/icons/info.svg";
 import { SettingsManager } from "@src/SettingsManager";
 
 const Main = styled.section`

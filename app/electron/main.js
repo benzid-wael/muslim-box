@@ -68,9 +68,7 @@ const installExtensions = () => {
 const createBackgroundProcess = (port) => {
   const args = ["--port", port];
 
-  const options = {
-    cwd: path.join(__dirname, "../server"),
-  };
+  const options = {};
   serverProcess = fork(path.join(__dirname, "../server"), args, options);
 
   serverProcess.on("message", (msg) => {

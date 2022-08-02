@@ -12,8 +12,8 @@ import { validateLicenseRequest, validateLicenseResponse } from "secure-electron
 import { connect } from "react-redux";
 
 import ROUTES from "@constants/routes";
-import homeIcon from "@resources/icons/home.svg";
-import settingsIcon from "@resources/icons/settings.svg";
+import homeIcon from "@resources/images/icons/home.svg";
+import settingsIcon from "@resources/images/icons/settings.svg";
 
 const Main = styled.section`
   // position: absolute;

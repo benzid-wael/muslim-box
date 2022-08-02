@@ -6,8 +6,8 @@ import styled from "styled-components";
 import { validateLicenseRequest, validateLicenseResponse } from "secure-electron-license-keys";
 
 import ROUTES from "@constants/routes";
-import homeIcon from "@resources/icons/home.svg";
-import settingsIcon from "@resources/icons/settings.svg";
+import homeIcon from "@resources/images/icons/home.svg";
+import settingsIcon from "@resources/images/icons/settings.svg";
 import "bulma/css/bulma.css";
 
 const Nav = styled.nav`
