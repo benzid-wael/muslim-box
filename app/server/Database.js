@@ -1,9 +1,22 @@
 const sqlite3 = require("sqlite3").verbose();
 
 class Database {
-  constructor(path) {
+  constructor(path, db) {
     this.path = path;
-    this.database = new sqlite3.Database(path);
+    if (path === ":memory:" && !!db) {
+      this.database = db;
+    } else {
+      this.database = new sqlite3.Database(path);
+    }
+  }
+
+  /*
+   * Factory method to create a database object wrapper from database connection
+   * @param db: sqlite3.Database
+   * @return: Database
+   */
+  static fromDatabase(db) {
+    return new this(":memory:", db);
   }
 
   getSlideById(id, language) {
