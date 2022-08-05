@@ -1,6 +1,7 @@
 import React from "react";
 import { mount, shallow } from "enzyme";
 import assert from "assert";
+import timezoneMock from "timezone-mock";
 
 import PrayerTime from "./PrayerTime.react";
 
@@ -15,6 +16,14 @@ describe("<PrayerTime />", () => {
     end: endTimestamp,
     visible: true,
   };
+
+  beforeAll(() => {
+    timezoneMock.register("UTC");
+  });
+
+  afterAll(() => {
+    timezoneMock.unregister();
+  });
 
   beforeEach(() => {
     // We are setting the current time to 17m before end time
