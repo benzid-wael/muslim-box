@@ -8,6 +8,8 @@ on:
     branches: ["main"]
   pull_request:
     branches: ["*"]
+  check_suite: # to update all PRs upon a Check Suite completion
+    type: ['completed']
 
 jobs:
   build:
