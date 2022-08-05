@@ -15,7 +15,5 @@ describe("Settings", function () {
     const setting = Setting.build("bool1", type, defaultValue);
     setting.value = value;
     assert.equal(setting.value, expected);
-    assert.equal(1, 2);
-    a;
   });
 });
