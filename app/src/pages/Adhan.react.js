@@ -73,7 +73,7 @@ const DuaaAfterAdhan = (props) => {
   const hadith = arr[Math.floor(Math.random() * arr.length)];
   return (
     <Content direction={props.direction}>
-      <Hadith>{i18n.t("DUAA_AFTER_ADHAN")}</Hadith>
+      <Hadith>{hadith}</Hadith>
     </Content>
   );
 };

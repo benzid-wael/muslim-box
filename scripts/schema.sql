@@ -83,7 +83,7 @@ CREATE TABLE IF NOT EXISTS "settings" (
 	"options"	TEXT,
 	PRIMARY KEY("name")
 );
-CREATE VIEW "slide_tags_view" AS SELECT st.slide as slide_id, st.tag as tag_id, s.content_ar, t.name as tag
+CREATE VIEW IF NOT EXISTS "slide_tags_view" AS SELECT st.slide as slide_id, st.tag as tag_id, s.content_ar, t.name as tag
 FROM slide_tags st
 LEFT JOIN tags t ON st.tag = t.id
 LEFT JOIN slide s ON st.slide = s.id;
