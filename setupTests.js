@@ -1,6 +1,11 @@
 import fs from "fs";
 import sqlite3 from "sqlite3";
 
+import Enzyme from "enzyme";
+import Adapter from "@wojtekmaj/enzyme-adapter-react-17";
+
+Enzyme.configure({ adapter: new Adapter() });
+
 const setupTestDatabase = async () => {
   const schemaSQL = "./scripts/schema.sql";
   const settingsSQL = "./scripts/settings.sql";
@@ -11,6 +16,10 @@ const setupTestDatabase = async () => {
   db.exec(schema);
   db.exec(settings);
 };
+
+beforeEach(async () => {
+  await setupTestDatabase();
+});
 
 export const mochaGlobalSetup = async () => {
   await setupTestDatabase();

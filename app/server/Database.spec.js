@@ -1,5 +1,4 @@
 import assert from "assert";
-import forEach from "mocha-each";
 import _ from "lodash";
 
 import { Database } from "./Database";
@@ -42,7 +41,7 @@ describe("Database", function () {
     assert.equal(setting.name, name);
   });
 
-  forEach(["true", "false"]).it("test updateSetting() set value to: %s", async (value) => {
+  it.each(["true", "false"])("test updateSetting() set value to: %s", async (value) => {
     const name = "AutoplayAdhan";
     const db = Database.fromDatabase(testDB);
     await db.updateSetting(name, value);
@@ -50,13 +49,14 @@ describe("Database", function () {
     assert.equal(setting.value, value);
   });
 
-  forEach([
-    ["Method", "enum"],
-    ["Madhab", "enum"],
-    ["Shafaq", "enum"],
-    ["HighLatitudeRule", "enum"],
-    ["PolarCircleResolution", "enum"],
-  ]).it("test setting used to compute prayer times: %s", async (name, type) => {
+  it.each`
+    name                       | type
+    ${"Method"}                | ${"enum"}
+    ${"Madhab"}                | ${"enum"}
+    ${"Shafaq"}                | ${"enum"}
+    ${"HighLatitudeRule"}      | ${"enum"}
+    ${"PolarCircleResolution"} | ${"enum"}
+  `("test setting used to compute prayer times: $name", async ({ name, type }) => {
     const db = Database.fromDatabase(testDB);
     const setting = await db.getSettingByName(name);
     assert.equal(setting.name, name);

@@ -1,0 +1,7 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<PrayerTime /> <PrayerTime /> when prayer is active 1`] = `"<div class=\\"sc-bczRLJ egLEnW\\"><div class=\\"sc-gsnTZi KeiYk\\"><div class=\\"sc-hKMtZM sc-eCYdqJ ijvmlV gbLpsd\\">Fajr</div><div class=\\"sc-hKMtZM sc-jSMfEi ijvmlV dtjjYe\\">15:15</div><div class=\\"sc-hKMtZM sc-jSMfEi sc-gKXOVf ijvmlV dtjjYe Qrzkn\\">16:15</div></div></div>"`;
+
+exports[`<PrayerTime /> <PrayerTime /> when prayer is not active 1`] = `"<div class=\\"sc-bczRLJ eWFJjW\\"><div class=\\"sc-gsnTZi KeiYk\\"><div class=\\"sc-hKMtZM sc-eCYdqJ ijvmlV gbLpsd\\">Fajr</div><div class=\\"sc-hKMtZM sc-jSMfEi ijvmlV dtjjYe\\">15:15</div><div class=\\"sc-hKMtZM sc-jSMfEi sc-gKXOVf ijvmlV dtjjYe dFiEUT\\">16:15</div></div></div>"`;
+
+exports[`<PrayerTime /> <PrayerTime /> when reminder is active 1`] = `"<div class=\\"sc-bczRLJ egLEnW\\"><div class=\\"sc-gsnTZi KeiYk\\"><div class=\\"sc-hKMtZM sc-eCYdqJ ijvmlV gbLpsd\\">Fajr</div><div class=\\"sc-hKMtZM sc-jSMfEi ijvmlV dtjjYe\\">15:15</div><div style=\\"color:red\\" class=\\"sc-hKMtZM sc-jSMfEi sc-gKXOVf ijvmlV dtjjYe Qrzkn\\">15:00</div></div></div>"`;

@@ -1,7 +1,7 @@
 const validateEnum = (v, f) => {
-  if (!f.options) throw new Error(`Enum ${f.name} doesn't define options`);
+  if (!f.options) throw new Error(`Missing options field, setting: ${f.name}`);
   const option = f?.options?.options.filter((opt) => opt === v);
-  if (!option.length) throw new Error(`invalid option '${v} for ${f.toString()} setting`);
+  if (!option.length) throw new Error(`Invalid option '${v}', for setting: ${f.name}`);
   return option[0];
 };
 

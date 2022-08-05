@@ -1,17 +1,18 @@
 import assert from "assert";
-import forEach from "mocha-each";
 
 import { Setting } from "@src/Setting";
 
 describe("Settings", function () {
-  forEach([
-    [Setting.boolean("bool1"), "true", true],
-    [Setting.boolean("bool1"), "false", false],
-    [Setting.boolean("bool1"), true, true],
-    [Setting.boolean("bool1"), false, false],
-    [Setting.boolean("bool1", false), "true", true],
-    [Setting.boolean("bool1", false), null, false],
-  ]).it("After setting %s to: %j, it should returns: %j", (setting, value, expected) => {
+  it.each`
+    type         | defaultValue | value      | expected
+    ${"boolean"} | ${null}      | ${"true"}  | ${true}
+    ${"boolean"} | ${null}      | ${"false"} | ${false}
+    ${"boolean"} | ${null}      | ${true}    | ${true}
+    ${"boolean"} | ${null}      | ${false}   | ${false}
+    ${"boolean"} | ${false}     | ${"true"}  | ${true}
+    ${"boolean"} | ${false}     | ${null}    | ${false}
+  `("After $type setting to: $value, it should returns: $expected", ({ type, defaultValue, value, expected }) => {
+    const setting = Setting.build("bool1", type, defaultValue);
     setting.value = value;
     assert.equal(setting.value, expected);
   });
