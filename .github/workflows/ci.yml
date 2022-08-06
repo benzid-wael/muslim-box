@@ -9,7 +9,7 @@ on:
   pull_request:
     branches: ["*"]
   check_suite: # to update all PRs upon a Check Suite completion
-    type: ['completed']
+    type: ["completed"]
 
 jobs:
   build:
@@ -32,3 +32,17 @@ jobs:
       - run: npm run build --if-present
       - run: npm run test:ci
         timeout-minutes: 5
+      - name: SonarCloud Scan
+        # You may pin to the exact commit or the version.
+        # uses: SonarSource/sonarcloud-github-action@de2e56b42aa84d0b1c5b622644ac17e505c9a049
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          projectBaseDir: .
+          args: -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT }}
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+            -Dsonar.test.inclusions=app/**/*.spec.js
+            -Dsonar.verbose=true
