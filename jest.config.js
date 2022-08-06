@@ -2,6 +2,8 @@ const { defaults } = require("jest-config");
 
 const config = {
   verbose: true,
+  collectCoverage: true,
+  coverageReporters: ["json", "html", "lcov"],
   setupFilesAfterEnv: ["<rootDir>setupTests.js"],
   moduleFileExtensions: ["js", "jsx"],
   moduleNameMapper: {
