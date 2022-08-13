@@ -85,6 +85,7 @@
   "HIGH_LATITUDE_RULE_HELP": "Used to set a minimum time for Fajr and a max time for Isha when Fajr and Isha signs overlap or vanish completely",
   "Polar Circle": "Polar Circle",
   "POLAR_CIRCLE_RESOLUTION_HELP": "Strategy used to resolve undefined prayer times for areas located in polar circles",
+  "SHAFAQ_HELP": "This setting is used only by `Moonsighting Committee`. For other methods, you need to modify `Isha Angle`",
   "MuslimWorldLeague": "Muslim World League",
   "Egyptian": "Egyptian",
   "Karachi": "Karachi",

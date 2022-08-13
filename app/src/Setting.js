@@ -40,6 +40,10 @@ const SETTING_OPERATORS = {
     serialize: (v: any, f: Setting): string => v.toString(),
     deserialize: (v: any, f: Setting): any => parseInt(v),
   },
+  float: {
+    serialize: (v: any, f: Setting): string => v.toString(),
+    deserialize: (v: any, f: Setting): any => parseFloat(v),
+  },
   string: {
     serialize: (v: any, f: Setting): string => v,
     deserialize: (v: any, f: Setting): any => v,
@@ -97,11 +101,18 @@ export class Setting {
     return this.#value;
   }
 
+  serialize(val: any): string {
+    const serialized = SETTING_OPERATORS[this.#type].serialize(val, this);
+    SETTING_OPERATORS[this.#type].deserialize(serialized, this);
+    // looks valid: no exception raise
+    return serialized;
+  }
+
   set value(val?: any): void {
     if (val == null) {
       this.#value = val;
     } else if (this.#type in SETTING_OPERATORS) {
-      this.#value = SETTING_OPERATORS[this.#type].serialize(val, this);
+      this.#value = this.serialize(val);
     } else {
       throw new Error(`unsupported type: ${this.#type}`);
     }

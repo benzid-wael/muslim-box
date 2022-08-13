@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS "settings" (
 	"name"	TEXT NOT NULL,
 	"category"	TEXT,
 	"active"	INTEGER NOT NULL DEFAULT 1 CHECK("active" IN (0, 1)),
-	"type"	TEXT NOT NULL CHECK("type" IN ("boolean", "int", "string", "enum")),
+	"type"	TEXT NOT NULL CHECK("type" IN ("boolean", "int", "float", "string", "enum")),
 	"value"	TEXT,
 	"default"	TEXT,
 	"options"	TEXT,

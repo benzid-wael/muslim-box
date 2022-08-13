@@ -23,7 +23,7 @@ export class PrayerTimesCalculator {
     this.#sm = sm;
   }
 
-  get calculationMethod(): CalculationMethod {
+  paramsFromMethod(): CalculationParams {
     // CalculationMethods: MuslimWorldLeague, MoonsightingCommittee, ...
     const cfg = this.#sm.getValue("Method", "", "Other");
     const method = cfg in CalculationMethod ? CalculationMethod[cfg] : CalculationMethod.Other;
@@ -80,6 +80,18 @@ export class PrayerTimesCalculator {
     }
   }
 
+  get useMethodAngles(): boolean {
+    return this.#sm.getValue("UseMethodAngles");
+  }
+
+  fajrAngle(params: CalculationParams): number {
+    return this.useMethodAngles ? params.fajrAngle : this.#sm.getValue("FajrAngle");
+  }
+
+  ishaAngle(params: CalculationParams): number {
+    return this.useMethodAngles ? params.ishaAngle : this.#sm.getValue("IshaAngle");
+  }
+
   get polarCircleResolution(): PolarCircleResolution {
     const cfg = this.#sm.getValue("PolarCircleResolution");
     switch (cfg) {
@@ -95,12 +107,17 @@ export class PrayerTimesCalculator {
   }
 
   params(coordinates: Coordinates): CalculationParams {
-    const params = this.calculationMethod;
+    const params = this.paramsFromMethod();
     params.madhab = this.madhab;
     params.shafaq = this.shafaq;
     params.highLatitudeRule = this.highLatitudeRule(coordinates);
     params.rounding = this.rounding;
     params.polarCircleResolution = this.polarCircleResolution;
+
+    // custom angles
+    params.fajrAngle = this.fajrAngle(params);
+    params.ishaAngle = this.ishaAngle(params);
+
     return params;
   }
 

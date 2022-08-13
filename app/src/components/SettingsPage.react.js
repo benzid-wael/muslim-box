@@ -10,7 +10,7 @@ import styled from "styled-components";
 import { connect } from "react-redux";
 
 import { patchSetting } from "@redux/slices/configSlice";
-import infoIcon from "@resources/images/icons/info.svg";
+import infoIcon from "@resources/images/icons/info-circle-solid.svg";
 import { SettingsManager } from "@src/SettingsManager";
 
 const Main = styled.section`
@@ -42,9 +42,11 @@ const Form = styled.div`
 `;
 
 const Icon = styled.img`
-  width: 12px;
-  height: 12px;
-  padding: 4px 8px;
+  width: 24px;
+  height: 24px;
+  top: 4px;
+  position: relative;
+  padding: 0 8px;
   color: white;
 
   /* change the color of the icon
@@ -56,8 +58,12 @@ const Icon = styled.img`
 
 export type SettingInput = $ReadOnly<{
   title: string,
-  setting: Setting,
-  widget?: string,
+  setting: string,
+  help?: string,
+  widget?: string, // not supported yet
+  hidden?: (SettingsManager) => boolean,
+  disabled?: (SettingsManager) => boolean,
+  renderOption?: (string, string) => string,
 }>;
 
 export type SettingForm = $ReadOnly<{
@@ -92,13 +98,18 @@ const SettingWidget = (props): React$Node => {
     onChange(value);
   };
 
+  const onInputChanged = (e) => {
+    e.preventDefault();
+    save(e.target.value);
+  };
+
   const key = `setting-widget__${name}`;
   if (options) {
     return (
-      <select key={key} name={options.name} onChange={(e) => save(e.target.value)}>
+      <select key={key} name={options.name} onChange={(e) => save(e.target.value)} disabled={disabled}>
         {options.options.map((opt) => {
           return (
-            <option key={`option-${opt}`} value={opt} selected={value === opt ? "selected" : ""} disabled={disabled}>
+            <option key={`option-${opt}`} value={opt} selected={value === opt ? "selected" : ""}>
               {renderOption ? renderOption(opt, props.locale) : i18n.t(opt)}
             </option>
           );
@@ -107,8 +118,11 @@ const SettingWidget = (props): React$Node => {
     );
   } else if (type === "boolean") {
     return <CheckBox checked={value} disabled={disabled} onChange={save} />;
-  } else if (type === "int") {
-    return <input type="number" disabled={disabled} value={value} />;
+  } else if (["int", "float"].includes(type)) {
+    const step = type === "float" ? 0.1 : 1;
+    return (
+      <input type="number" disabled={disabled} value={value} onChange={onInputChanged} step={props.step || step} />
+    );
   }
 
   return <input name={name} key={key} type="text" />;
@@ -174,7 +188,7 @@ const SettingsPage = (props: Props): React$Node => {
                     options={setting.options}
                     renderOption={si.renderOption}
                     widget={si.widget}
-                    disabled={si.disabled ? si.disabled(sm) : false}
+                    disabled={!!si.disabled ? si.disabled(sm) : false}
                     onChange={(value) => onSettingChanged(setting, value)}
                     locale={props.locale}
                   />

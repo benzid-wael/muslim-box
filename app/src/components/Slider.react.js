@@ -12,6 +12,23 @@ import SlideBuilder from "@components/SlideBuilder.react";
 import { addSlides, moveNext, setPosition, resetSlides } from "@redux/slices/slideSlice";
 import { SlideLoaderFactory } from "@src/SlideLoader";
 
+import playIcon from "@resources/images/icons/play-circle-solid.svg";
+import pauseIcon from "@resources/images/icons/pause-circle-solid.svg";
+
+const Icon = styled.img`
+  width: 36px;
+  height: 36px;
+  position: relative;
+  margin: 16px;
+  color: white;
+
+  /* change the color of the icon
+  * Filter options generated using this codepen: https://codepen.io/sosuke/pen/Pjoqqp
+  * See: https://stackoverflow.com/questions/22252472/how-to-change-the-color-of-an-svg-element
+  */
+  filter: invert(91%) sepia(100%) saturate(2%) hue-rotate(88deg) brightness(109%) contrast(100%);
+`;
+
 const Main = styled.div`
   display: flex;
   position: relative;
@@ -85,9 +102,14 @@ const mapStateToProps = (state) => ({
   timestamp: state.prayerTimes.timestamp,
 });
 
+type Timer = $ReadOnly<{
+  time: number,
+  active: boolean,
+}>;
+
 const Slider = (props): React$Node => {
   const { language, position, slides, timestamp, settings } = props;
-  const [timer, setTimer] = useState<number>(0);
+  const [timer, setTimer] = useState<Timer>({ active: true, time: 5 });
   const [loading, setLoading] = useState<boolean>(false);
   const [animation, setAnimation] = useState("enter");
 
@@ -103,29 +125,31 @@ const Slider = (props): React$Node => {
   }, [language]);
 
   useEffect(() => {
-    console.debug(`[Slider] timer: ${timer}`);
-    setTimer((timer) => timer - 1);
-    if (timer > 0) {
-      if (timer < 2) {
+    console.debug(`[Slider] timer: ${timer.time}`);
+    if (!timer.active) {
+      // if timer is disabled, we need to ignore the clock
+      return;
+    }
+    setTimer((t: Timer) => ({ ...t, time: t.time - 1 }));
+    if (timer.time > 0) {
+      if (timer.time < 2) {
         // enable onExit animation
         setAnimation("onExit");
       }
     } else if (!loading) {
-      // Lock further calls to transitions until
-      // Once the slide hass been loaded, we will update the timer and
-      //  unlock transitions
-
+      // Lock further calls to transitions until we finish loading the slide
       setLoading(true);
       const t = setTimeout(() => {
         transition();
+        setLoading(false);
       }, 100);
       return () => clearTimeout(t);
     }
 
     // NOTE: we don't want to fall into a blackhole
-    if (timer < -5) {
+    if (timer.time < -5) {
       setLoading(false);
-      setTimer(0);
+      setTimer((t: Timer) => ({ ...t, time: 0 }));
     }
   }, [timestamp]);
 
@@ -133,11 +157,15 @@ const Slider = (props): React$Node => {
   useEffect(() => {
     const duration = slides.length > 0 ? settings.slideDurationInSeconds(slides[position]) : 0.3; // by default 3ms
     console.log(`[Slider] sliding after ${duration}s`);
-    setTimer(duration);
+    setTimer((t: Timer) => ({ ...t, time: duration }));
     setLoading(false);
     // activate onEnter animation
     setAnimation("onEnter");
   }, [position]);
+
+  const toggleTimer = () => {
+    setTimer((t: Timer) => ({ ...t, active: !t.active }));
+  };
 
   const transition = async () => {
     console.log(`[Slider] transition: ${position}/${slides.length - 1}`);
@@ -180,6 +208,7 @@ const Slider = (props): React$Node => {
     <></>
   ) : (
     <Main>
+      <Icon src={timer.active ? pauseIcon : playIcon} onClick={toggleTimer} />
       <Container animation={settings.animation ? cssKeyframe : ""} onClick={transition}>
         <SlideBuilder slide={slide} />
       </Container>

@@ -9,6 +9,7 @@ import moment from "moment";
 import momentDurationFormatSetup from "moment-duration-format";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
+import "moment-timezone";
 
 const Main = styled.div`
   width: 50%;
@@ -71,13 +72,15 @@ type Props = $ReadOnly<{
   prayer: PrayerTimeType,
   isCurrent?: boolean,
   endTimeReminderInMinutes: number,
+  timezone?: string,
 }>;
 
 const PrayerTime = (props: Props): React$Node => {
-  const { prayer, isCurrent } = props;
+  const { prayer, isCurrent, timezone } = props;
   const { i18n } = useTranslation();
-  const start = moment.unix(prayer.start);
-  const end = moment.unix(prayer.end);
+  // If no timezone is passed, we will fall to the defined user locale
+  const start = !timezone ? moment.unix(prayer.start) : moment.unix(prayer.start).tz(timezone);
+  const end = !timezone ? moment.unix(prayer.end) : moment.unix(prayer.end).tz(timezone);
   const remaining = moment.duration(end.diff(moment()));
   const showRemaining = isCurrent && remaining.asMinutes() < props.endTimeReminderInMinutes;
   return (

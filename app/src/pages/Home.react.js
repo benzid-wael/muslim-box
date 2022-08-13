@@ -59,12 +59,14 @@ type StateProps = $ReadOnly<{
   prayers: $ReadOnlyArray<PrayerTimeType>,
   currentPrayer?: PrayerTimeType,
   settings: Array<SettingConfig>,
+  timezone: string,
 }>;
 
 const mapStateToProps = (state) => ({
   prayers: state.prayerTimes.prayers,
   currentPrayer: state.prayerTimes.current,
   settings: state.config.settings,
+  timezone: state.user.timezone,
 });
 
 const Home = (props: StateProps): React$Node => {
@@ -93,6 +95,7 @@ const Home = (props: StateProps): React$Node => {
                       prayer.name,
                       PRAYER.EndTimeReminderInMinutes
                     )}
+                    timezone={props.timezone}
                   />
                 </>
               );

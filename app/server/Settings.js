@@ -14,6 +14,7 @@ const VALIDATORS = {
     },
   ],
   int: [(v, f) => /^\d+$/.test(v)],
+  float: [(v, f) => /^\d+(\.\d+)?$/.test(v)],
   string: [(v, f) => true],
   enum: [validateEnum],
 };

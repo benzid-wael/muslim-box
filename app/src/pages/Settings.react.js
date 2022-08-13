@@ -2,6 +2,7 @@
  * @flow
  */
 import type { SettingConfig } from "@src/Setting";
+import type { SettingForm } from "@components/SettingsPage.react";
 
 import React, { useEffect, useState } from "react";
 
@@ -30,7 +31,7 @@ const Content = styled.section`
 const Menu = styled.section`
   display: inline-grid;
   grid-gap: 0.5rem;
-  // grid-auto-rows: min-content;
+  grid-auto-rows: min-content;
   align-items: start;
   font-weight: 400;
   font-size: 1.3rem;
@@ -63,7 +64,13 @@ const MenuItem = styled.div`
   }
 `;
 
-const SETTINGS = [
+type SettingConfigType = $ReadOnly<{
+  name: string,
+  label: string,
+  forms?: (i18n: any) => $ReadOnlyArray<SettingForm>,
+}>;
+
+const SETTINGS: $ReadOnlyArray<SettingConfigType> = [
   {
     name: "general",
     label: "General",
@@ -171,12 +178,28 @@ const SETTINGS = [
               setting: "Method",
             },
             {
+              title: i18n.t("Don't override Angles"),
+              setting: "UseMethodAngles",
+            },
+            {
+              title: i18n.t("Fajr Angle"),
+              setting: "FajrAngle",
+              disabled: (sm) => sm.getValue("UseMethodAngles"),
+            },
+            {
+              title: i18n.t("Isha Angle"),
+              setting: "IshaAngle",
+              disabled: (sm) => sm.getValue("UseMethodAngles"),
+            },
+            {
               title: i18n.t("Asr"),
               setting: "Madhab",
             },
             {
               title: i18n.t("Isha"),
               setting: "Shafaq",
+              help: i18n.t("SHAFAQ_HELP"),
+              disabled: (sm) => sm.getValue("Method") != "MoonsightingCommittee",
             },
           ],
         },
