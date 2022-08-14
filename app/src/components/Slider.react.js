@@ -1,8 +1,9 @@
 /*
  * @flow
  */
-import type { Slide } from "@src/types";
+import type { Language, Slide, SlideFilter, SlideFilterQuery } from "@src/types";
 import type { SliderSettings } from "@src/SliderSettings";
+import type { SettingsManager } from "@src/SettingsManager";
 
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
@@ -11,6 +12,7 @@ import styled from "styled-components";
 import SlideBuilder from "@components/SlideBuilder.react";
 import { addSlides, moveNext, setPosition, resetSlides } from "@redux/slices/slideSlice";
 import { SlideLoaderFactory } from "@src/SlideLoader";
+import { getContext } from "@src/SlideContext";
 
 import playIcon from "@resources/images/icons/play-circle-solid.svg";
 import pauseIcon from "@resources/images/icons/pause-circle-solid.svg";
@@ -94,20 +96,27 @@ const Container = styled.div`
   }
 `;
 
-const mapStateToProps = (state) => ({
-  language: state.config.general.language,
-  slides: state.slide.slides,
-  position: state.slide.position,
-  backendURL: state.user.backendURL,
-  timestamp: state.prayerTimes.timestamp,
-});
-
 type Timer = $ReadOnly<{
   time: number,
   active: boolean,
 }>;
 
-const Slider = (props): React$Node => {
+type StateProps = $ReadOnly<{
+  language: Language,
+  slides: $ReadOnlyArray<Slide>,
+  position: number,
+  backendURL: string,
+  timestamp: number,
+}>;
+
+type ComponentProps = $ReadOnly<{
+  settings: SettingsManager,
+  slideFilter?: SlideFilter,
+}>;
+
+type Props = StateProps & ComponentProps;
+
+const Slider = (props: Props): React$Node => {
   const { language, position, slides, timestamp, settings } = props;
   const [timer, setTimer] = useState<Timer>({ active: true, time: 5 });
   const [loading, setLoading] = useState<boolean>(false);
@@ -122,7 +131,7 @@ const Slider = (props): React$Node => {
       props.dispatch(resetSlides(slides));
     }, 100);
     return () => clearTimeout(t);
-  }, [language]);
+  }, [language, props.query]);
 
   useEffect(() => {
     console.debug(`[Slider] timer: ${timer.time}`);
@@ -198,8 +207,36 @@ const Slider = (props): React$Node => {
       backendURL: props.backendURL,
     });
     const lang = language.split("-")[0];
+    if (props.slideFilter) {
+      console.log(`[Slider] load slides matching query: ${JSON.stringify(props.query)}`);
+      const result = await loader.search(props.query, lang);
+      console.log(`[Slider]\t ${result.length} slides found`);
+      // when we have a special event, it make sense to ignore to not include contextual and random slides
+      // as we want to focus on it, so we need to return the result unless no slide was fetched
+      if (result && result.length) {
+        return result;
+      }
+      console.log(`[Slider]\t fallback: loading random slides...`);
+    }
+    const context = getContext();
+    console.log(`[Slider] fetching contextual slides: ${JSON.stringify(context)}`);
+    // As we want to control how many slides we fetch by tag, it make sense to send N queries rather than 1 query
+    // This has 2 advantages:
+    // 1) don't overload the slide by pullong everything
+    // 2) ensure we have few slides per topic
+    const slideFilter = {
+      queries: context.map((t, i) => {
+        return {
+          name: `context${i}`,
+          include: [t],
+          operator: "any", // this is default, we can omit it
+          count: 2,
+        };
+      }),
+    };
+    const contextualSlides = await loader.search(slideFilter, lang);
     const slides = await loader.random(settings.pageSize, lang);
-    return slides;
+    return [...contextualSlides, ...slides];
   };
 
   const cssKeyframe = animation === "onEnter" ? "SlideIn" : animation === "onExit" ? "SlideOut" : "";
@@ -215,5 +252,13 @@ const Slider = (props): React$Node => {
     </Main>
   );
 };
+
+const mapStateToProps = (state) => ({
+  language: state.config.general.language,
+  slides: state.slide.slides,
+  position: state.slide.position,
+  backendURL: state.user.backendURL,
+  timestamp: state.prayerTimes.timestamp,
+});
 
 export default (connect(mapStateToProps)(Slider): any);

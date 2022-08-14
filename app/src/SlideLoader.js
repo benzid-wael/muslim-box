@@ -8,6 +8,7 @@ import _ from "lodash";
 
 import { createHttpClient } from "@src/http";
 import Slides from "@resources/slides.json";
+import type { SlideFilterQuery } from "./types";
 
 export type SlideLoaderType = "static" | "database";
 
@@ -22,7 +23,10 @@ export class SlideLoader {
     const result = [];
     const double = 2 * this.settings.prayerReminderEveryNSlides;
 
-    _.flatten(_.times(this.settings.pageRepeatRatioNOutOfOne, _.constant(slides))).map((s, i) => {
+    _.flatten([
+      ...slides,
+      ..._.times(this.settings.pageRepeatRatioNOutOfOne, _.constant(slides.map((s) => ({ ...s, debug: "repeat" })))),
+    ]).map((s, i) => {
       if (i > 0 && i % double === 0) {
         result.push({ type: "current-prayer" });
       } else if (i > 0 && i % this.settings.prayerReminderEveryNSlides === 0) {
@@ -67,6 +71,7 @@ export class StaticSlideLoader extends SlideLoader {
 
 export class LocalBackendSlideLoader extends SlideLoader {
   backendUrl: string;
+  fields: Array<string> = ["id", "type", "category", "content", "note", "meta"];
 
   constructor(settings: SliderSettings, backendUrl: string) {
     super(settings);
@@ -93,31 +98,30 @@ export class LocalBackendSlideLoader extends SlideLoader {
   }
 
   async _random(count: number, language: Language): Promise<Array<Slide>> {
-    const fields = ["id", "type", "category", "content", "note", "meta"];
     const pageSize = Math.floor(count / 4);
     const quranPageSize = count - 3 * pageSize;
 
     const randomVersesQuery = this.settings?.verseOftheDayAPI
       ? `versesOfTheDay(count: $verses, language: $language) {
-        ${fields.join(", ")}
+        ${this.fields.join(", ")}
       }`
       : `random(count: $verses, language: $language, type: QURAN) {
-        ${fields.join(", ")}
+        ${this.fields.join(", ")}
       }`;
 
     const query = `query random($verses: Int!, $count: Int!, $language: String!) {
       quran: ${randomVersesQuery}
 
       hadith: random(count: $count, language: $language, type: HADITH) {
-        ${fields.join(", ")}
+        ${this.fields.join(", ")}
       }
 
       athar: random(count: $count, language: $language, type: ATHAR) {
-        ${fields.join(", ")}
+        ${this.fields.join(", ")}
       }
 
       dhikr: random(count: $count, language: $language, type: DHIKR) {
-        ${fields.join(", ")}
+        ${this.fields.join(", ")}
       }
     }
     `;
@@ -128,11 +132,42 @@ export class LocalBackendSlideLoader extends SlideLoader {
       ...response.data["data"]["hadith"],
       ...response.data["data"]["dhikr"],
       ...response.data["data"]["athar"],
-    ]);
+    ]).map((s) => ({
+      ...s,
+      debug: "random",
+    }));
   }
 
   async _search(filter: SlideFilter, language: Language): Promise<Array<Slide>> {
-    return [];
+    const innerQueries = filter.queries.map((q) => {
+      const include = !!q.include ? q.include.map((t) => `"${t}"`).join(",") : "";
+      const exclude = !!q.exclude ? q.exclude.map((t) => `"${t}"`).join(",") : "";
+      const operator = !!q.operator ? q.operator.toUpperCase() : "ANY";
+      const orderBy = !!q.orderBy ? q.orderBy.toUpperCase() : "RANDOM";
+      return `
+        ${
+          q.name
+        }: search(include: [${include}], exclude: [${exclude}], operator: ${operator}, orderBy: ${orderBy}, language: "${language}") {
+          ${this.fields.join(", ")}
+        }
+      `;
+    });
+    const query = `{
+      ${innerQueries.join("\n\n")}
+    }`;
+    const response = await this.fetch(query, language, {});
+    let result = [];
+    filter.queries.forEach((q) => {
+      let slides = response.data["data"][q.name].map((s) => ({
+        ...s,
+        debug: q.include.length === 1 ? `${q.name}:${q.include[0]}` : `${q.name}:${q.include[0]}, ${q.include[1]}...`,
+      }));
+      if (!!q.count) {
+        slides = slides.slice(0, q.count);
+      }
+      result.push(...slides);
+    });
+    return result;
   }
 }
 

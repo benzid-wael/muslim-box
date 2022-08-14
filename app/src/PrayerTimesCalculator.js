@@ -81,7 +81,7 @@ export class PrayerTimesCalculator {
   }
 
   get useMethodAngles(): boolean {
-    return this.#sm.getValue("UseMethodAngles");
+    return this.#sm.getValue("OverrideMethodAngles");
   }
 
   fajrAngle(params: CalculationParams): number {

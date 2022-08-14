@@ -7,15 +7,18 @@
 - fix broken adhan
 - recover after failure to invoke transition and remove the lock
 - center slide horizontally
-- quick transition due to lag on setting timer
+- quick transition due to redux action lag when setting timer for slide duration
 - build failure as electron expects icons inside <RESOURCE_DIR>/icons
 - runtime error due the provided cwd flag when spawning server process
 
 ### Added
 
-- support of ARM architecture
+- Support of ARM architecture
 - onReachEndStrategy for customizable sliding experience
 - AutoUpdater support
+- Settings page
+- Support of Contextual slides
+- Support of prayer time slides: we aim to show relevant slides before/after prayer
 
 ### Changed
 

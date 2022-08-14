@@ -178,18 +178,18 @@ const SETTINGS: $ReadOnlyArray<SettingConfigType> = [
               setting: "Method",
             },
             {
-              title: i18n.t("Don't override Angles"),
-              setting: "UseMethodAngles",
+              title: i18n.t("Override Angles"),
+              setting: "OverrideMethodAngles",
             },
             {
               title: i18n.t("Fajr Angle"),
               setting: "FajrAngle",
-              disabled: (sm) => sm.getValue("UseMethodAngles"),
+              disabled: (sm) => !sm.getValue("OverrideMethodAngles"),
             },
             {
               title: i18n.t("Isha Angle"),
               setting: "IshaAngle",
-              disabled: (sm) => sm.getValue("UseMethodAngles"),
+              disabled: (sm) => !sm.getValue("OverrideMethodAngles"),
             },
             {
               title: i18n.t("Asr"),

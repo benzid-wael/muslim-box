@@ -226,6 +226,7 @@ type BaseSlide = $ReadOnly<{
   content: $ReadOnlyArray<string>,
   events?: $ReadOnlyArray<Event>,
   durationInSeconds?: number,
+  debug?: string,
 }>;
 
 export type CurrentPrayerSlide = $ReadOnly<{

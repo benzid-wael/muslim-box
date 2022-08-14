@@ -138,5 +138,8 @@
   "Default Slide Duration": "المدة الافتراضية للشرائح",
   "Minimum Slide Duration": "المدة الدنيا للشرائح",
   "reset": "إعادة تعيين",
-  "load": "إعادة تحميل"
+  "load": "إعادة تحميل",
+  "Override Angles": "تعديل زاوية الفجر والعشاء",
+  "Fajr Angle": "زاوية الفجر",
+  "Isha Angle": "زاوية العشاء"
 }

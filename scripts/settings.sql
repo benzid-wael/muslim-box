@@ -59,7 +59,7 @@ INSERT INTO `settings` (`name`, `category`, `active`, `type`, `value`, `default`
 ("Shafaq", "prayer", 1, "enum", null, "Ahmer", "{""name"":""Shafaq"",""options"":[""General"",""Ahmer"",""Abyad""]}"),
 ("HighLatitudeRule", "prayer", 1, "enum", null, "Auto", "{""name"":""HighLatitudeRule"",""options"":[""Auto"",""MiddleOfTheNight"",""SeventhOfTheNight"",""TwilightAngle""]}"),
 ("PolarCircleResolution", "prayer", 1, "enum", null, "AqrabBalad", "{""name"":""PolarCircleResolution"",""options"":[""Unresolved"",""AqrabBalad"",""AqrabYaum""]}"),
-("UseMethodAngles", "prayer", 1, "boolean", null, "true", null),
+("OverrideMethodAngles", "prayer", 1, "boolean", null, "true", null),
 ("FajrAngle", "prayer", 1, "float", null, "18", null),
 ("IshaAngle", "prayer", 1, "float", null, "18", null),
 

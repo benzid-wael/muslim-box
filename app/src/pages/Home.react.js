@@ -75,7 +75,7 @@ const Home = (props: StateProps): React$Node => {
   return (
     <Main backgroundImage={bg}>
       <Content>
-        <Slider settings={sm} />
+        <Slider settings={sm} slideFilter={props.currentPrayer?.slide} />
       </Content>
       <Footer>
         <Clock />
