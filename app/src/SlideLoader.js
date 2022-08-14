@@ -23,11 +23,18 @@ export class SlideLoader {
     const result = [];
     const double = 2 * this.settings.prayerReminderEveryNSlides;
 
-    _.flatten([
-      ...slides,
-      ..._.times(this.settings.pageRepeatRatioNOutOfOne, _.constant(slides.map((s) => ({ ...s, debug: "repeat" })))),
-    ]).map((s, i) => {
-      if (i > 0 && i % double === 0) {
+    const temp =
+      slides.length >= this.settings.pageRepeatRatioNOutOfOne
+        ? _.flatten([
+            ...slides,
+            ..._.times(
+              this.settings.pageRepeatRatioNOutOfOne,
+              _.constant(slides.map((s) => ({ ...s, debug: "repeat" })))
+            ),
+          ])
+        : slides;
+    temp.map((s, i) => {
+      if (i % double === 0) {
         result.push({ type: "current-prayer" });
       } else if (i > 0 && i % this.settings.prayerReminderEveryNSlides === 0) {
         result.push({ type: "next-prayer" });
