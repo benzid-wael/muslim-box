@@ -10,19 +10,20 @@ import { connect } from "react-redux";
 import styled from "styled-components";
 
 import SlideBuilder from "@components/SlideBuilder.react";
-import { addSlides, moveNext, setPosition, resetSlides } from "@redux/slices/slideSlice";
+import { addSlides, movePrevious, moveNext, setPosition, resetSlides } from "@redux/slices/slideSlice";
 import { SlideLoaderFactory } from "@src/SlideLoader";
 import { getContext } from "@src/SlideContext";
 
 import playIcon from "@resources/images/icons/play-circle-solid.svg";
 import pauseIcon from "@resources/images/icons/pause-circle-solid.svg";
+import nextIcon from "@resources/images/icons/chevron-circle-right-solid.svg";
+import prevIcon from "@resources/images/icons/chevron-circle-left-solid.svg";
 
 const Icon = styled.img`
   width: 36px;
   height: 36px;
   position: relative;
   margin: 16px;
-  color: white;
 
   /* change the color of the icon
   * Filter options generated using this codepen: https://codepen.io/sosuke/pen/Pjoqqp
@@ -131,7 +132,7 @@ const Slider = (props: Props): React$Node => {
       props.dispatch(resetSlides(slides));
     }, 100);
     return () => clearTimeout(t);
-  }, [language, props.query]);
+  }, [language, props.slideFilter]);
 
   useEffect(() => {
     console.debug(`[Slider] timer: ${timer.time}`);
@@ -176,11 +177,13 @@ const Slider = (props: Props): React$Node => {
     setTimer((t: Timer) => ({ ...t, active: !t.active }));
   };
 
-  const transition = async () => {
+  const transition = async (backward?: boolean) => {
     console.log(`[Slider] transition: ${position}/${slides.length - 1}`);
+    const swipeSlide = !!backward ? movePrevious : moveNext;
+    const onReachEndStrategy = props.slideFilter?.onReachEnd || settings.onReachEndStrategy;
     if (position < slides.length - 1) {
-      props.dispatch(moveNext());
-    } else if (settings.onReachEndStrategy === "load") {
+      props.dispatch(swipeSlide());
+    } else if (onReachEndStrategy === "load") {
       console.warn(`[Slider] loading more slides...`);
       // load more slides
       const slides = await loadSlides();
@@ -190,11 +193,11 @@ const Slider = (props: Props): React$Node => {
         props.dispatch(addSlides(slides));
         // When adding new slides, we need to explicitly
         //  call transition to resume sliding
-        props.dispatch(moveNext());
+        props.dispatch(swipeSlide());
       }
     } else {
       // by default
-      props.dispatch(moveNext());
+      props.dispatch(swipeSlide());
     }
   };
 
@@ -207,9 +210,9 @@ const Slider = (props: Props): React$Node => {
       backendURL: props.backendURL,
     });
     const lang = language.split("-")[0];
-    if (props.slideFilter) {
-      console.log(`[Slider] load slides matching query: ${JSON.stringify(props.query)}`);
-      const result = await loader.search(props.query, lang);
+    if (!!props.slideFilter) {
+      console.log(`[Slider] load slides matching query: ${JSON.stringify(props.slideFilter)}`);
+      const result = await loader.search(props.slideFilter, lang);
       console.log(`[Slider]\t ${result.length} slides found`);
       // when we have a special event, it make sense to ignore to not include contextual and random slides
       // as we want to focus on it, so we need to return the result unless no slide was fetched
@@ -245,8 +248,10 @@ const Slider = (props: Props): React$Node => {
     <></>
   ) : (
     <Main>
-      <Icon src={timer.active ? pauseIcon : playIcon} onClick={toggleTimer} />
-      <Container animation={settings.animation ? cssKeyframe : ""} onClick={transition}>
+      <Icon src={nextIcon} onClick={() => transition()} />
+      <Icon src={timer.active ? pauseIcon : playIcon} onClick={toggleTimer} style={{ color: "red" }} />
+      <Icon src={prevIcon} onClick={() => transition(true /* backward */)} />
+      <Container animation={settings.animation ? cssKeyframe : ""} onClick={toggleTimer}>
         <SlideBuilder slide={slide} />
       </Container>
     </Main>

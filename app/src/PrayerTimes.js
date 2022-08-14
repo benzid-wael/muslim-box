@@ -290,25 +290,52 @@ const generatePT = (options: {
 
 const PrayerTimeConfigs: Array<PTConfig> = [
   {
-    prayer: "Midnight",
+    prayer: "Midnight*",
     start: (pt, cfg) => getLastNightPrayerInfo(pt, cfg).middleOfTheNight,
     end: (pt, cfg) => getLastNightPrayerInfo(pt, cfg).lastThirdOfTheNight,
     isPrayer: false,
     internal: true,
+    slide: {
+      onReachEnd: "reset",
+      queries: [
+        {
+          name: "general",
+          include: ["time:night:midnight"],
+        },
+      ],
+    },
   },
   {
-    prayer: "Last Third",
+    prayer: "Last Third*",
     start: (pt, cfg) => getLastNightPrayerInfo(pt, cfg).lastThirdOfTheNight,
     end: (pt, cfg) => getLastNightPrayerInfo(pt, cfg).sahar,
     isPrayer: false,
     internal: true,
+    slide: {
+      onReachEnd: "reset",
+      queries: [
+        {
+          name: "general",
+          include: ["time:night:last_third"],
+        },
+      ],
+    },
   },
   {
-    prayer: "Sahar",
+    prayer: "Sahar*",
     start: (pt, cfg) => getLastNightPrayerInfo(pt, cfg).sahar,
     end: (pt, cfg) => moment(pt.fajr),
     isPrayer: false,
     internal: true,
+    slide: {
+      onReachEnd: "reset",
+      queries: [
+        {
+          name: "general",
+          include: ["time:night:sahar"],
+        },
+      ],
+    },
   },
   ...generatePT({
     prayer: Prayer.Fajr,
@@ -329,6 +356,15 @@ const PrayerTimeConfigs: Array<PTConfig> = [
     end: (pt, cfg) => getHajirahStartTime(pt, cfg),
     isPrayer: true,
     internal: true,
+    slide: {
+      onReachEnd: "reset",
+      queries: [
+        {
+          name: "general",
+          include: ["time:dhuha"],
+        },
+      ],
+    },
   },
   {
     prayer: "Hajirah",
@@ -336,6 +372,15 @@ const PrayerTimeConfigs: Array<PTConfig> = [
     end: (pt, cfg) => getHajirahEndTime(pt, cfg),
     isPrayer: true,
     internal: true,
+    slide: {
+      onReachEnd: "reset",
+      queries: [
+        {
+          name: "general",
+          include: ["time:hajirah"],
+        },
+      ],
+    },
   },
   {
     prayer: "Zawal",
@@ -343,6 +388,15 @@ const PrayerTimeConfigs: Array<PTConfig> = [
     end: (pt, cfg) => moment(pt.dhuhr),
     isPrayer: false,
     internal: true,
+    slide: {
+      onReachEnd: "reset",
+      queries: [
+        {
+          name: "general",
+          include: ["time:before:zawal"],
+        },
+      ],
+    },
   },
   ...generatePT({
     prayer: Prayer.Dhuhr,
@@ -371,6 +425,51 @@ const PrayerTimeConfigs: Array<PTConfig> = [
     },
     hasAfterPrayerSunnah: true,
   }),
+  {
+    prayer: "Midnight",
+    start: (pt, cfg) => {
+      const sunnahTimes = new SunnahTimes(pt);
+      return moment(sunnahTimes.middleOfTheNight);
+    },
+    end: (pt, cfg) => {
+      const sunnahTimes = new SunnahTimes(pt);
+      return moment(sunnahTimes.lastThirdOfTheNight);
+    },
+    isPrayer: false,
+    internal: true,
+    slide: {
+      onReachEnd: "reset",
+      queries: [
+        {
+          name: "general",
+          include: ["time:night:midnight"],
+        },
+      ],
+    },
+  },
+  {
+    prayer: "Last Third",
+    start: (pt, cfg) => {
+      const sunnahTimes = new SunnahTimes(pt);
+      return moment(sunnahTimes.lastThirdOfTheNight);
+    },
+    end: (pt, cfg) => {
+      const tomorrow = moment(pt.date).add(1, "day");
+      const tPT = new PrayerTimes(pt.coordinates, tomorrow.toDate(), pt.calculationParameters);
+      return moment(tPT.fajr);
+    },
+    isPrayer: false,
+    internal: true,
+    slide: {
+      onReachEnd: "reset",
+      queries: [
+        {
+          name: "general",
+          include: ["time:night:last_third"],
+        },
+      ],
+    },
+  },
   {
     prayer: Prayer.Fajr,
     start: (pt, cfg) => {

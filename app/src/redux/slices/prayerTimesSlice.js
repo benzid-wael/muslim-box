@@ -14,9 +14,9 @@ type State = $ReadOnly<{
   timestamp: number,
   day: string,
   prayers: Array<PrayerTime>,
+  times: Array<PrayerTime>,
   current?: PrayerTime,
   next?: PrayerTime,
-  times: Array<PrayerTime>,
   currentTime?: PrayerTime,
 }>;
 
