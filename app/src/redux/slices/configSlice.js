@@ -4,7 +4,7 @@ import type { SettingConfig } from "@src/Setting";
 import { createSlice } from "@reduxjs/toolkit";
 
 import { locale } from "@src/l10n";
-import { loadConfigs, updateSettingValue } from "@src/SettingRepository";
+import { loadConfigs, updateSettingValue, unsetSettings as _unsetSettings } from "@src/SettingRepository";
 
 type Config = $ReadOnly<{
   general: Localization,
@@ -33,6 +33,13 @@ const slice = createSlice({
         settings: [...state.settings.filter((s) => s.name != payload.name), payload],
       };
     },
+    updateSettings: (state, { payload }: { payload: SettingConfig }) => {
+      const settings = payload.map((s) => s.name);
+      return {
+        ...state,
+        settings: [...state.settings.filter((s) => !settings.include(s.name)), ...payload],
+      };
+    },
   },
 });
 
@@ -51,6 +58,13 @@ export const patchSetting =
   async (dispatch: any) => {
     const config = await updateSettingValue(backendUrl, setting);
     dispatch(updateSetting(config));
+  };
+
+export const unsetSettings =
+  (backendUrl: string, settings: Array<string>): any =>
+  async (dispatch: any) => {
+    const configs = await _unsetSettings(backendUrl, settings);
+    dispatch(updateSettings(configs));
   };
 
 // Export reducer

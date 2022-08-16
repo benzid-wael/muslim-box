@@ -34,6 +34,12 @@ const updateSetting = async (db, name, value) => {
   };
 };
 
+const unsetSettings = async (db, settings) => {
+  await db.unsetSettings(settings);
+  const rows = await db.findSettingsByName(settings);
+  return rows.map((row) => serializeSetting(row));
+};
+
 const versesOfTheDay = async (db, count, language) => {
   const rows = await db.randomVerses(count, language);
   const result =
@@ -93,6 +99,7 @@ module.exports = {
   settings,
   getSettingByName,
   updateSetting,
+  unsetSettings,
   versesOfTheDay,
   random,
   getSlideById,

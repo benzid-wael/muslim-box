@@ -205,6 +205,19 @@ const mutationType = new graphql.GraphQLObjectType({
         return result;
       },
     },
+    unsetSettings: {
+      type: graphql.GraphQLList(Setting),
+      args: {
+        settings: {
+          type: new graphql.GraphQLList(graphql.GraphQLString),
+        },
+      },
+      resolve: async (root, { settings }, context, info) => {
+        const db = new Database(dbPath);
+        const result = await Repository.unsetSettings(db, settings);
+        return result;
+      },
+    },
   },
 });
 

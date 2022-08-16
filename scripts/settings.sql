@@ -30,6 +30,11 @@ INSERT INTO `settings` (`name`, `category`, `active`, `type`, `value`, `default`
 ("AsrIqamahAfterInMinutes", "prayer", 1, "int", null, null, null),
 ("MaghribIqamahAfterInMinutes", "prayer", 1, "int", null, null, null),
 ("IshaIqamahAfterInMinutes", "prayer", 1, "int", null, null, null),
+("FajrIqamahTime", "prayer", 1, "time", null, null, null),
+("DhuhrIqamahTime", "prayer", 1, "time", null, null, null),
+("AsrIqamahTime", "prayer", 1, "time", null, null, null),
+("MaghribIqamahTime", "prayer", 1, "time", null, null, null),
+("IshaIqamahTime", "prayer", 1, "time", null, null, null),
 
 ("IqamahDurationInMinutes", "prayer", 1, "int", null, "1", null),
 

@@ -269,9 +269,35 @@ class Database {
     });
   }
 
+  findSettingsByName(names) {
+    const settings = names.map((n) => `"${n}"`).join(",");
+    const query = `SELECT * from settings where name IN (${settings}) AND active = 1`;
+    return new Promise((resolve, reject) => {
+      this.database.all(query, [], function (err, rows) {
+        if (err) {
+          reject(err);
+        }
+        const result = !!rows && rows.length > 0 ? rows : [];
+        resolve(result);
+      });
+    });
+  }
+
   updateSetting(name, value) {
     return new Promise((resolve, reject) => {
       this.database.all("UPDATE settings SET value = (?) WHERE name = (?)", [value, name], function (err, rows) {
+        if (err) {
+          reject(err);
+        }
+        resolve(true);
+      });
+    });
+  }
+
+  unsetSettings(settings) {
+    return new Promise((resolve, reject) => {
+      const database = this.database;
+      this.database.all("UPDATE settings SET value = NULL WHERE name IN (?)", [settings], function (err, rows) {
         if (err) {
           reject(err);
         }

@@ -61,6 +61,27 @@ export const updateSettingValue = async (backendUrl: string, setting: Setting): 
   return parse(response["updateSetting"]);
 };
 
+export const unsetSettings = async (backendUrl: string, settings: Array<string>): Promise<Array<SettingConfig>> => {
+  const query = `
+    mutation UnsetSettings($settings: [String!]) {
+      unsetSettings(settings: $settings) {
+        name
+        category
+        type
+        value
+        default
+        options
+      }
+    }
+  `;
+  const variables = {
+    settings: settings,
+  };
+  const response = await runQuery<any>(backendUrl, query, variables);
+
+  return response["unsetSettings"].map((response) => parse(response));
+};
+
 export const loadConfigs = async (backendUrl: string): Promise<Array<SettingConfig>> => {
   const query = `
     {

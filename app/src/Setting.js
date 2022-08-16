@@ -3,7 +3,7 @@
  */
 import { capitalize } from "@src/utils";
 
-export type SettingType = "boolean" | "int" | "string" | "enum";
+export type SettingType = "boolean" | "int" | "float" | "string" | "enum" | "time";
 
 export type SettingOptions = $ReadOnly<{
   name: string,
@@ -51,6 +51,10 @@ const SETTING_OPERATORS = {
   enum: {
     serialize: validateEnum,
     deserialize: validateEnum,
+  },
+  time: {
+    serialize: (v: any, f: Setting): string => v,
+    deserialize: (v: any, f: Setting): any => v,
   },
 };
 

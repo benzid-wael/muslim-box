@@ -3,6 +3,7 @@
  */
 import type { SettingConfig } from "@src/Setting";
 import type { SettingForm } from "@components/SettingsPage.react";
+import type { PrayerTime as PrayerTimeType } from "@src/types";
 
 import React, { useEffect, useState } from "react";
 
@@ -224,6 +225,94 @@ const SETTINGS: $ReadOnlyArray<SettingConfigType> = [
   {
     name: "alerts",
     label: "Alerts",
+  },
+  {
+    name: "iqamah",
+    label: "Iqamah",
+    forms: (i18n) => {
+      return [
+        {
+          title: i18n.t("Iqamah Time"),
+          settings: [
+            {
+              title: i18n.t("Default"),
+              setting: "IqamahAfterInMinutes",
+            },
+            {
+              title: i18n.t("Fajr"),
+              selected: (sm) => (!!sm.getValue("FajrIqamahTime") ? "FajrIqamahTime" : "FajrIqamahAfterInMinutes"),
+              settings: [
+                {
+                  name: i18n.t("Fixed Time"),
+                  setting: "FajrIqamahTime",
+                },
+                {
+                  name: i18n.t("Relative Time"),
+                  setting: "FajrIqamahAfterInMinutes",
+                },
+              ],
+            },
+            {
+              title: i18n.t("Dhuhr"),
+              selected: (sm) => (!!sm.getValue("DhuhrIqamahTime") ? "DhuhrIqamahTime" : "DhuhrIqamahAfterInMinutes"),
+              settings: [
+                {
+                  name: i18n.t("Fixed Time"),
+                  setting: "DhuhrIqamahTime",
+                },
+                {
+                  name: i18n.t("Relative Time"),
+                  setting: "DhuhrIqamahAfterInMinutes",
+                },
+              ],
+            },
+            {
+              title: i18n.t("Asr"),
+              selected: (sm) => (!!sm.getValue("AsrIqamahTime") ? "AsrIqamahTime" : "AsrIqamahAfterInMinutes"),
+              settings: [
+                {
+                  name: i18n.t("Fixed Time"),
+                  setting: "AsrIqamahTime",
+                },
+                {
+                  name: i18n.t("Relative Time"),
+                  setting: "AsrIqamahAfterInMinutes",
+                },
+              ],
+            },
+            {
+              title: i18n.t("Maghrib"),
+              selected: (sm) =>
+                !!sm.getValue("MaghribIqamahTime") ? "MaghribIqamahTime" : "MaghribIqamahAfterInMinutes",
+              settings: [
+                {
+                  name: i18n.t("Fixed Time"),
+                  setting: "MaghribIqamahTime",
+                },
+                {
+                  name: i18n.t("Relative Time"),
+                  setting: "MaghribIqamahAfterInMinutes",
+                },
+              ],
+            },
+            {
+              title: i18n.t("Isha"),
+              selected: (sm) => (!!sm.getValue("IshaIqamahTime") ? "IshaIqamahTime" : "IshaIqamahAfterInMinutes"),
+              settings: [
+                {
+                  name: i18n.t("Fixed Time"),
+                  setting: "IshaIqamahTime",
+                },
+                {
+                  name: i18n.t("Relative Time"),
+                  setting: "IshaIqamahAfterInMinutes",
+                },
+              ],
+            },
+          ],
+        },
+      ];
+    },
   },
   {
     name: "sounds",

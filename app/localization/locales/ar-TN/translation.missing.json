@@ -1,1 +1,10 @@
-{ "Override Angles": "Override Angles", "Fajr Angle": "Fajr Angle", "Isha Angle": "Isha Angle" }
+{
+  "Override Angles": "Override Angles",
+  "Fajr Angle": "Fajr Angle",
+  "Isha Angle": "Isha Angle",
+  "Iqamah": "Iqamah",
+  "Iqamah Time": "Iqamah Time",
+  "Fixed Time": "Fixed Time",
+  "Relative Time": "Relative Time",
+  "Default": "Default"
+}
