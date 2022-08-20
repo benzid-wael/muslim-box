@@ -38,6 +38,7 @@ INSERT INTO `settings` (`name`, `category`, `active`, `type`, `value`, `default`
 
 ("IqamahDurationInMinutes", "prayer", 1, "int", null, "1", null),
 
+("EnableBlackScreenDuringPrayer", "prayer", 1, "boolean", null, "true", null),
 ("PrayerDurationInMinutes", "prayer", 1, "int", null, "10", null),
 ("FajrPrayerDurationInMinutes", "prayer", 1, "int", null, null, null),("DhuhrPrayerDurationInMinutes", "prayer", 1, "int", null, null, null),
 ("AsrPrayerDurationInMinutes", "prayer", 1, "int", null, null, null),

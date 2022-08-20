@@ -167,7 +167,7 @@ const SETTINGS: $ReadOnlyArray<SettingConfigType> = [
     },
   },
   {
-    name: "prayer",
+    name: "prayer-times",
     label: "Prayer Times",
     forms: (i18n) => {
       return [
@@ -227,8 +227,8 @@ const SETTINGS: $ReadOnlyArray<SettingConfigType> = [
     label: "Alerts",
   },
   {
-    name: "iqamah",
-    label: "Iqamah",
+    name: "prayer",
+    label: "Prayer",
     forms: (i18n) => {
       return [
         {
@@ -308,6 +308,35 @@ const SETTINGS: $ReadOnlyArray<SettingConfigType> = [
                   setting: "IshaIqamahAfterInMinutes",
                 },
               ],
+            },
+          ],
+        },
+        {
+          title: i18n.t("Other"),
+          settings: [
+            {
+              title: "Black Screen",
+              setting: "EnableBlackScreenDuringPrayer",
+            },
+            {
+              title: "Iqamah Duration (in minutes)",
+              setting: "IqamahDurationInMinutes",
+            },
+            {
+              title: "Prayer Duration (in minutes)",
+              setting: "PrayerDurationInMinutes",
+            },
+            {
+              title: "Adhkar Duration (in minutes)",
+              setting: "AdhkarDurationInMinutes",
+            },
+            {
+              title: "Sunnah Prayer Duration (in minutes)",
+              setting: "AfterPrayerSunnahDurationInMinutes",
+            },
+            {
+              title: "Adhkar Sabah/Masaa Duration (in minutes)",
+              setting: "AdhkarSabahMasaaDurationInMinutes",
             },
           ],
         },

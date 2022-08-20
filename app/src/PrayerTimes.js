@@ -1,7 +1,7 @@
 /*
  * @flow
  */
-import type { GeoCoordinates, PrayerTime, PrayerTimeConfig, SlideFilter } from "@src/types";
+import type { GeoCoordinates, PrayerTime, PrayerTimeConfig, SlideFilter, Time } from "@src/types";
 import type { SettingsManager } from "@src/SettingsManager";
 
 import moment from "moment";
@@ -39,6 +39,19 @@ type PTConfig = $ReadOnly<{
 }>;
 
 const getPrayerTimeConfig = (sm: SettingsManager, prayer: Prayer): PrayerTimeConfig => {
+  const iqamahTimeString = sm.getPrayerSettingValue("IqamahTime", prayer);
+  const iqamahTimeFunc = (value: string): ?Time => {
+    if (value) {
+      const [hour, minute] = value.split(":");
+      const time = moment({ hour, minute });
+      return {
+        hour,
+        minute,
+      };
+    }
+    return null;
+  };
+  const iqamahTime = iqamahTimeFunc(iqamahTimeString);
   return {
     adhanDurationInMinutes: sm.getPrayerSettingValue("AdhanDurationInMinutes", prayer, PRAYER.AdhanDurationInMinutes),
     afterAdhanDurationInMinutes: sm.getPrayerSettingValue(
@@ -47,7 +60,7 @@ const getPrayerTimeConfig = (sm: SettingsManager, prayer: Prayer): PrayerTimeCon
       PRAYER.AfterAdhanDurationInMinutes
     ),
     iqamahAfterInMinutes: sm.getPrayerSettingValue("IqamahAfterInMinutes", prayer, PRAYER.IqamahAfterInMinutes),
-    iqamahTime: sm.getPrayerSettingValue("IqamahTime", prayer),
+    iqamahTime: iqamahTime,
     iqamahDurationInMinutes: sm.getPrayerSettingValue(
       "IqamahDurationInMinutes",
       prayer,
