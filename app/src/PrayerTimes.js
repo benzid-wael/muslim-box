@@ -31,6 +31,8 @@ type PTConfig = $ReadOnly<{
   start: (pt: PrayerTimes, cfg: PrayerTimeConfig) => moment,
   // $FlowFixMe[value-as-type]
   end: (pt: PrayerTimes, cfg: PrayerTimeConfig) => moment,
+  // $FlowFixMe[value-as-type]
+  iqamah?: (pt: PrayerTimes, cfg: PrayerTimeConfig) => moment,
   isPrayer?: boolean,
   internal?: boolean,
   visible?: boolean,
@@ -291,6 +293,7 @@ const generatePT = (options: {
       prayer,
       start: (pt, cfg) => startFunc(pt, cfg),
       end: (pt, cfg) => endFunc(pt, cfg),
+      iqamah: (pt, cfg) => getIqamahStartTime(startFunc, endFunc, pt, cfg),
       isPrayer: true,
       internal: false,
       visible: true,
@@ -514,6 +517,7 @@ export const getPrayerTimes = (position: GeoCoordinates, date: Date, sm: Setting
         const ptConfig = configs?.get(config.prayer) || configs?.get("");
         const start = config.start(prayerTimes, ptConfig);
         const end = config.end(prayerTimes, ptConfig);
+        const iqamah = !!config?.iqamah ? config.iqamah(prayerTimes, ptConfig) : null;
         const suffix = config.modifier ? `[${config.modifier}]` : "";
         console.debug(`[getPrayerTimes] ${config.prayer}${suffix} ${start.format("HH:mm")} -> ${end.format("HH:mm")}`);
 
@@ -521,6 +525,7 @@ export const getPrayerTimes = (position: GeoCoordinates, date: Date, sm: Setting
           name: config.prayer,
           start: start?.unix(),
           end: end?.unix(),
+          iqamah: iqamah?.unix(),
           isPrayer: config.isPrayer,
           internal: config.internal,
           visible: config.visible,

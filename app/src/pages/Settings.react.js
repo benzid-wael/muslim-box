@@ -73,102 +73,8 @@ type SettingConfigType = $ReadOnly<{
 
 const SETTINGS: $ReadOnlyArray<SettingConfigType> = [
   {
-    name: "general",
-    label: "General",
-    forms: (i18n) => {
-      const example = 1658930560;
-      const now = moment.unix(example);
-      return [
-        {
-          title: i18n.t("Localization"),
-          settings: [
-            {
-              title: i18n.t("Date Format"),
-              setting: "DateFormat",
-              renderOption: (option, locale) => {
-                moment.locale(locale);
-                return now.format(option);
-              },
-            },
-            {
-              title: i18n.t("Time Format"),
-              setting: "TimeFormat",
-              renderOption: (option, locale) => {
-                moment.locale(locale);
-                return now.format(option);
-              },
-            },
-          ],
-        },
-      ];
-    },
-  },
-  {
-    name: "display",
-    label: "Display",
-    forms: (i18n) => {
-      return [
-        {
-          title: i18n.t("Slider"),
-          settings: [
-            {
-              title: i18n.t("Reading Speed (words per minute)"),
-              setting: "WordsPerMinute",
-            },
-            {
-              title: i18n.t("Page Size"),
-              setting: "PageSize",
-            },
-            {
-              title: i18n.t("Animation"),
-              setting: "EnableAnimation",
-            },
-            {
-              title: i18n.t("Random Quran Verses"),
-              setting: "EnableVerseOfTheDayAPI",
-            },
-          ],
-        },
-        {
-          title: i18n.t("Prayer"),
-          settings: [
-            {
-              title: i18n.t("Prayer Reminder"),
-              setting: "PrayerReminderEveryNSlides",
-            },
-            {
-              title: i18n.t("Prayer Reminder Duration"),
-              setting: "PrayerReminderDurationInSeconds",
-            },
-          ],
-        },
-        {
-          title: i18n.t("Other"),
-          settings: [
-            {
-              title: i18n.t("After last slide"),
-              setting: "OnReachEndStrategy",
-            },
-            {
-              title: i18n.t("Repeat Ratio"),
-              setting: "PageRepeatRatioNOutOfOne",
-            },
-            {
-              title: i18n.t("Default Slide Duration"),
-              setting: "DefaultSlidingDurationInSeconds",
-            },
-            {
-              title: i18n.t("Minimum Slide Duration"),
-              setting: "MinimumSlideDurationInSeconds",
-            },
-          ],
-        },
-      ];
-    },
-  },
-  {
     name: "prayer-times",
-    label: "Prayer Times",
+    label: "Prayer Times Settings",
     forms: (i18n) => {
       return [
         {
@@ -223,19 +129,15 @@ const SETTINGS: $ReadOnlyArray<SettingConfigType> = [
     },
   },
   {
-    name: "alerts",
-    label: "Alerts",
-  },
-  {
     name: "prayer",
-    label: "Prayer",
+    label: "Prayer Settings",
     forms: (i18n) => {
       return [
         {
           title: i18n.t("Iqamah Time"),
           settings: [
             {
-              title: i18n.t("Default"),
+              title: i18n.t("General Settings"),
               setting: "IqamahAfterInMinutes",
             },
             {
@@ -319,6 +221,10 @@ const SETTINGS: $ReadOnlyArray<SettingConfigType> = [
               setting: "EnableBlackScreenDuringPrayer",
             },
             {
+              title: "Prayer End Time Reminder (in minutes)",
+              setting: "EndTimeReminderInMinutes",
+            },
+            {
               title: "Iqamah Duration (in minutes)",
               setting: "IqamahDurationInMinutes",
             },
@@ -342,6 +248,104 @@ const SETTINGS: $ReadOnlyArray<SettingConfigType> = [
         },
       ];
     },
+  },
+  {
+    name: "general",
+    label: "General",
+    forms: (i18n) => {
+      const example = 1658930560;
+      const now = moment.unix(example);
+      return [
+        {
+          title: i18n.t("Localization"),
+          settings: [
+            {
+              title: i18n.t("Date Format"),
+              setting: "DateFormat",
+              renderOption: (option, locale) => {
+                moment.locale(locale);
+                return now.format(option);
+              },
+            },
+            {
+              title: i18n.t("Time Format"),
+              setting: "TimeFormat",
+              renderOption: (option, locale) => {
+                moment.locale(locale);
+                return now.format(option);
+              },
+            },
+          ],
+        },
+      ];
+    },
+  },
+  {
+    name: "display",
+    label: "Display Settings",
+    forms: (i18n) => {
+      return [
+        {
+          title: i18n.t("Slider"),
+          settings: [
+            {
+              title: i18n.t("Reading Speed (words per minute)"),
+              setting: "WordsPerMinute",
+            },
+            {
+              title: i18n.t("Page Size"),
+              setting: "PageSize",
+            },
+            {
+              title: i18n.t("Animation"),
+              setting: "EnableAnimation",
+            },
+            {
+              title: i18n.t("Random Quran Verses"),
+              setting: "EnableVerseOfTheDayAPI",
+            },
+          ],
+        },
+        {
+          title: i18n.t("Prayer"),
+          settings: [
+            {
+              title: i18n.t("Prayer Reminder"),
+              setting: "PrayerReminderEveryNSlides",
+            },
+            {
+              title: i18n.t("Prayer Reminder Duration"),
+              setting: "PrayerReminderDurationInSeconds",
+            },
+          ],
+        },
+        {
+          title: i18n.t("Other"),
+          settings: [
+            {
+              title: i18n.t("After last slide"),
+              setting: "OnReachEndStrategy",
+            },
+            {
+              title: i18n.t("Repeat Ratio"),
+              setting: "PageRepeatRatioNOutOfOne",
+            },
+            {
+              title: i18n.t("Default Slide Duration"),
+              setting: "DefaultSlidingDurationInSeconds",
+            },
+            {
+              title: i18n.t("Minimum Slide Duration"),
+              setting: "MinimumSlideDurationInSeconds",
+            },
+          ],
+        },
+      ];
+    },
+  },
+  {
+    name: "alerts",
+    label: "Alerts",
   },
   {
     name: "sounds",

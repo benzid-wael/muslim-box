@@ -1,11 +1,8 @@
 {
-  "Override Angles": "Override Angles",
-  "Fajr Angle": "Fajr Angle",
-  "Isha Angle": "Isha Angle",
-  "Iqamah": "Iqamah",
+  "Prayer Settings": "Prayer Settings",
   "Iqamah Time": "Iqamah Time",
+  "Default": "Default",
   "Fixed Time": "Fixed Time",
   "Relative Time": "Relative Time",
-  "Default": "Default",
-  "Others": "Others"
+  "General Settings": "General Settings"
 }
