@@ -106,6 +106,7 @@ export type PrayerTime = $ReadOnly<{
   internal?: boolean,
   start: number,
   end: number,
+  iqamah?: number,
   // show the time slot in PrayerTimes component
   visible: boolean,
   modifier?: string,
@@ -226,6 +227,7 @@ type BaseSlide = $ReadOnly<{
   content: $ReadOnlyArray<string>,
   events?: $ReadOnlyArray<Event>,
   durationInSeconds?: number,
+  debug?: string,
 }>;
 
 export type CurrentPrayerSlide = $ReadOnly<{

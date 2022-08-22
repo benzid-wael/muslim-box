@@ -160,7 +160,7 @@ class Database {
    * Returns slides matching the given tags
    * See: http://howto.philippkeller.com/2005/04/24/Tags-Database-schemas/
    */
-  q(include, exclude, orderBy, language) {
+  q(include, exclude, orderBy, language, shouldHaveAll) {
     const order = orderBy === "random" ? "ORDER BY random()" : orderBy ? `ORDER BY ${orderBy}` : "";
     const tags = (include || []).map((t) => `"${t}"`).join(", ");
     const nTags = (exclude || []).map((t) => `"${t}"`).join(", ");
@@ -174,7 +174,8 @@ class Database {
         AND (t.name IN (${nTags}))
       GROUP BY s.id
     `;
-    const notQ = exclude ? `AND s.id NOT IN (${notInnerQ})` : "";
+    const notQ = !!nTags ? `AND s.id NOT IN (${notInnerQ})` : "";
+    const having = shouldHaveAll ? `HAVING count(s.id) = ${include.length}` : "";
 
     return `
       SELECT s.id, s.type, s.meta,
@@ -202,16 +203,15 @@ class Database {
         AND s.active = 1
         ${notQ}
       GROUP BY s.id
+      ${having}
       ${order}
     `;
   }
 
   all(include, exclude, orderBy, language) {
     return new Promise((resolve, reject) => {
-      const query = `
-        ${this.q(include, exclude, orderBy, language)}
-        HAVING COUNT( s.id ) = ${include.length}
-      `;
+      const query = this.q(include, exclude, orderBy, language, true /* shouldHaveAll tags */);
+      console.log(`[all] query: ${query}`);
       // raw SQLite query to select from table
       this.database.all(query, [], function (err, rows) {
         if (err) {
@@ -225,7 +225,8 @@ class Database {
 
   any(include, exclude, orderBy, language) {
     return new Promise((resolve, reject) => {
-      const query = this.q(include, exclude, orderBy, language);
+      const query = this.q(include, exclude, orderBy, language, false /* shouldHaveAll tags */);
+      console.log(`[any] query: ${query}`);
       // raw SQLite query to select from table
       this.database.all(query, [], function (err, rows) {
         if (err) {
@@ -268,9 +269,35 @@ class Database {
     });
   }
 
+  findSettingsByName(names) {
+    const settings = names.map((n) => `"${n}"`).join(",");
+    const query = `SELECT * from settings where name IN (${settings}) AND active = 1`;
+    return new Promise((resolve, reject) => {
+      this.database.all(query, [], function (err, rows) {
+        if (err) {
+          reject(err);
+        }
+        const result = !!rows && rows.length > 0 ? rows : [];
+        resolve(result);
+      });
+    });
+  }
+
   updateSetting(name, value) {
     return new Promise((resolve, reject) => {
       this.database.all("UPDATE settings SET value = (?) WHERE name = (?)", [value, name], function (err, rows) {
+        if (err) {
+          reject(err);
+        }
+        resolve(true);
+      });
+    });
+  }
+
+  unsetSettings(settings) {
+    return new Promise((resolve, reject) => {
+      const database = this.database;
+      this.database.all("UPDATE settings SET value = NULL WHERE name IN (?)", [settings], function (err, rows) {
         if (err) {
           reject(err);
         }

@@ -1,7 +1,7 @@
 /*
  * @flow
  */
-import type { GeoCoordinates, PrayerTime, PrayerTimeConfig, SlideFilter } from "@src/types";
+import type { GeoCoordinates, PrayerTime, PrayerTimeConfig, SlideFilter, Time } from "@src/types";
 import type { SettingsManager } from "@src/SettingsManager";
 
 import moment from "moment";
@@ -31,6 +31,8 @@ type PTConfig = $ReadOnly<{
   start: (pt: PrayerTimes, cfg: PrayerTimeConfig) => moment,
   // $FlowFixMe[value-as-type]
   end: (pt: PrayerTimes, cfg: PrayerTimeConfig) => moment,
+  // $FlowFixMe[value-as-type]
+  iqamah?: (pt: PrayerTimes, cfg: PrayerTimeConfig) => moment,
   isPrayer?: boolean,
   internal?: boolean,
   visible?: boolean,
@@ -39,6 +41,19 @@ type PTConfig = $ReadOnly<{
 }>;
 
 const getPrayerTimeConfig = (sm: SettingsManager, prayer: Prayer): PrayerTimeConfig => {
+  const iqamahTimeString = sm.getPrayerSettingValue("IqamahTime", prayer);
+  const iqamahTimeFunc = (value: string): ?Time => {
+    if (value) {
+      const [hour, minute] = value.split(":");
+      const time = moment({ hour, minute });
+      return {
+        hour,
+        minute,
+      };
+    }
+    return null;
+  };
+  const iqamahTime = iqamahTimeFunc(iqamahTimeString);
   return {
     adhanDurationInMinutes: sm.getPrayerSettingValue("AdhanDurationInMinutes", prayer, PRAYER.AdhanDurationInMinutes),
     afterAdhanDurationInMinutes: sm.getPrayerSettingValue(
@@ -47,7 +62,7 @@ const getPrayerTimeConfig = (sm: SettingsManager, prayer: Prayer): PrayerTimeCon
       PRAYER.AfterAdhanDurationInMinutes
     ),
     iqamahAfterInMinutes: sm.getPrayerSettingValue("IqamahAfterInMinutes", prayer, PRAYER.IqamahAfterInMinutes),
-    iqamahTime: sm.getPrayerSettingValue("IqamahTime", prayer),
+    iqamahTime: iqamahTime,
     iqamahDurationInMinutes: sm.getPrayerSettingValue(
       "IqamahDurationInMinutes",
       prayer,
@@ -278,6 +293,7 @@ const generatePT = (options: {
       prayer,
       start: (pt, cfg) => startFunc(pt, cfg),
       end: (pt, cfg) => endFunc(pt, cfg),
+      iqamah: (pt, cfg) => getIqamahStartTime(startFunc, endFunc, pt, cfg),
       isPrayer: true,
       internal: false,
       visible: true,
@@ -290,25 +306,52 @@ const generatePT = (options: {
 
 const PrayerTimeConfigs: Array<PTConfig> = [
   {
-    prayer: "Midnight",
+    prayer: "Midnight*",
     start: (pt, cfg) => getLastNightPrayerInfo(pt, cfg).middleOfTheNight,
     end: (pt, cfg) => getLastNightPrayerInfo(pt, cfg).lastThirdOfTheNight,
     isPrayer: false,
     internal: true,
+    slide: {
+      onReachEnd: "reset",
+      queries: [
+        {
+          name: "general",
+          include: ["time:night:midnight"],
+        },
+      ],
+    },
   },
   {
-    prayer: "Last Third",
+    prayer: "Last Third*",
     start: (pt, cfg) => getLastNightPrayerInfo(pt, cfg).lastThirdOfTheNight,
     end: (pt, cfg) => getLastNightPrayerInfo(pt, cfg).sahar,
     isPrayer: false,
     internal: true,
+    slide: {
+      onReachEnd: "reset",
+      queries: [
+        {
+          name: "general",
+          include: ["time:night:last_third"],
+        },
+      ],
+    },
   },
   {
-    prayer: "Sahar",
+    prayer: "Sahar*",
     start: (pt, cfg) => getLastNightPrayerInfo(pt, cfg).sahar,
     end: (pt, cfg) => moment(pt.fajr),
     isPrayer: false,
     internal: true,
+    slide: {
+      onReachEnd: "reset",
+      queries: [
+        {
+          name: "general",
+          include: ["time:night:sahar"],
+        },
+      ],
+    },
   },
   ...generatePT({
     prayer: Prayer.Fajr,
@@ -329,6 +372,15 @@ const PrayerTimeConfigs: Array<PTConfig> = [
     end: (pt, cfg) => getHajirahStartTime(pt, cfg),
     isPrayer: true,
     internal: true,
+    slide: {
+      onReachEnd: "reset",
+      queries: [
+        {
+          name: "general",
+          include: ["time:dhuha"],
+        },
+      ],
+    },
   },
   {
     prayer: "Hajirah",
@@ -336,6 +388,15 @@ const PrayerTimeConfigs: Array<PTConfig> = [
     end: (pt, cfg) => getHajirahEndTime(pt, cfg),
     isPrayer: true,
     internal: true,
+    slide: {
+      onReachEnd: "reset",
+      queries: [
+        {
+          name: "general",
+          include: ["time:hajirah"],
+        },
+      ],
+    },
   },
   {
     prayer: "Zawal",
@@ -343,6 +404,15 @@ const PrayerTimeConfigs: Array<PTConfig> = [
     end: (pt, cfg) => moment(pt.dhuhr),
     isPrayer: false,
     internal: true,
+    slide: {
+      onReachEnd: "reset",
+      queries: [
+        {
+          name: "general",
+          include: ["time:before:zawal"],
+        },
+      ],
+    },
   },
   ...generatePT({
     prayer: Prayer.Dhuhr,
@@ -371,6 +441,51 @@ const PrayerTimeConfigs: Array<PTConfig> = [
     },
     hasAfterPrayerSunnah: true,
   }),
+  {
+    prayer: "Midnight",
+    start: (pt, cfg) => {
+      const sunnahTimes = new SunnahTimes(pt);
+      return moment(sunnahTimes.middleOfTheNight);
+    },
+    end: (pt, cfg) => {
+      const sunnahTimes = new SunnahTimes(pt);
+      return moment(sunnahTimes.lastThirdOfTheNight);
+    },
+    isPrayer: false,
+    internal: true,
+    slide: {
+      onReachEnd: "reset",
+      queries: [
+        {
+          name: "general",
+          include: ["time:night:midnight"],
+        },
+      ],
+    },
+  },
+  {
+    prayer: "Last Third",
+    start: (pt, cfg) => {
+      const sunnahTimes = new SunnahTimes(pt);
+      return moment(sunnahTimes.lastThirdOfTheNight);
+    },
+    end: (pt, cfg) => {
+      const tomorrow = moment(pt.date).add(1, "day");
+      const tPT = new PrayerTimes(pt.coordinates, tomorrow.toDate(), pt.calculationParameters);
+      return moment(tPT.fajr);
+    },
+    isPrayer: false,
+    internal: true,
+    slide: {
+      onReachEnd: "reset",
+      queries: [
+        {
+          name: "general",
+          include: ["time:night:last_third"],
+        },
+      ],
+    },
+  },
   {
     prayer: Prayer.Fajr,
     start: (pt, cfg) => {
@@ -402,6 +517,7 @@ export const getPrayerTimes = (position: GeoCoordinates, date: Date, sm: Setting
         const ptConfig = configs?.get(config.prayer) || configs?.get("");
         const start = config.start(prayerTimes, ptConfig);
         const end = config.end(prayerTimes, ptConfig);
+        const iqamah = !!config?.iqamah ? config.iqamah(prayerTimes, ptConfig) : null;
         const suffix = config.modifier ? `[${config.modifier}]` : "";
         console.debug(`[getPrayerTimes] ${config.prayer}${suffix} ${start.format("HH:mm")} -> ${end.format("HH:mm")}`);
 
@@ -409,6 +525,7 @@ export const getPrayerTimes = (position: GeoCoordinates, date: Date, sm: Setting
           name: config.prayer,
           start: start?.unix(),
           end: end?.unix(),
+          iqamah: iqamah?.unix(),
           isPrayer: config.isPrayer,
           internal: config.internal,
           visible: config.visible,

@@ -2,6 +2,8 @@
  * @flow
  */
 import type { SettingConfig } from "@src/Setting";
+import type { SettingForm } from "@components/SettingsPage.react";
+import type { PrayerTime as PrayerTimeType } from "@src/types";
 
 import React, { useEffect, useState } from "react";
 
@@ -30,7 +32,7 @@ const Content = styled.section`
 const Menu = styled.section`
   display: inline-grid;
   grid-gap: 0.5rem;
-  // grid-auto-rows: min-content;
+  grid-auto-rows: min-content;
   align-items: start;
   font-weight: 400;
   font-size: 1.3rem;
@@ -63,7 +65,190 @@ const MenuItem = styled.div`
   }
 `;
 
-const SETTINGS = [
+type SettingConfigType = $ReadOnly<{
+  name: string,
+  label: string,
+  forms?: (i18n: any) => $ReadOnlyArray<SettingForm>,
+}>;
+
+const SETTINGS: $ReadOnlyArray<SettingConfigType> = [
+  {
+    name: "prayer-times",
+    label: "Prayer Times Settings",
+    forms: (i18n) => {
+      return [
+        {
+          title: i18n.t("Calculation Method"),
+          settings: [
+            {
+              title: i18n.t("Method"),
+              setting: "Method",
+            },
+            {
+              title: i18n.t("Override Angles"),
+              setting: "OverrideMethodAngles",
+            },
+            {
+              title: i18n.t("Fajr Angle"),
+              setting: "FajrAngle",
+              disabled: (sm) => !sm.getValue("OverrideMethodAngles"),
+            },
+            {
+              title: i18n.t("Isha Angle"),
+              setting: "IshaAngle",
+              disabled: (sm) => !sm.getValue("OverrideMethodAngles"),
+            },
+            {
+              title: i18n.t("Asr"),
+              setting: "Madhab",
+            },
+            {
+              title: i18n.t("Isha"),
+              setting: "Shafaq",
+              help: i18n.t("SHAFAQ_HELP"),
+              disabled: (sm) => sm.getValue("Method") != "MoonsightingCommittee",
+            },
+          ],
+        },
+        {
+          title: i18n.t("Other Settings"),
+          settings: [
+            {
+              title: i18n.t("High Latitude Rule"),
+              setting: "HighLatitudeRule",
+              help: i18n.t("HIGH_LATITUDE_RULE_HELP"),
+            },
+            {
+              title: i18n.t("Polar Circle"),
+              setting: "PolarCircleResolution",
+              help: i18n.t("POLAR_CIRCLE_RESOLUTION_HELP"),
+            },
+          ],
+        },
+      ];
+    },
+  },
+  {
+    name: "prayer",
+    label: "Prayer Settings",
+    forms: (i18n) => {
+      return [
+        {
+          title: i18n.t("Iqamah Time"),
+          settings: [
+            {
+              title: i18n.t("General Settings"),
+              setting: "IqamahAfterInMinutes",
+            },
+            {
+              title: i18n.t("Fajr"),
+              selected: (sm) => (!!sm.getValue("FajrIqamahTime") ? "FajrIqamahTime" : "FajrIqamahAfterInMinutes"),
+              settings: [
+                {
+                  name: i18n.t("Fixed Time"),
+                  setting: "FajrIqamahTime",
+                },
+                {
+                  name: i18n.t("Relative Time"),
+                  setting: "FajrIqamahAfterInMinutes",
+                },
+              ],
+            },
+            {
+              title: i18n.t("Dhuhr"),
+              selected: (sm) => (!!sm.getValue("DhuhrIqamahTime") ? "DhuhrIqamahTime" : "DhuhrIqamahAfterInMinutes"),
+              settings: [
+                {
+                  name: i18n.t("Fixed Time"),
+                  setting: "DhuhrIqamahTime",
+                },
+                {
+                  name: i18n.t("Relative Time"),
+                  setting: "DhuhrIqamahAfterInMinutes",
+                },
+              ],
+            },
+            {
+              title: i18n.t("Asr"),
+              selected: (sm) => (!!sm.getValue("AsrIqamahTime") ? "AsrIqamahTime" : "AsrIqamahAfterInMinutes"),
+              settings: [
+                {
+                  name: i18n.t("Fixed Time"),
+                  setting: "AsrIqamahTime",
+                },
+                {
+                  name: i18n.t("Relative Time"),
+                  setting: "AsrIqamahAfterInMinutes",
+                },
+              ],
+            },
+            {
+              title: i18n.t("Maghrib"),
+              selected: (sm) =>
+                !!sm.getValue("MaghribIqamahTime") ? "MaghribIqamahTime" : "MaghribIqamahAfterInMinutes",
+              settings: [
+                {
+                  name: i18n.t("Fixed Time"),
+                  setting: "MaghribIqamahTime",
+                },
+                {
+                  name: i18n.t("Relative Time"),
+                  setting: "MaghribIqamahAfterInMinutes",
+                },
+              ],
+            },
+            {
+              title: i18n.t("Isha"),
+              selected: (sm) => (!!sm.getValue("IshaIqamahTime") ? "IshaIqamahTime" : "IshaIqamahAfterInMinutes"),
+              settings: [
+                {
+                  name: i18n.t("Fixed Time"),
+                  setting: "IshaIqamahTime",
+                },
+                {
+                  name: i18n.t("Relative Time"),
+                  setting: "IshaIqamahAfterInMinutes",
+                },
+              ],
+            },
+          ],
+        },
+        {
+          title: i18n.t("Other"),
+          settings: [
+            {
+              title: "Black Screen",
+              setting: "EnableBlackScreenDuringPrayer",
+            },
+            {
+              title: "Prayer End Time Reminder (in minutes)",
+              setting: "EndTimeReminderInMinutes",
+            },
+            {
+              title: "Iqamah Duration (in minutes)",
+              setting: "IqamahDurationInMinutes",
+            },
+            {
+              title: "Prayer Duration (in minutes)",
+              setting: "PrayerDurationInMinutes",
+            },
+            {
+              title: "Adhkar Duration (in minutes)",
+              setting: "AdhkarDurationInMinutes",
+            },
+            {
+              title: "Sunnah Prayer Duration (in minutes)",
+              setting: "AfterPrayerSunnahDurationInMinutes",
+            },
+            {
+              title: "Adhkar Sabah/Masaa Duration (in minutes)",
+              setting: "AdhkarSabahMasaaDurationInMinutes",
+            },
+          ],
+        },
+      ];
+    },
+  },
   {
     name: "general",
     label: "General",
@@ -97,7 +282,7 @@ const SETTINGS = [
   },
   {
     name: "display",
-    label: "Display",
+    label: "Display Settings",
     forms: (i18n) => {
       return [
         {
@@ -152,46 +337,6 @@ const SETTINGS = [
             {
               title: i18n.t("Minimum Slide Duration"),
               setting: "MinimumSlideDurationInSeconds",
-            },
-          ],
-        },
-      ];
-    },
-  },
-  {
-    name: "prayer",
-    label: "Prayer Times",
-    forms: (i18n) => {
-      return [
-        {
-          title: i18n.t("Calculation Method"),
-          settings: [
-            {
-              title: i18n.t("Method"),
-              setting: "Method",
-            },
-            {
-              title: i18n.t("Asr"),
-              setting: "Madhab",
-            },
-            {
-              title: i18n.t("Isha"),
-              setting: "Shafaq",
-            },
-          ],
-        },
-        {
-          title: i18n.t("Other Settings"),
-          settings: [
-            {
-              title: i18n.t("High Latitude Rule"),
-              setting: "HighLatitudeRule",
-              help: i18n.t("HIGH_LATITUDE_RULE_HELP"),
-            },
-            {
-              title: i18n.t("Polar Circle"),
-              setting: "PolarCircleResolution",
-              help: i18n.t("POLAR_CIRCLE_RESOLUTION_HELP"),
             },
           ],
         },

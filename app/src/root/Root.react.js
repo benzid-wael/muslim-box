@@ -60,6 +60,12 @@ const Main = styled.div`
   direction: ${(props) => props.direction};
 `;
 
+const BlackScreen = styled.div`
+  height: 100%;
+  width: 100%;
+  background-color: black;
+`;
+
 type StateProps = $ReadOnly<{
   coordinates: GeoCoordinates,
   timestamp: number,
@@ -80,6 +86,7 @@ type Props = $ReadOnly<{
 const Root = (props: Props) => {
   const { history } = props;
   const [navbar, setNavbar] = useState(false);
+  const sm = props.settings ? SettingsManager.fromConfigs(props.settings) : null;
 
   if (props.currentTime?.modifier === "adhan") {
     history.push(ROUTES.ADHAN);
@@ -91,8 +98,6 @@ const Root = (props: Props) => {
 
   useEffect(() => {
     if (!props.settings || !props.coordinates) return;
-
-    const sm = SettingsManager.fromConfigs(props.settings);
     props.dispatch(computePrayerTimes(props.coordinates, sm));
   }, [props.day, props.coordinates, props.settings]);
 
@@ -102,6 +107,13 @@ const Root = (props: Props) => {
     }, 1000);
     return () => clearTimeout(timer);
   }, [props.timestamp]);
+
+  if (
+    props.currentTime?.modifier === "prayer" &&
+    sm?.getPrayerSettingValue("EnableBlackScreenDuringPrayer", props.currentTime.name)
+  ) {
+    return <BlackScreen />;
+  }
 
   return (
     <Main

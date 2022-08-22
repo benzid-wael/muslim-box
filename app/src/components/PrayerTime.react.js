@@ -9,12 +9,11 @@ import moment from "moment";
 import momentDurationFormatSetup from "moment-duration-format";
 import styled from "styled-components";
 import { useTranslation } from "react-i18next";
+import "moment-timezone";
 
 const Main = styled.div`
   width: 50%;
-  // height: 100%;
   margin: 8px;
-  padding: 16px;
   background-color: ${(props) => (props.primary ? "teal" : "white")};
   color: ${(props) => (props.primary ? "white" : "teal")};
   border-radius: 8px;
@@ -34,8 +33,8 @@ const Wrapper = styled.div`
 
 const FancyText = styled.div`
   position: relative;
-  top: 50%;
-  transform: translateY(-50%);
+  // top: 50%;
+  // transform: translateY(-50%);
   text-align: center;
 `;
 
@@ -56,28 +55,40 @@ const Name = styled(Item)`
 
 const StartTime = styled(Item)`
   font-weight: 400;
-  font-size: 48px;
+  font-size: 36px;
   padding: 4px;
+  margin: 8px 4px;
 `;
 
-const EndTime = styled(StartTime)`
+const IqamahTime = styled(StartTime)`
   font-weight: 800;
+  color: #4169e1;
+  background-color: white;
+  border-radius: 4px;
+`;
+
+const EndTime = styled(IqamahTime)`
+  font-size: 48px;
+  font-weight: 400;
   background-color: ${(props) => (!props.primary ? "teal" : "white")};
   color: ${(props) => (!props.primary ? "white" : "teal")};
-  border-radius: 4px;
 `;
 
 type Props = $ReadOnly<{
   prayer: PrayerTimeType,
   isCurrent?: boolean,
   endTimeReminderInMinutes: number,
+  timezone?: string,
 }>;
 
 const PrayerTime = (props: Props): React$Node => {
-  const { prayer, isCurrent } = props;
+  const { prayer, isCurrent, timezone } = props;
   const { i18n } = useTranslation();
-  const start = moment.unix(prayer.start);
-  const end = moment.unix(prayer.end);
+  // If no timezone is passed, we will fall to the defined user locale
+  const start = !timezone ? moment.unix(prayer.start) : moment.unix(prayer.start).tz(timezone);
+  const end = !timezone ? moment.unix(prayer.end) : moment.unix(prayer.end).tz(timezone);
+  const iqamah = !timezone ? moment.unix(prayer.iqamah) : moment.unix(prayer.iqamah).tz(timezone);
+  const showIqamahTime = iqamah && moment.duration(iqamah.diff(moment())) > 0;
   const remaining = moment.duration(end.diff(moment()));
   const showRemaining = isCurrent && remaining.asMinutes() < props.endTimeReminderInMinutes;
   return (
@@ -85,6 +96,9 @@ const PrayerTime = (props: Props): React$Node => {
       <Wrapper>
         <Name>{i18n.t(prayer.name)}</Name>
         <StartTime>{start.format("HH:mm")}</StartTime>
+        <IqamahTime primary={isCurrent} style={!showIqamahTime ? { color: "gray" } : {}}>
+          {showIqamahTime ? iqamah.format("HH:mm") : "-"}
+        </IqamahTime>
         <EndTime primary={isCurrent} style={showRemaining ? { color: "red" } : {}}>
           {showRemaining ? `${remaining.format("mm:ss")}` : end.format("HH:mm")}
         </EndTime>

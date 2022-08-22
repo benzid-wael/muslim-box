@@ -37,11 +37,12 @@ export const getIqamahStartTime = (
   pt: PrayerTimes,
   cfg: PrayerTimeConfig
 ): moment => {
-  if (cfg?.iqamahTime) {
-    return moment({
-      hour: cfg?.iqamahTime?.hour,
-      minute: cfg?.iqamahTime?.minute,
+  if (!!cfg?.iqamahTime) {
+    let time = moment({
+      hour: cfg.iqamahTime.hour,
+      minute: cfg.iqamahTime.minute,
     });
+    return time;
   }
   const start = startFunc(pt, cfg);
   return start.add(cfg.iqamahAfterInMinutes, "minutes");

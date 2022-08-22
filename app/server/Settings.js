@@ -14,8 +14,10 @@ const VALIDATORS = {
     },
   ],
   int: [(v, f) => /^\d+$/.test(v)],
+  float: [(v, f) => /^\d+(\.\d+)?$/.test(v)],
   string: [(v, f) => true],
   enum: [validateEnum],
+  time: [(v, f) => /^([0-1]?[0-9]|2[0-3]):([0-5][0-9])?$/.test(v)],
 };
 
 const validate = (setting, value) => {

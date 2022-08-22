@@ -58,13 +58,17 @@ const PrayerTimeWrapper = styled.div`
 type StateProps = $ReadOnly<{
   prayers: $ReadOnlyArray<PrayerTimeType>,
   currentPrayer?: PrayerTimeType,
+  currentTime?: PrayerTimeType,
   settings: Array<SettingConfig>,
+  timezone: string,
 }>;
 
 const mapStateToProps = (state) => ({
   prayers: state.prayerTimes.prayers,
   currentPrayer: state.prayerTimes.current,
+  currentTime: state.prayerTimes.currentTime,
   settings: state.config.settings,
+  timezone: state.user.timezone,
 });
 
 const Home = (props: StateProps): React$Node => {
@@ -73,7 +77,7 @@ const Home = (props: StateProps): React$Node => {
   return (
     <Main backgroundImage={bg}>
       <Content>
-        <Slider settings={sm} />
+        <Slider settings={sm} slideFilter={props.currentTime?.slide} />
       </Content>
       <Footer>
         <Clock />
@@ -93,6 +97,7 @@ const Home = (props: StateProps): React$Node => {
                       prayer.name,
                       PRAYER.EndTimeReminderInMinutes
                     )}
+                    timezone={props.timezone}
                   />
                 </>
               );

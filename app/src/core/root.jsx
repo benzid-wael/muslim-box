@@ -1,7 +1,7 @@
 /*
  * @flow
  */
-import type { GeoCoordinates, LayoutDirection, Slide } from "@src/types";
+import type { GeoCoordinates, LayoutDirection, Slide, PrayerTime } from "@src/types";
 import type { SettingConfig } from "@src/Setting";
 
 import React, { useEffect, useState } from "react";
@@ -70,6 +70,7 @@ type StateProps = $ReadOnly<{
   backendURL: string,
   settings: Array<SettingConfig>,
   direction: LayoutDirection,
+  currentTime: PrayerTime,
 }>;
 
 type Props = $ReadOnly<{
@@ -99,6 +100,10 @@ const Root = (props: Props) => {
     return () => clearTimeout(timer);
   }, [props.timestamp]);
 
+  if (props?.currentTime?.modifier === "prayer") {
+    return null;
+  }
+
   return (
     <Main
       direction={props.direction}
@@ -125,6 +130,7 @@ const mapStateToProps = (state) => ({
   backendURL: state.user.backendURL,
   settings: state.config.settings,
   direction: state.config.general.direction,
+  currentTime: state.prayerTimes.currentTime,
 });
 
 export default (connect(mapStateToProps)(Root): any);

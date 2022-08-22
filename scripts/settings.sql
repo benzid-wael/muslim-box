@@ -18,21 +18,27 @@ INSERT INTO `settings` (`name`, `category`, `active`, `type`, `value`, `default`
 
 /* Prayer Settings */
 ("AdhanDurationInMinutes", "prayer", 1, "int", null, "5", null),
-("FajrAdhanDurationInMinutes", "prayer", 1, "int", null, "5", null),
+("FajrAdhanDurationInMinutes", "prayer", 1, "int", null, "7", null),
 
 ("AfterAdhanDurationInMinutes", "prayer", 1, "int", null, "2", null),
 ("FajrAfterAdhanDurationInMinutes", "prayer", 1, "int", null, "2", null),
 ("MaghribAfterAdhanDurationInMinutes", "prayer", 1, "int", null, "2", null),
 
-("IqamahAfterInMinutes", "prayer", 1, "int", null, "15", null),
+("IqamahAfterInMinutes", "prayer", 1, "int", null, "30", null),
 ("FajrIqamahAfterInMinutes", "prayer", 1, "int", null, null, null),
 ("DhuhrIqamahAfterInMinutes", "prayer", 1, "int", null, null, null),
 ("AsrIqamahAfterInMinutes", "prayer", 1, "int", null, null, null),
 ("MaghribIqamahAfterInMinutes", "prayer", 1, "int", null, null, null),
 ("IshaIqamahAfterInMinutes", "prayer", 1, "int", null, null, null),
+("FajrIqamahTime", "prayer", 1, "time", null, null, null),
+("DhuhrIqamahTime", "prayer", 1, "time", null, null, null),
+("AsrIqamahTime", "prayer", 1, "time", null, null, null),
+("MaghribIqamahTime", "prayer", 1, "time", null, null, null),
+("IshaIqamahTime", "prayer", 1, "time", null, null, null),
 
 ("IqamahDurationInMinutes", "prayer", 1, "int", null, "1", null),
 
+("EnableBlackScreenDuringPrayer", "prayer", 1, "boolean", null, "true", null),
 ("PrayerDurationInMinutes", "prayer", 1, "int", null, "10", null),
 ("FajrPrayerDurationInMinutes", "prayer", 1, "int", null, null, null),("DhuhrPrayerDurationInMinutes", "prayer", 1, "int", null, null, null),
 ("AsrPrayerDurationInMinutes", "prayer", 1, "int", null, null, null),
@@ -59,6 +65,9 @@ INSERT INTO `settings` (`name`, `category`, `active`, `type`, `value`, `default`
 ("Shafaq", "prayer", 1, "enum", null, "Ahmer", "{""name"":""Shafaq"",""options"":[""General"",""Ahmer"",""Abyad""]}"),
 ("HighLatitudeRule", "prayer", 1, "enum", null, "Auto", "{""name"":""HighLatitudeRule"",""options"":[""Auto"",""MiddleOfTheNight"",""SeventhOfTheNight"",""TwilightAngle""]}"),
 ("PolarCircleResolution", "prayer", 1, "enum", null, "AqrabBalad", "{""name"":""PolarCircleResolution"",""options"":[""Unresolved"",""AqrabBalad"",""AqrabYaum""]}"),
+("OverrideMethodAngles", "prayer", 1, "boolean", null, "true", null),
+("FajrAngle", "prayer", 1, "float", null, "18", null),
+("IshaAngle", "prayer", 1, "float", null, "18", null),
 
 /* Slider Settings */
 ("WordsPerMinute", "slider", 1, "int", null, "60", null),
